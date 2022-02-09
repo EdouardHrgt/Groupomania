@@ -41,10 +41,13 @@ exports.logIn = (req, res, next) => {
               });
             });
         }
+        if (result.length <= 0) {
+          console.log('user not find...');
+        }
       }
     );
   } else {
-    return res.status(500).json({ message: 'user not find...' });
+    return res.status(500).json({ message: 'missing element' });
   }
 };
 
