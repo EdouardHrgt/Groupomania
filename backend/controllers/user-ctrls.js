@@ -2,7 +2,6 @@ const bcrypt = require('bcrypt');
 const { JsonWebTokenError } = require('jsonwebtoken');
 const db = require('../config/db-config');
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
 
 require('dotenv').config({ path: './.env' });
 
@@ -13,34 +12,33 @@ exports.signUp = (req, res, next) => {
     db.query(`INSERT INTO user SET ?`, user, (err, result, fields) => {
       if (err) {
         console.log(err);
-        return res.status(400).json('Error signup: ' + err);
+        return res.status(400).json(err);
       }
-      return res
-        .status(201)
-        .json({ message: user.username + ', Created as member...' });
+      return res.status(201).json({ message: ' User created...' });
     });
   });
 };
 
 exports.logIn = (req, res, next) => {
   if (req.body.username && req.body.password) {
-    db.query(
-      `SELECT * FROM user WHERE username= ?`,
-      req.body.username,
-      (err, result, fields) => {
+    db.query(`SELECT * FROM user WHERE username= ?`, req.body.username, (err, result, fields) => {
+
         if (err) {
           console.log(err);
           return res.status(400).json(err);
         }
+
         if (result.length > 0) {
           bcrypt
             .compare(req.body.password, result[0].password)
             .then((valid) => {
+
               if (!valid) {
                 return res
-                  .status(401)
+                  .status(404)
                   .json({ error: 'password do not match...' });
               }
+
               return res.status(200).json({
                 userId: result[0].id,
                 username: result[0].username,
@@ -50,13 +48,15 @@ exports.logIn = (req, res, next) => {
               });
             });
         }
+
         if (result.length <= 0) {
           return res.status(404).json({ message: 'User not find...' });
         }
       }
     );
+
   } else {
-    return res.status(500).json({ message: 'missing element...' });
+    return res.status(400).json({ message: 'Bad request...' });
   }
 };
 
@@ -69,35 +69,45 @@ exports.updateUser = (req, res, next) => {
 
     bcrypt.hash(password, 10).then((hash) => {
       password = hash;
-      db.query(
-        `UPDATE user SET email='${email}', username='${username}', password='${password}' WHERE id=${id}`,
-        (err, result, fields) => {
+      db.query(`UPDATE user SET email='${email}', username='${username}', password='${password}' WHERE id=${id}`, (err, result, fields) => {
+
           if (err) {
             console.log(err);
-            return res.status(400).json(' Error updateUser: ' + err);
+            return res.status(400).json(err);
           }
-          return res.status(200).json({ message: 'User updated...' });
+
+          if (result.affectedRows == 0) {
+            return res.status(404).json({ message: 'User not found...' });
+          }
+
+          return res.status(201).json({ message: 'User updated...' });
         }
       );
     });
+
   } else {
-    return res.status(400).json({ message: 'Missing element...' });
+    return res.status(400).json({ message: 'Bad request...' });
   }
 };
 
 exports.deleteUser = (req, res, next) => {
-  db.query(
-    `DELETE * FROM user WHERE id= ?`,
-    req.params.id,
-    (err, result, field) => {
-      if (err) {
-        console.log('Error deleteUSer' + err);
-        return res.status(400).json(err);
+  if (req.body.userId) {
+    db.query(`DELETE FROM user WHERE id= ?`, req.body.userId, (err, result, fields) => {
+
+        if (err) {
+          console.log('Error deleteUSer' + err);
+          return res.status(400).json(err);
+        }
+
+        if (result.affectedRows == 0) {
+          return res.status(404).json({ message: 'User not found...' });
+        }
+
+        return res.status(201).json({ message: 'User Deleted...' });
       }
-      console.log('Account deleted...');
-      return res
-        .status(201)
-        .json({ message: req.body.username + ' Deleted...' });
-    }
-  );
+    );
+    
+  } else {
+    return res.status(400).json({ message: 'Bad request...' });
+  }
 };
