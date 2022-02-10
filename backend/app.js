@@ -9,7 +9,7 @@ require('dotenv').config();
 
 const app = express();
 
-// Gestion des CORS.
+// CORS SETTING
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
@@ -25,7 +25,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// Routes
 app.use('/api/user', userRoutes);
 // app.use('/api/post', postRoutes);
 // app.use('/api/comment', commentRoutes);
