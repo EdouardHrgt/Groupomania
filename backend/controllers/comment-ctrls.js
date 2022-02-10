@@ -10,7 +10,7 @@ exports.getAllcomments = (req, res, next) => {
     console.log(req.body);
   };
   
-  exports.modifyComment = (req, res, next) => {
+  exports.updateComment = (req, res, next) => {
     console.log(req.body);
   };
   
