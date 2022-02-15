@@ -6,7 +6,7 @@ module.exports = (req, res, next) => {
   } else {
     res.status(400).json({
       message:
-        'Votre mot de passe doit faire entre 8 et 25 caractères et contenir au moins une minuscule,majuscule et un chiffre',
+        'Password too weak !',
     });
   }
 };

@@ -14,3 +14,23 @@ To launch the server use "nodemon server" (terminal)
 #### DataBase (SQL) :
 
 To connect to the databade : ....
+
+##### API URI
+
+** USER **
+http://localhost:3000/api/user/
+
+/signup
+Request content : { "username": "your name", "email": "your email", "password": "your password" }
+
+/login
+Request content : { "username": "your name", "email": "your email", "password": "your password" }
+
+/update/:id
+Request content : { "username": "your name", "email": "your email", "password": "your password" }
+
+/delete
+Request content : { "userId": id }
+
+** POSTS **
+http://localhost:3000/api/post/

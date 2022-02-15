@@ -1,7 +1,9 @@
 const db = require('../config/db-config');
+const fs = require('fs');
+const { json } = require('express/lib/response');
 
 exports.getAllPosts = (req, res, next) => {
-  db.query(`SELECT * FROM post ORDER BY id DESC`, (err, result, fields) => {
+  db.query(`SELECT * FROM post ORDER BY date DESC`, (err, result, fields) => {
     if (err) {
       console.log(err);
       return res.status(400).json(err);
@@ -30,9 +32,23 @@ exports.getOnePost = (req, res, next) => {
 };
 
 exports.createPost = (req, res, next) => {
+  const userId = req.body.id;
+  const title = req.body.title;
+  const content = req.body.content;
+  db.query(
+    `INSERT INTO post (title, content, userId) VALUES ('${title}', '${content}', '${userId}') ?`,
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json(err);
+      }
+      console.log(result);
+      return res.status(201).json({ message: 'Post Created...' });
+    }
+  );
+  /*
   let post = req.body;
-  post.date = new Date(Date.now());
-
+  post.files= `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
   db.query(`INSERT INTO post SET ?`, post, (err, result, fields) => {
     if (err) {
       console.log(err);
@@ -41,6 +57,7 @@ exports.createPost = (req, res, next) => {
     console.log(result);
     return res.status(201).json({ message: 'Post Created...' });
   });
+  */
 };
 
 exports.updatePost = (req, res, next) => {
@@ -61,7 +78,6 @@ exports.updatePost = (req, res, next) => {
       return res.status(200).json({ message: 'Post Updated...' });
     }
   );
-
 };
 
 exports.deletePost = (req, res, next) => {

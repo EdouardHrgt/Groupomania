@@ -1,5 +1,5 @@
 //--> Ajouter image dans DB :
-imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+files: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
 
 //--> MAJ et suppression img
 // supprimer l'ancienne image si une nouvelle est reçue

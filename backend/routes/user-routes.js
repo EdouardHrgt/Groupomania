@@ -5,7 +5,7 @@ const auth = require('../middleware/auth-mw');
 
 router.post('/signup', userCtrl.signUp);
 router.post('/login', userCtrl.logIn);
-router.put('/update/:id', userCtrl.updateUser);
+router.put('/update/:id', auth, userCtrl.updateUser);
 router.delete('/delete', userCtrl.deleteUser);
 
 module.exports = router;
