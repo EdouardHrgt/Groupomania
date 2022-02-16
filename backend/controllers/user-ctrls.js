@@ -6,94 +6,90 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: './.env' });
 
 exports.signUp = (req, res, next) => {
-  const user = req.body;
-  bcrypt.hash(user.password, 10).then((hash) => {
-    user.password = hash;
-    db.query(`INSERT INTO user SET ?`, user, (err, result, fields) => {
-      if (err) {
-        console.log(err);
-        return res.status(400).json(err);
+  const username = req.body.username;
+  const email = req.body.email;
+  let password = req.body.password;
+  bcrypt.hash(password, 10).then((hash) => {
+    password = hash;
+    db.query(
+      `INSERT INTO user (username, email, password) VALUES ('${username}', '${email}', '${password}')`,
+      (err, result, fields) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).json(err);
+        }
+        return res.status(201).json({ message: ' User created...' });
       }
-      return res.status(201).json({ message: ' User created...' });
-    });
+    );
   });
 };
 
 exports.logIn = (req, res, next) => {
-  if (req.body.username && req.body.password) {
-    db.query(`SELECT * FROM user WHERE username= ?`, req.body.username, (err, result, fields) => {
+  const username = req.body.username;
+  const email = req.body.email;
+  let password = req.body.password;
 
+  db.query(
+    `SELECT * FROM user WHERE username= ?`,
+    username,
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json(err);
+      }
+
+      if (result.length > 0) {
+        bcrypt.compare(password, result[0].password).then((valid) => {
+          if (!valid) {
+            return res.status(404).json({ error: 'password do not match...' });
+          }
+
+          return res.status(200).json({
+            userId: result[0].id,
+            username: result[0].username,
+            token: jwt.sign({ userId: result[0].id }, process.env.TOKEN, {
+              expiresIn: '24h',
+            }),
+          });
+        });
+      }
+
+      if (result.length <= 0) {
+        return res.status(404).json({ message: 'User not find...' });
+      }
+    }
+  );
+};
+
+exports.updateUser = (req, res, next) => {
+  const id = req.params.id;
+  const email = req.body.email;
+  const username = req.body.username;
+  let password = req.body.password;
+
+  bcrypt.hash(password, 10).then((hash) => {
+    password = hash;
+    db.query(
+      `UPDATE user SET email='${email}', username='${username}', password='${password}' WHERE id=${id}`,
+      (err, result, fields) => {
         if (err) {
           console.log(err);
           return res.status(400).json(err);
         }
 
-        if (result.length > 0) {
-          bcrypt
-            .compare(req.body.password, result[0].password)
-            .then((valid) => {
-
-              if (!valid) {
-                return res
-                  .status(404)
-                  .json({ error: 'password do not match...' });
-              }
-
-              return res.status(200).json({
-                userId: result[0].id,
-                username: result[0].username,
-                token: jwt.sign({ userId: result[0].id }, process.env.TOKEN, {
-                  expiresIn: '24h',
-                }),
-              });
-            });
+        if (result.affectedRows == 0) {
+          return res.status(404).json({ message: 'User not found...' });
         }
 
-        if (result.length <= 0) {
-          return res.status(404).json({ message: 'User not find...' });
-        }
+        return res.status(201).json({ message: 'User updated...' });
       }
     );
-
-  } else {
-    return res.status(400).json({ message: 'Bad request...' });
-  }
-};
-
-exports.updateUser = (req, res, next) => {
-  if (req.body.email && req.body.username && req.body.password) {
-    const id = req.params.id;
-    const email = req.body.email;
-    const username = req.body.username;
-    let password = req.body.password;
-
-    bcrypt.hash(password, 10).then((hash) => {
-      password = hash;
-      db.query(`UPDATE user SET email='${email}', username='${username}', password='${password}' WHERE id=${id}`, (err, result, fields) => {
-
-          if (err) {
-            console.log(err);
-            return res.status(400).json(err);
-          }
-
-          if (result.affectedRows == 0) {
-            return res.status(404).json({ message: 'User not found...' });
-          }
-
-          return res.status(201).json({ message: 'User updated...' });
-        }
-      );
-    });
-
-  } else {
-    return res.status(400).json({ message: 'Bad request...' });
-  }
+  });
 };
 
 exports.deleteUser = (req, res, next) => {
-  if (req.body.userId) {
-    db.query(`DELETE FROM user WHERE id= ?`, req.body.userId, (err, result, fields) => {
-
+    const userId = req.body.userId;
+    db.query(`DELETE FROM user WHERE id= ?`, userId, (err, result, fields) => {
         if (err) {
           console.log('Error deleteUSer' + err);
           return res.status(400).json(err);
@@ -106,8 +102,4 @@ exports.deleteUser = (req, res, next) => {
         return res.status(201).json({ message: 'User Deleted...' });
       }
     );
-    
-  } else {
-    return res.status(400).json({ message: 'Bad request...' });
-  }
 };

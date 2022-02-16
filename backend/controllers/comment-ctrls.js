@@ -11,39 +11,40 @@ exports.getAllComments = (req, res, next) => {
 };
 
 exports.getOneComment = (req, res, next) => {
+  const id = req.params.id;
+  db.query(`SELECT * FROM comment WHERE id= ?`, id, (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json(err);
+    }
+    if (result.length < 1) {
+      return res.status(404).json({ message: 'Comment Not Found...' });
+    }
+    return res.status(200).json(result);
+  });
+};
+
+exports.createComment = (req, res, next) => {
+  const content = req.body.content;
+  const userId = req.body.userId;
+  const postId = req.body.postId;
   db.query(
-    `SELECT * FROM comment WHERE id= ?`,
-    req.params.id,
+    `INSERT INTO comment (content, userId, postId) VALUES ('${content}', '${userId}', '${postId}')`,
     (err, result, fields) => {
       if (err) {
         console.log(err);
         return res.status(400).json(err);
       }
-      if (result.length < 1) {
-        return res.status(404).json({ message: 'Comment Not Found...' });
-      }
       console.log(result);
-      return res.status(200).json(result);
+      return res.status(201).json({ message: 'Comment Created...' });
     }
   );
-};
-
-exports.createComment = (req, res, next) => {
-  let comment = req.body;
-  db.query(`INSERT INTO comment SET ?`, comment, (err, result, fields) => {
-    if (err) {
-      console.log(err);
-      return res.status(400).json(err);
-    }
-    console.log(result);
-    return res.status(201).json({ message: 'Comment Created...' });
-  });
 };
 
 exports.updateComment = (req, res, next) => {
   const id = req.params.id;
   const content = req.body.content;
-  
+
   db.query(
     `UPDATE comment SET content='${content}' WHERE id='${id}'`,
     (err, result, fields) => {
@@ -76,4 +77,3 @@ exports.deleteComment = (req, res, next) => {
     }
   );
 };
-
