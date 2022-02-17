@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const helmet = require('helmet');
 
 const userRoutes = require('./routes/user-routes');
 const postRoutes = require('./routes/post-routes');
@@ -8,6 +9,7 @@ const commentRoutes = require('./routes/comment-routes');
 require('dotenv').config();
 
 const app = express();
+app.use(helmet());
 
 // CORS SETTING
 app.use((req, res, next) => {

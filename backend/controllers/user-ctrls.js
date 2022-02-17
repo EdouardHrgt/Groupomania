@@ -2,26 +2,32 @@ const bcrypt = require('bcrypt');
 const { JsonWebTokenError } = require('jsonwebtoken');
 const db = require('../config/db-config');
 const jwt = require('jsonwebtoken');
+const emailValidator = require('email-validator');
+//validator.validate("test@email.com"); // true
 
 require('dotenv').config({ path: './.env' });
 
 exports.signUp = (req, res, next) => {
   const username = req.body.username;
   const email = req.body.email;
-  let password = req.body.password;
-  bcrypt.hash(password, 10).then((hash) => {
-    password = hash;
-    db.query(
-      `INSERT INTO user (username, email, password) VALUES ('${username}', '${email}', '${password}')`,
-      (err, result, fields) => {
-        if (err) {
-          console.log(err);
-          return res.status(400).json(err);
+  if (emailValidator.validate(email)) {
+    let password = req.body.password;
+    bcrypt.hash(password, 10).then((hash) => {
+      password = hash;
+      db.query(
+        `INSERT INTO user (username, email, password) VALUES ('${username}', '${email}', '${password}')`,
+        (err, result, fields) => {
+          if (err) {
+            console.log(err);
+            return res.status(400).json(err);
+          }
+          return res.status(201).json({ message: ' User created...' });
         }
-        return res.status(201).json({ message: ' User created...' });
-      }
-    );
-  });
+      );
+    });
+  } else {
+    return res.status(400).json({ message: 'Please use a valid Email...' });
+  }
 };
 
 exports.logIn = (req, res, next) => {
@@ -88,18 +94,17 @@ exports.updateUser = (req, res, next) => {
 };
 
 exports.deleteUser = (req, res, next) => {
-    const userId = req.body.userId;
-    db.query(`DELETE FROM user WHERE id= ?`, userId, (err, result, fields) => {
-        if (err) {
-          console.log('Error deleteUSer' + err);
-          return res.status(400).json(err);
-        }
+  const userId = req.body.userId;
+  db.query(`DELETE FROM user WHERE id= ?`, userId, (err, result, fields) => {
+    if (err) {
+      console.log('Error deleteUSer' + err);
+      return res.status(400).json(err);
+    }
 
-        if (result.affectedRows == 0) {
-          return res.status(404).json({ message: 'User not found...' });
-        }
+    if (result.affectedRows == 0) {
+      return res.status(404).json({ message: 'User not found...' });
+    }
 
-        return res.status(201).json({ message: 'User Deleted...' });
-      }
-    );
+    return res.status(201).json({ message: 'User Deleted...' });
+  });
 };
