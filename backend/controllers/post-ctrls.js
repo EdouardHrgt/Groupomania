@@ -35,9 +35,8 @@ exports.createPost = (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
   const userId = req.body.userId;
-
   if (req.file) {
-    const imageUrl = `${req.protocol}://${req.get('host')}/images/${
+    let imageUrl = `${req.protocol}://${req.get('host')}/images/${
       req.file.filename
     }`;
     db.query(
@@ -52,7 +51,8 @@ exports.createPost = (req, res, next) => {
           .json({ message: 'Post Created with an image...' });
       }
     );
-  } else {
+  }
+  if (!req.file) {
     db.query(
       `INSERT INTO post (title, content, userId) VALUES ('${title}', '${content}', '${userId}')`,
       (err, result, fields) => {
@@ -67,27 +67,51 @@ exports.createPost = (req, res, next) => {
 };
 
 exports.updatePost = (req, res, next) => {
-  // if (req.file) {on update l'image et supprime l'ancienne}
   const id = req.params.id;
   const title = req.body.title;
   const content = req.body.content;
-  const imageUrl = `${req.protocol}://${req.get('host')}/images/${
-    req.file.filename
-  }`;
-  db.query(
-    `UPDATE post SET title='${title}', content='${content}', imageUrl='${imageUrl}' WHERE id='${id}'`,
-    (err, result, fields) => {
-      if (err) {
-        console.log(err);
-        return res.status(400).json(err);
+  //const imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+  console.log(req.file);
+  return res.status(200).json({ message: 'recu chef!' });
+  /*
+  if (req.file) {
+    const imageUrl = `${req.protocol}://${req.get('host')}/images/${
+      req.file.filename
+    }`;
+    db.query(
+      `UPDATE post SET title='${title}', content='${content}', imageUrl='${imageUrl}' WHERE id='${id}'`,
+      (err, result, fields) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).json(err);
+        }
+
+        if (result.affectedRows == 0) {
+          return res.status(404).json({ message: 'Post Not Found...' });
+        }
+        return res
+          .status(200)
+          .json({ message: 'Post Updated with new image...' });
       }
-      if (result.affectedRows == 0) {
-        return res.status(404).json({ message: 'Post Not Found...' });
+    );
+  } else {
+    db.query(
+      `UPDATE post SET title='${title}', content='${content}' WHERE id='${id}'`,
+      (err, result, fields) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).json(err);
+        }
+
+        if (result.affectedRows == 0) {
+          return res.status(404).json({ message: 'Post Not Found...' });
+        }
+
+        return res.status(200).json({ message: 'Post Updated...' });
       }
-      console.log(result);
-      return res.status(200).json({ message: 'Post Updated...' });
-    }
-  );
+    );
+  }
+  */
 };
 
 exports.deletePost = (req, res, next) => {
