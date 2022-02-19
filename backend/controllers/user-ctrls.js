@@ -75,21 +75,43 @@ exports.updateUser = (req, res, next) => {
 
   bcrypt.hash(password, 10).then((hash) => {
     password = hash;
-    db.query(
-      `UPDATE user SET email='${email}', username='${username}', password='${password}' WHERE id=${id}`,
-      (err, result, fields) => {
-        if (err) {
-          console.log(err);
-          return res.status(400).json(err);
+    // Si nouvelle image
+    if (req.file) {
+      const imageUrl = `${req.protocol}://${req.get('host')}/images/${
+        req.file.filename
+      }`;
+      db.query(
+        `UPDATE user SET email='${email}', username='${username}', password='${password}', image='${imageUrl}' WHERE id=${id}`,
+        (err, result, fields) => {
+          if (err) {
+            console.log(err);
+            return res.status(400).json(err);
+          }
+          if (result.affectedRows == 0) {
+            return res.status(404).json({ message: 'User not found...' });
+          }
+          return res
+            .status(201)
+            .json({ message: 'User updated with an image...' });
         }
-
-        if (result.affectedRows == 0) {
-          return res.status(404).json({ message: 'User not found...' });
+      );
+    }
+    // Si pas de nouvelle image
+    if (!req.file) {
+      db.query(
+        `UPDATE user SET email='${email}', username='${username}', password='${password}' WHERE id=${id}`,
+        (err, result, fields) => {
+          if (err) {
+            console.log(err);
+            return res.status(400).json(err);
+          }
+          if (result.affectedRows == 0) {
+            return res.status(404).json({ message: 'User not found...' });
+          }
+          return res.status(201).json({ message: 'User updated...' });
         }
-
-        return res.status(201).json({ message: 'User updated...' });
-      }
-    );
+      );
+    }
   });
 };
 
