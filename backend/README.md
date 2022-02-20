@@ -75,3 +75,30 @@ Request content : {"content":...}
 /delete -> (delete)
 Request content : {"id":...}
 
+exports.updatePost = (req, res, next) => {
+  const id = req.params.id;
+  const title = req.body.title;
+  const content = req.body.content;
+  console.log(req.file);
+  // if (req.file) {
+    db.query(`SELECT * FROM post WHERE id= ?`, id, (err, result, fields) => {
+      if (err) {
+        return res.status(400).json(err);
+      }
+      return res.status(200).json({result});
+
+      if (result[0].imageUrl == null) {
+        console.log('No image in this post...');
+      } else {
+        const filename = result[0].imageUrl.split('/images/')[1];
+        fs.unlink(`images/${filename}`, (err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log('image deleted...');
+          }
+        });
+      }
+    });
+  };
+}

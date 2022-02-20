@@ -66,38 +66,31 @@ exports.createPost = (req, res, next) => {
   }
 };
 
-/*
- ************************ SUPRESSSION D'UNE IMAGE *************************
-  const id = req.body.id;
-  db.query(`SELECT * FROM post WHERE id= ?`, id, (err, result, fields) => {
-    if (err) {
-      return res.status(400).json(err);
-    }
-
-    if (result[0].imageUrl == null) {
-      console.log('No image in this post...');
-    } else {
-      const filename = result[0].imageUrl.split('/images/')[1];
-      fs.unlink(`images/${filename}`, (err) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log('image deleted...');
-        }
-      });
-    }
-  });
-*/
-
 exports.updatePost = (req, res, next) => {
   const id = req.params.id;
   const title = req.body.title;
   const content = req.body.content;
 
   if (req.file) {
-    const imageUrl = `${req.protocol}://${req.get('host')}/images/${
-      req.file.filename
-    }`;
+    db.query(`SELECT * FROM post WHERE id= ?`, id, (err, result, fields) =>{
+      if (err) {
+        return res.status(400).json(err);
+      }
+      if (result[0].imageUrl == null) {
+        console.log('No image in this post...');
+      } else {
+        const filename = result[0].imageUrl.split('/images/')[1];
+        fs.unlink(`images/${filename}`, (err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log('image deleted...');
+          }
+        });
+      }
+    })
+    const imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+
     db.query(
       `UPDATE post SET title='${title}', content='${content}', imageUrl='${imageUrl}' WHERE id='${id}'`,
       (err, result, fields) => {
@@ -114,6 +107,7 @@ exports.updatePost = (req, res, next) => {
       }
     );
   }
+
   if (!req.file) {
     db.query(
       `UPDATE post SET title='${title}', content='${content}' WHERE id='${id}'`,

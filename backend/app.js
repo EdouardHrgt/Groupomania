@@ -11,7 +11,6 @@ require('dotenv').config();
 const app = express();
 app.use(helmet());
 
-// CORS SETTING
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
