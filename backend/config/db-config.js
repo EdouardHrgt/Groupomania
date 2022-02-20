@@ -5,7 +5,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: process.env.DB_AUTH,
   password: process.env.DB_PASSWORD,
-  database: 'groupomania',
+  database: process.env.DB_NAME,
 });
 
 db.connect((err) => {

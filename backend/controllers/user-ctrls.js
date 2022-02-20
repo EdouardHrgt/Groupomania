@@ -3,7 +3,7 @@ const { JsonWebTokenError } = require('jsonwebtoken');
 const db = require('../config/db-config');
 const jwt = require('jsonwebtoken');
 const emailValidator = require('email-validator');
-//validator.validate("test@email.com"); // true
+const fs = require('fs');
 
 require('dotenv').config({ path: './.env' });
 
@@ -21,7 +21,7 @@ exports.signUp = (req, res, next) => {
             console.log(err);
             return res.status(400).json(err);
           }
-          return res.status(201).json({ message: ' User created...' });
+          return res.status(201).json({ message: 'User created...' });
         }
       );
     });
@@ -117,16 +117,40 @@ exports.updateUser = (req, res, next) => {
 
 exports.deleteUser = (req, res, next) => {
   const userId = req.body.userId;
+  const defaultPicture = 'http://localhost:3000/images/default_user.png';
+
+  db.query(`SELECT * FROM user WHERE id= ?`, userId, (err, result, fields) => {
+    if (err) {
+      return res.status(400).json(err);
+    }
+
+    if (result.length <= 0) {
+      return res.status(404).json({ message: 'No image on user...' });
+    }
+
+    if (result[0].image == defaultPicture) {
+      console.log('No custom picture for this user...');
+    } else {
+      const filename = result[0].image.split('/images/')[1];
+      fs.unlink(`images/${filename}`, (err) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log('image deleted...');
+        }
+      });
+    }
+  });
+
   db.query(`DELETE FROM user WHERE id= ?`, userId, (err, result, fields) => {
     if (err) {
-      console.log('Error deleteUSer' + err);
+      console.log(err);
       return res.status(400).json(err);
     }
 
     if (result.affectedRows == 0) {
       return res.status(404).json({ message: 'User not found...' });
     }
-
     return res.status(201).json({ message: 'User Deleted...' });
   });
 };

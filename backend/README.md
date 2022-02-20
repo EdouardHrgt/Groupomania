@@ -74,3 +74,4 @@ Request content : {"content":...}
 
 /delete -> (delete)
 Request content : {"id":...}
+
