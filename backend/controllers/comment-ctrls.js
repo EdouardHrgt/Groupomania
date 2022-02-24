@@ -1,7 +1,7 @@
 const db = require('../config/db-config');
 
 exports.getAllComments = (req, res, next) => {
-  db.query(`SELECT * FROM comment ORDER BY id DESC`, (err, result, fields) => {
+  db.query(`SELECT * FROM comments ORDER BY id DESC`, (err, result, fields) => {
     if (err) {
       console.log(err);
       return res.status(400).json(err);
@@ -12,7 +12,7 @@ exports.getAllComments = (req, res, next) => {
 
 exports.getOneComment = (req, res, next) => {
   const id = req.params.id;
-  db.query(`SELECT * FROM comment WHERE id= ?`, id, (err, result, fields) => {
+  db.query(`SELECT * FROM comments WHERE id= ?`, id, (err, result, fields) => {
     if (err) {
       console.log(err);
       return res.status(400).json(err);
@@ -29,7 +29,7 @@ exports.createComment = (req, res, next) => {
   const userId = req.body.userId;
   const postId = req.body.postId;
   db.query(
-    `INSERT INTO comment (content, userId, postId) VALUES ('${content}', '${userId}', '${postId}')`,
+    `INSERT INTO comments (content, userId, postId) VALUES ('${content}', '${userId}', '${postId}')`,
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -46,7 +46,7 @@ exports.updateComment = (req, res, next) => {
   const content = req.body.content;
 
   db.query(
-    `UPDATE comment SET content='${content}' WHERE id='${id}'`,
+    `UPDATE comments SET content='${content}' WHERE id='${id}'`,
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -63,7 +63,7 @@ exports.updateComment = (req, res, next) => {
 
 exports.deleteComment = (req, res, next) => {
   db.query(
-    `DELETE FROM comment WHERE id= ?`,
+    `DELETE FROM comments WHERE id= ?`,
     req.body.id,
     (err, result, fields) => {
       if (err) {

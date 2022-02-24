@@ -4,7 +4,7 @@ const { json } = require('express/lib/response');
 
 exports.getAllPosts = (req, res, next) => {
   //trier par ID de post ***************
-  db.query(`SELECT * FROM post ORDER BY date DESC`, (err, result, fields) => {
+  db.query(`SELECT * FROM posts ORDER BY id DESC`, (err, result, fields) => {
     if (err) {
       console.log(err);
       return res.status(400).json(err);
@@ -15,7 +15,7 @@ exports.getAllPosts = (req, res, next) => {
 
 exports.getOnePost = (req, res, next) => {
   db.query(
-    `SELECT * FROM post WHERE id= ?`,
+    `SELECT * FROM posts WHERE id= ?`,
     req.params.id,
     (err, result, fields) => {
       if (err) {
@@ -40,7 +40,7 @@ exports.createPost = (req, res, next) => {
       req.file.filename
     }`;
     db.query(
-      `INSERT INTO post (title, content, imageUrl, userId) VALUES ('${title}', '${content}', '${imageUrl}', '${userId}')`,
+      `INSERT INTO posts (title, content, imageUrl, userId) VALUES ('${title}', '${content}', '${imageUrl}', '${userId}')`,
       (err, result, fields) => {
         if (err) {
           console.log(err);
@@ -54,7 +54,7 @@ exports.createPost = (req, res, next) => {
   }
   if (!req.file) {
     db.query(
-      `INSERT INTO post (title, content, userId) VALUES ('${title}', '${content}', '${userId}')`,
+      `INSERT INTO posts (title, content, userId) VALUES ('${title}', '${content}', '${userId}')`,
       (err, result, fields) => {
         if (err) {
           console.log(err);
@@ -72,7 +72,7 @@ exports.updatePost = (req, res, next) => {
   const content = req.body.content;
 
   if (req.file) {
-    db.query(`SELECT * FROM post WHERE id= ?`, id, (err, result, fields) => {
+    db.query(`SELECT * FROM posts WHERE id= ?`, id, (err, result, fields) => {
       if (err) {
         return res.status(400).json(err);
       }
@@ -94,7 +94,7 @@ exports.updatePost = (req, res, next) => {
     }`;
 
     db.query(
-      `UPDATE post SET title='${title}', content='${content}', imageUrl='${imageUrl}' WHERE id='${id}'`,
+      `UPDATE posts SET title='${title}', content='${content}', imageUrl='${imageUrl}' WHERE id='${id}'`,
       (err, result, fields) => {
         if (err) {
           console.log(err);
@@ -112,7 +112,7 @@ exports.updatePost = (req, res, next) => {
 
   if (!req.file) {
     db.query(
-      `UPDATE post SET title='${title}', content='${content}' WHERE id='${id}'`,
+      `UPDATE posts SET title='${title}', content='${content}' WHERE id='${id}'`,
       (err, result, fields) => {
         if (err) {
           console.log(err);
@@ -129,7 +129,7 @@ exports.updatePost = (req, res, next) => {
 
 exports.deletePost = (req, res, next) => {
   const id = req.body.id;
-  db.query(`SELECT * FROM post WHERE id= ?`, id, (err, result, fields) => {
+  db.query(`SELECT * FROM posts WHERE id= ?`, id, (err, result, fields) => {
     if (err) {
       return res.status(400).json(err);
     }
@@ -148,7 +148,7 @@ exports.deletePost = (req, res, next) => {
     }
   });
 
-  db.query(`DELETE FROM post WHERE id= ?`, id, (err, result, fields) => {
+  db.query(`DELETE FROM posts WHERE id= ?`, id, (err, result, fields) => {
     if (err) {
       return res.status(400).json({ err });
     }
