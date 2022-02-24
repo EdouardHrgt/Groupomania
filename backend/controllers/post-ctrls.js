@@ -3,12 +3,12 @@ const fs = require('fs');
 const { json } = require('express/lib/response');
 
 exports.getAllPosts = (req, res, next) => {
+  //trier par ID de post ***************
   db.query(`SELECT * FROM post ORDER BY date DESC`, (err, result, fields) => {
     if (err) {
       console.log(err);
       return res.status(400).json(err);
     }
-    console.log(result);
     return res.status(200).json(result);
   });
 };
@@ -25,7 +25,6 @@ exports.getOnePost = (req, res, next) => {
       if (result.length < 1) {
         return res.status(404).json({ message: 'Post Not Found...' });
       }
-      console.log(result);
       return res.status(200).json(result);
     }
   );
@@ -35,6 +34,7 @@ exports.createPost = (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
   const userId = req.body.userId;
+  //if req, soit image url = req.file soit un default user et 1 seule query
   if (req.file) {
     let imageUrl = `${req.protocol}://${req.get('host')}/images/${
       req.file.filename
@@ -72,7 +72,7 @@ exports.updatePost = (req, res, next) => {
   const content = req.body.content;
 
   if (req.file) {
-    db.query(`SELECT * FROM post WHERE id= ?`, id, (err, result, fields) =>{
+    db.query(`SELECT * FROM post WHERE id= ?`, id, (err, result, fields) => {
       if (err) {
         return res.status(400).json(err);
       }
@@ -88,8 +88,10 @@ exports.updatePost = (req, res, next) => {
           }
         });
       }
-    })
-    const imageUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+    });
+    const imageUrl = `${req.protocol}://${req.get('host')}/images/${
+      req.file.filename
+    }`;
 
     db.query(
       `UPDATE post SET title='${title}', content='${content}', imageUrl='${imageUrl}' WHERE id='${id}'`,
