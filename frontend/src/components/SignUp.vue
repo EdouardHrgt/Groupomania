@@ -11,7 +11,8 @@
 
     <div class="form-container">
       <div class="modal" v-if="account">
-        GG {{ username }} ! <br />Your account is created !!
+        <h2>{{ message }}</h2>
+        <p>You can now go to the login page !</p>
       </div>
       <form @submit.prevent="submitForm">
         <div class="form-group">
@@ -24,9 +25,9 @@
             maxlength="50"
             minLength="3"
             required
-            oninvalid="this.setCustomValidity('Please user a real username')"
+            oninvalid="this.setCustomValidity('Please use a real username')"
           />
-          <p class="err-msg">This is an error message</p>
+          <p class="err-msg"></p>
         </div>
         <div class="form-group">
           <label for="email">Email : </label>
@@ -36,7 +37,7 @@
             placeholder="Enter your Email"
             required
           />
-          <p class="err-msg">This is an error message</p>
+          <p class="err-msg"></p>
         </div>
         <div class="form-group">
           <label for="password">Password : </label>
@@ -47,7 +48,7 @@
             minlength="8"
             required
           />
-          <p class="err-msg">This is an error message</p>
+          <p class="err-msg"></p>
         </div>
         <div class="form-group">
           <button type="submit">Submit</button>
@@ -65,6 +66,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "SignUp",
   data: function () {
@@ -73,17 +75,31 @@ export default {
       email: "",
       password: "",
       account: false,
+      message: "",
     };
   },
 
   methods: {
     submitForm(event) {
-      const { username, email, password } = Object.fromEntries( new FormData(event.target) );
+      const { username, email, password } = Object.fromEntries(
+        new FormData(event.target)
+      );
       this.username = username;
       this.email = email;
       this.password = password;
-      console.log({ username, email, password });
-      this.account = true;
+
+      const User = { username, email, password };
+      // const userJson = JSON.stringify({ username, email, password });
+      console.log(User);
+
+      axios
+        .post("http://localhost:3000/api/user/signup", User)
+        .then(function (res) {
+          console.log(res);
+          this.message = "Welcome to the Groupomania familly !";
+          this.account = true;
+        })
+        .catch((err) => console.log(err));
     },
   },
 };
@@ -156,14 +172,18 @@ h1 {
 
 .modal {
   color: var(--black);
-  font-size: 1.3rem;
   background-color: var(--white);
   position: absolute;
   z-index: 5;
-  inset: 0;
+  inset: 1rem;
+  border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.modal h2 {
+  width: 100%;
 }
 
 .form-group {
@@ -193,10 +213,6 @@ h1 {
 
 .form-group input::placeholder {
   color: var(--primary);
-}
-
-.form-group input:focus {
-  background-color: var(--transp2);
 }
 
 .form-group input:valid {

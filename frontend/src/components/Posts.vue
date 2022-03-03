@@ -1,12 +1,19 @@
 <template>
-    <div class="posts-container">
+  <div class="posts-container">
     <header>
-      <a class="picture" href="#"><img src="../assets/default_user.jpg" alt="profile-picture" /></a>
+      <a class="picture" href="#" @click="getPosts"
+        ><img src="../assets/default_user.jpg" alt="profile-picture"
+      /></a>
       <ul>
         <li>
-          <a href="#"><i class="fa-solid fa-circle-plus"></i><span>Post</span></a>
+          <a href="#"
+            ><i class="fa-solid fa-circle-plus"></i><span>Post</span></a
+          >
           <a href="#"><i class="fa-solid fa-user"></i><span>Profile</span></a>
-          <router-link to="/"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Home</span></router-link>
+          <router-link to="/"
+            ><i class="fa-solid fa-arrow-right-from-bracket"></i
+            ><span>Home</span></router-link
+          >
         </li>
       </ul>
     </header>
@@ -16,20 +23,34 @@
       </div>
       <div class="form-container">
         <h1>New post</h1>
-        <form action="" method="post">  
+        <form>
           <div class="form-group">
-              <label for="title">Title : </label>
-              <input type="text" name="title" id="title" placeholder="Title of your post..." required maxlength="70">
-              <p class="err-msg">This is an error message</p>
+            <label for="title">Title : </label>
+            <input
+              type="text"
+              name="title"
+              id="title"
+              placeholder="Title of your post..."
+              required
+              maxlength="70"
+            />
+            <p class="err-msg">This is an error message</p>
           </div>
           <div class="form-group">
             <label for="content">Content : </label>
-            <input type="textarea" name="content" id="content" placeholder="Content of your post..." required maxlength="250">
+            <input
+              type="textarea"
+              name="content"
+              id="content"
+              placeholder="Content of your post..."
+              required
+              maxlength="250"
+            />
             <p class="err-msg">This is an error message</p>
           </div>
           <div class="form-group">
             <label for="file" id="file-btn">image</label>
-            <input id="file" type="file">
+            <input id="file" type="file" />
             <p class="err-msg">This is an error message</p>
           </div>
           <div class="form-group">
@@ -157,12 +178,27 @@
         </div>
       </div>
     </main>
-    </div>
+  </div>
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: "Posts",
+  data: function () {
+    return {
+      fetch: false,
+    };
+  },
+
+  methods: {
+    getPosts() {
+      console.log("ok");
+      axios.get("http://localhost:3000/api/post")
+        .then((res) => console.Log(res))
+        .catch((err) => console.log(err));
+    },
+  },
 };
 </script>
 

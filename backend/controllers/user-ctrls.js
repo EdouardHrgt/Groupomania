@@ -31,11 +31,6 @@ exports.signUp = (req, res, next) => {
   }
 };
 
-exports.login = (req, res, next) => {
-  console.log(req.body)
-  return res.status(201).json({message: 'req reçue...'});
-}
-
 exports.logIn = (req, res, next) => {
   const username = req.body.username;
   const email = req.body.email;

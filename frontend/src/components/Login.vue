@@ -1,45 +1,96 @@
 <template>
   <div class="login-container">
-      <header>
-        <ul>
-            <li><router-link to="/">HOME</router-link></li>
-            <div class="bar"></div>
-            <li><router-link to="/signup">Sign Up</router-link></li>
-        </ul>
+    <header>
+      <ul>
+        <li><router-link to="/">HOME</router-link></li>
+        <div class="bar"></div>
+        <li><router-link to="/signup">Sign Up</router-link></li>
+      </ul>
     </header>
     <h1>Login In</h1>
     <div class="form-container">
-        <form action="" method="post">  
-            <div class="form-group">
-                <label for="username">Username : </label>
-                <input type="text" name="username" id="username" placeholder="Enter your Name" required maxlength="50">
-                <p class="err-msg">This is an error message</p>
-            </div>
-            <div class="form-group">
-                <label for="email">Email : </label>
-                <input type="email" name="email" id="email" placeholder="Enter your Email" required>
-                <p class="err-msg">This is an error message</p>
-            </div>
-            <div class="form-group">
-                <label for="password">Password : </label>
-                <input type="password" name="password" id="password" placeholder="Enter your password" required>
-                <p class="err-msg">This is an error message</p>
-            </div>
-            <div class="form-group">
-                <button type="submit">Submit</button>
-            </div>
-        </form>
-        <div class="form-image"></div>
+      <form @submit.prevent="submitLogin">
+        <div class="form-group">
+          <label for="username">Username : </label>
+          <input
+            pattern=".*\S+.*"
+            type="text"
+            name="username"
+            placeholder="Enter your Name"
+            required
+            minLength="3"
+            maxlength="50"
+          />
+          <p class="err-msg"></p>
+        </div>
+        <div class="form-group">
+          <label for="email">Email : </label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Enter your Email"
+            required
+          />
+          <p class="err-msg"></p>
+        </div>
+        <div class="form-group">
+          <label for="password">Password : </label>
+          <input
+            type="password"
+            name="password"
+            placeholder="Enter your password"
+            minlength="8"
+            required
+          />
+          <p class="err-msg"></p>
+        </div>
+        <div class="form-group">
+          <button type="submit">Submit</button>
+        </div>
+      </form>
+      <div class="form-image"></div>
     </div>
     <div class="infos">
-        <p>Already have an account ? <router-link to="/signup">Sign Up</router-link></p>
+      <p>{{ loggedUSer }}</p>
+      <p>
+        Already have an account ?
+        <router-link to="/signup">Sign Up</router-link>
+      </p>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "SignUp",
+  data: function () {
+    return {
+      loggedUSer: "",
+    };
+  },
+  methods: {
+    submitLogin(event) {
+      const { username, email, password } = Object.fromEntries(
+        new FormData(event.target)
+      );
+      this.username = username;
+      this.email = email;
+      this.password = password;
+
+      const User = { username, email, password };
+      // const userJson = JSON.stringify({ username, email, password });
+      console.log(User);
+      axios
+        .post("http://localhost:3000/api/user/login", User)
+        .then(function (res) {
+          console.log(res.data);
+          this.loggedUSer = res.data;
+          alert(res.data.token);
+        })
+        .catch((err) => console.log(err));
+    },
+  },
 };
 </script>
 
@@ -92,7 +143,7 @@ h1 {
   font-family: var(--font-2);
   color: var(--white);
   letter-spacing: 1px;
-  padding: .7rem;
+  padding: 0.7rem;
   margin: 1.5rem 0 0 0;
   text-align: center;
 }
@@ -136,16 +187,12 @@ h1 {
   color: var(--primary);
 }
 
-.form-group input:focus {
-  background-color: var(--transp2);
-}
-
 .form-group input:valid {
   outline: 2px solid green;
 }
 
 .form-group .err-msg {
-  color: #DD4124;
+  color: #dd4124;
   margin-top: 0.3rem;
   text-align: center;
   font-size: 0.9rem;
