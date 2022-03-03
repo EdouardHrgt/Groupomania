@@ -1,38 +1,65 @@
 <template>
   <div class="signup-container">
-      <header>
-        <ul>
-            <li><router-link to="/">HOME</router-link></li>
-            <div class="bar"></div>
-            <li><router-link to="/login">LOGIN</router-link></li>
-        </ul>
+    <header>
+      <ul>
+        <li><router-link to="/">HOME</router-link></li>
+        <div class="bar"></div>
+        <li><router-link to="/login">LOGIN</router-link></li>
+      </ul>
     </header>
     <h1>Sign Up</h1>
+
     <div class="form-container">
-        <form action="" method="post">  
-            <div class="form-group">
-                <label for="username">Username : </label>
-                <input type="text" name="username" id="username" placeholder="Enter your Name" required maxlength="50">
-                <p class="err-msg">This is an error message</p>
-            </div>
-            <div class="form-group">
-                <label for="email">Email : </label>
-                <input type="email" name="email" id="email" placeholder="Enter your Email" required>
-                <p class="err-msg">This is an error message</p>
-            </div>
-            <div class="form-group">
-                <label for="password">Password : </label>
-                <input type="password" name="password" id="password" placeholder="Enter your password" required>
-                <p class="err-msg">This is an error message</p>
-            </div>
-            <div class="form-group">
-                <button type="submit">Submit</button>
-            </div>
-        </form>
-        <div class="form-image"></div>
+      <div class="modal" v-if="account">
+        GG {{ username }} ! <br />Your account is created !!
+      </div>
+      <form @submit.prevent="submitForm">
+        <div class="form-group">
+          <label for="username">Username : </label>
+          <input
+            pattern=".*\S+.*"
+            type="text"
+            name="username"
+            placeholder="Enter your Name"
+            maxlength="50"
+            minLength="3"
+            required
+            oninvalid="this.setCustomValidity('Please user a real username')"
+          />
+          <p class="err-msg">This is an error message</p>
+        </div>
+        <div class="form-group">
+          <label for="email">Email : </label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Enter your Email"
+            required
+          />
+          <p class="err-msg">This is an error message</p>
+        </div>
+        <div class="form-group">
+          <label for="password">Password : </label>
+          <input
+            type="password"
+            name="password"
+            placeholder="Enter your password"
+            minlength="8"
+            required
+          />
+          <p class="err-msg">This is an error message</p>
+        </div>
+        <div class="form-group">
+          <button type="submit">Submit</button>
+        </div>
+      </form>
+      <div class="form-image"></div>
     </div>
     <div class="infos">
-        <p>Already have an account ? <router-link to="/login">Login</router-link></p>
+      <p>
+        Already have an account ?
+        <router-link to="/login">Login</router-link>
+      </p>
     </div>
   </div>
 </template>
@@ -40,6 +67,25 @@
 <script>
 export default {
   name: "SignUp",
+  data: function () {
+    return {
+      username: "",
+      email: "",
+      password: "",
+      account: false,
+    };
+  },
+
+  methods: {
+    submitForm(event) {
+      const { username, email, password } = Object.fromEntries( new FormData(event.target) );
+      this.username = username;
+      this.email = email;
+      this.password = password;
+      console.log({ username, email, password });
+      this.account = true;
+    },
+  },
 };
 </script>
 
@@ -92,7 +138,7 @@ h1 {
   font-family: var(--font-2);
   color: var(--white);
   letter-spacing: 1px;
-  padding: .7rem;
+  padding: 0.7rem;
   margin: 1.5rem 0 0 0;
   text-align: center;
 }
@@ -105,6 +151,19 @@ h1 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: 1fr;
+  position: relative;
+}
+
+.modal {
+  color: var(--black);
+  font-size: 1.3rem;
+  background-color: var(--white);
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .form-group {
@@ -145,12 +204,12 @@ h1 {
 }
 
 .form-group .err-msg {
-  color: #DD4124;
+  color: #dd4124;
   margin-top: 0.3rem;
   text-align: center;
   font-size: 0.9rem;
   width: 90%;
-  /* display: none; */
+  display: none;
 }
 
 .form-group button {
