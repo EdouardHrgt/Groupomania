@@ -8,7 +8,7 @@ const fs = require('fs');
 require('dotenv').config({ path: './.env' });
 
 exports.signUp = (req, res, next) => {
-  console.log(req.body)
+  console.log(req.body);
   const username = req.body.username;
   const email = req.body.email;
   if (emailValidator.validate(email)) {

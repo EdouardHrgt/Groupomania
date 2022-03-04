@@ -14,7 +14,7 @@
         <h2>{{ message }}</h2>
         <p>You can now go to the login page !</p>
       </div>
-      <form @submit.prevent="submitForm">
+      <form @submit.prevent="submitSignup">
         <div class="form-group">
           <label for="username">Username : </label>
           <input
@@ -80,7 +80,7 @@ export default {
   },
 
   methods: {
-    submitForm(event) {
+    submitSignup(event) {
       const { username, email, password } = Object.fromEntries(
         new FormData(event.target)
       );

@@ -9,6 +9,10 @@
     </header>
     <h1>Login In</h1>
     <div class="form-container">
+      <div class="modal" v-if="modal">
+        <h2 v-if="isLogged">User logged...<br />{{ user }}</h2>
+        <h2 v-if="error != null">An error occured...<br />{{ error }}</h2>
+      </div>
       <form @submit.prevent="submitLogin">
         <div class="form-group">
           <label for="username">Username : </label>
@@ -51,7 +55,6 @@
       <div class="form-image"></div>
     </div>
     <div class="infos">
-      <p>{{ loggedUSer }}</p>
       <p>
         Already have an account ?
         <router-link to="/signup">Sign Up</router-link>
@@ -63,10 +66,13 @@
 <script>
 import axios from "axios";
 export default {
-  name: "SignUp",
+  name: "Login",
   data: function () {
     return {
-      loggedUSer: "",
+      modal: false,
+      user: null,
+      isLogged: false,
+      error: null,
     };
   },
   methods: {
@@ -77,18 +83,24 @@ export default {
       this.username = username;
       this.email = email;
       this.password = password;
-
-      const User = { username, email, password };
-      // const userJson = JSON.stringify({ username, email, password });
-      console.log(User);
       axios
-        .post("http://localhost:3000/api/user/login", User)
-        .then(function (res) {
-          console.log(res.data);
-          this.loggedUSer = res.data;
-          alert(res.data.token);
+        .post("http://localhost:3000/api/user/login", {
+          username,
+          email,
+          password,
         })
-        .catch((err) => console.log(err));
+        .then((res) => {
+          this.user = res.data;
+          this.isLogged = true;
+          this.modal = true;
+          localStorage.setItem("user", JSON.stringify(this.user));
+          this.$router.push("posts");
+        })
+        .catch((err) => {
+          console.log(err);
+          this.modal = true;
+          this.error = err;
+        });
     },
   },
 };
@@ -156,6 +168,22 @@ h1 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: 1fr;
+  position: relative;
+}
+
+.modal {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--white);
+}
+
+h2 {
+  color: red;
+  width: 80%;
 }
 
 .form-group {
@@ -197,7 +225,7 @@ h1 {
   text-align: center;
   font-size: 0.9rem;
   width: 90%;
-  /* display: none; */
+  display: none;
 }
 
 .form-group button {

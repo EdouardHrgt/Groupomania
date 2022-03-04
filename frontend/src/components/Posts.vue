@@ -1,9 +1,9 @@
 <template>
   <div class="posts-container">
     <header>
-      <a class="picture" href="#" @click="getPosts"
-        ><img src="../assets/default_user.jpg" alt="profile-picture"
-      /></a>
+      <a class="picture" href="#">
+        <img src="../assets/default_user.jpg" alt="profile-picture" />
+      </a>
       <ul>
         <li>
           <a href="#"
@@ -34,7 +34,7 @@
               required
               maxlength="70"
             />
-            <p class="err-msg">This is an error message</p>
+            <p class="err-msg"></p>
           </div>
           <div class="form-group">
             <label for="content">Content : </label>
@@ -46,99 +46,36 @@
               required
               maxlength="250"
             />
-            <p class="err-msg">This is an error message</p>
+            <p class="err-msg"></p>
           </div>
           <div class="form-group">
             <label for="file" id="file-btn">image</label>
             <input id="file" type="file" />
-            <p class="err-msg">This is an error message</p>
+            <p class="err-msg"></p>
           </div>
           <div class="form-group">
-            <button type="submit">Post</button>
+            <button type="submit">Submit</button>
           </div>
         </form>
       </div>
       <!-- POST -->
       <div class="post-block">
-        <div class="post-container">
+        <div class="post-container" v-for="post in posts" :key="post.id">
           <div class="infos">
             <p class="post-author">
               <span>Author :</span>
-              Edouard-Herrengt
+              {{post.userId}}
             </p>
             <p class="post-date">
               <span>Date :</span>
-              02/26/2022 - 20:15
+              {{post.date}}
             </p>
           </div>
           <div class="post-content">
-            <img src="../assets/home-bg.jpg" alt="#" />
+            <img src="#" alt="#" />
+            <p>{{post.title}}</p>
             <p>
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Soluta
-              voluptatibus assumenda reiciendis debitis suscipit itaque
-              asperiores nemo commodi pariatur laborum. Explicabo cum maiores
-              quaerat consectetur! Mollitia aperiam possimus praesentium quidem
-              aut veniam explicabo velit eius totam quisquam minus reprehenderit
-              amet id nobis rerum itaque fugiat illum optio earum, autem nam.
-            </p>
-          </div>
-          <div class="actions">
-            <i class="fa-solid fa-reply"></i>
-            <div class="owner-actions">
-              <i class="fa-solid fa-pen"></i>
-              <i class="fa-solid fa-trash"></i>
-            </div>
-          </div>
-        </div>
-        <!-- COMMENT -->
-        <div class="comment-container">
-          <div class="infos">
-            <p class="post-author">
-              <span>Author :</span>
-              User
-            </p>
-            <p class="post-date">
-              <span>Date :</span>
-              02/26/2022 - 08:15
-            </p>
-          </div>
-          <div class="comment-content">
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas
-              quod aut est minus soluta earum iure facere error, ex laudantium
-              non exercitationem vero ab.
-            </p>
-          </div>
-          <div class="actions">
-            <i class="fa-solid fa-reply"></i>
-            <div class="owner-actions">
-              <i class="fa-solid fa-pen"></i>
-              <i class="fa-solid fa-trash"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- NEW POST -->
-      <div class="post-block">
-        <div class="post-container">
-          <div class="infos">
-            <p class="post-author">
-              <span>Author :</span>
-              Edouard-Herrengt
-            </p>
-            <p class="post-date">
-              <span>Date :</span>
-              02/26/2022 - 20:15
-            </p>
-          </div>
-          <div class="post-content">
-            <p>
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Soluta
-              voluptatibus assumenda reiciendis debitis suscipit itaque
-              asperiores nemo commodi pariatur laborum. Explicabo cum maiores
-              quaerat consectetur! Mollitia aperiam possimus praesentium quidem
-              aut veniam explicabo velit eius totam quisquam minus reprehenderit
-              amet id nobis rerum itaque fugiat illum optio earum, autem nam.
+              {{post.content}}
             </p>
           </div>
           <div class="actions">
@@ -182,22 +119,28 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 export default {
   name: "Posts",
   data: function () {
     return {
       fetch: false,
+      posts: [],
     };
   },
-
   methods: {
-    getPosts() {
-      console.log("ok");
-      axios.get("http://localhost:3000/api/post")
-        .then((res) => console.Log(res))
-        .catch((err) => console.log(err));
+    myTest() {
+      alert("ok");
     },
+  },
+  created() {
+    axios
+      .get("http://localhost:3000/api/post")
+      .then((res) => {
+        this.posts = res.data;
+        console.log(this.posts);
+      })
+      .catch((err) => console.log(err));
   },
 };
 </script>
@@ -207,7 +150,6 @@ export default {
   width: 1440px;
   margin: auto;
   display: flex;
-  min-height: 200vh;
 }
 
 header {
@@ -216,7 +158,6 @@ header {
   padding: 2rem;
   position: sticky;
   top: 0;
-  height: 100vh;
   display: flex;
   flex-direction: column;
 }
