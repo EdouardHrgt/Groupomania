@@ -22,7 +22,9 @@ exports.signUp = (req, res, next) => {
             console.log(err);
             return res.status(400).json(err);
           }
-          return res.status(201).json({ message: 'User created...' });
+          return res
+            .status(201)
+            .json({ message: `Welcome to Groupomania ${username} !` });
         }
       );
     });
@@ -48,7 +50,9 @@ exports.logIn = (req, res, next) => {
       if (result.length > 0) {
         bcrypt.compare(password, result[0].password).then((valid) => {
           if (!valid) {
-            return res.status(404).json({ error: 'password do not match...' });
+            return res
+              .status(404)
+              .json({ message: 'password do not match...' });
           }
 
           return res.status(200).json({

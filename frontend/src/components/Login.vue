@@ -9,10 +9,6 @@
     </header>
     <h1>Login In</h1>
     <div class="form-container">
-      <div class="modal" v-if="modal">
-        <h2 v-if="isLogged">User logged...<br />{{ user }}</h2>
-        <h2 v-if="error != null">An error occured...<br />{{ error }}</h2>
-      </div>
       <form @submit.prevent="submitLogin">
         <div class="form-group">
           <label for="username">Username : </label>
@@ -25,28 +21,21 @@
             minLength="3"
             maxlength="50"
           />
-          <p class="err-msg"></p>
-        </div>
-        <div class="form-group">
-          <label for="email">Email : </label>
-          <input
-            type="email"
-            name="email"
-            placeholder="Enter your Email"
-            required
-          />
-          <p class="err-msg"></p>
         </div>
         <div class="form-group">
           <label for="password">Password : </label>
           <input
+            oninvalid="this.setCustomValidity('Your password must be a least 8 caracters with caps and number')"
             type="password"
             name="password"
             placeholder="Enter your password"
             minlength="8"
             required
           />
-          <p class="err-msg"></p>
+        </div>
+        <div class="message" v-if="error || valid">
+          <p class="err-msg" v-if="error">{{ error }}</p>
+          <p class="valid-msg" v-if="valid">{{ valid }}</p>
         </div>
         <div class="form-group">
           <button type="submit">Submit</button>
@@ -69,10 +58,9 @@ export default {
   name: "Login",
   data: function () {
     return {
-      modal: false,
       user: null,
-      isLogged: false,
-      error: null,
+      error: false,
+      valid: false,
     };
   },
   methods: {
@@ -91,15 +79,14 @@ export default {
         })
         .then((res) => {
           this.user = res.data;
-          this.isLogged = true;
-          this.modal = true;
+          this.valid = "User logged successfully";
+          this.error = false;
           localStorage.setItem("user", JSON.stringify(this.user));
-          this.$router.push("posts");
+          //this.$router.push("posts");
         })
         .catch((err) => {
-          console.log(err);
-          this.modal = true;
-          this.error = err;
+          this.valid = false;
+          this.error = err.response.data.message;
         });
     },
   },
@@ -163,6 +150,7 @@ h1 {
 .form-container {
   background-color: var(--transp2);
   width: 50%;
+  min-height: 18rem;
   border-radius: 15px;
   overflow: hidden;
   display: grid;
@@ -171,22 +159,8 @@ h1 {
   position: relative;
 }
 
-.modal {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--white);
-}
-
-h2 {
-  color: red;
-  width: 80%;
-}
-
-.form-group {
+.form-group,
+.message {
   width: 100%;
   margin: 1rem 0;
   display: flex;
@@ -215,17 +189,22 @@ h2 {
   color: var(--primary);
 }
 
-.form-group input:valid {
-  outline: 2px solid green;
-}
-
-.form-group .err-msg {
-  color: #dd4124;
+.err-msg,
+.valid-msg {
+  color: var(--white);
   margin-top: 0.3rem;
   text-align: center;
   font-size: 0.9rem;
   width: 90%;
-  display: none;
+  border-radius: 15px;
+}
+
+.err-msg {
+  background-color: var(--red);
+}
+
+.valid-msg {
+  background-color: var(--green);
 }
 
 .form-group button {
@@ -247,12 +226,13 @@ h2 {
 }
 
 .form-image {
-  width: 100%;
-  height: 100%;
+  width: 90%;
+  height: 90%;
   background-image: url(../assets/groupo-logo.png);
   background-size: 70%;
   background-repeat: no-repeat;
   background-position: center;
+  align-self: center;
 }
 
 .infos p {
@@ -284,20 +264,32 @@ h2 {
 
 @media screen and (max-width: 1024px) {
   header {
-    top: 0.3rem;
+    top: 2rem;
   }
   .form-container {
-    grid-template-rows: repeat(2, 1fr);
-    grid-template-columns: 1fr;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 55vh;
+  }
+  form {
+    width: 100%;
+  }
+  .form-group label {
+    margin-bottom: 1rem;
   }
   .form-image {
-    background-size: 50%;
+    display: none;
   }
-  .form-group {
+  .form-group,
+  .message {
     text-align: center;
     align-items: center;
+    margin: 2rem 0;
   }
-  .form-group input {
+  .form-group input,
+  .err-msg,
+  .valid-msg {
     width: 70%;
   }
 }
@@ -305,6 +297,9 @@ h2 {
 @media screen and (max-width: 800px) {
   .form-container {
     width: 90%;
+  }
+  h1 {
+    margin: 0;
   }
 }
 </style>

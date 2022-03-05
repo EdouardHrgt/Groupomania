@@ -124,7 +124,6 @@ export default {
   name: "Posts",
   data: function () {
     return {
-      fetch: false,
       posts: [],
     };
   },
@@ -140,7 +139,9 @@ export default {
         this.posts = res.data;
         console.log(this.posts);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+      });
   },
 };
 </script>

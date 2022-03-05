@@ -13,6 +13,8 @@
   --black: #0e0e0e;
   --white: #fdfdfd;
   --gray: #e9e9e9;
+  --red: #dd4124;
+  --green: #3CB371;
   --light-gray: #f0f0f0;
   --transp1: rgba(51, 0, 85, 0.6);
   --transp2: rgba(0, 0, 0, 0.3);

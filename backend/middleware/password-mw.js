@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
     next();
   } else {
     res.status(400).json({
-      message: 'Password too weak ! add numbers, caps and special characters',
+      message: 'Password too weak ! Please add caps & numbers'
     });
   }
 };

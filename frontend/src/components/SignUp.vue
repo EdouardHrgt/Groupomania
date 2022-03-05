@@ -10,10 +10,6 @@
     <h1>Sign Up</h1>
 
     <div class="form-container">
-      <div class="modal" v-if="account">
-        <h2>{{ message }}</h2>
-        <p>You can now go to the login page !</p>
-      </div>
       <form @submit.prevent="submitSignup">
         <div class="form-group">
           <label for="username">Username : </label>
@@ -25,9 +21,8 @@
             maxlength="50"
             minLength="3"
             required
-            oninvalid="this.setCustomValidity('Please use a real username')"
+            oninvalid="this.setCustomValidity('Please use a real username with no blanks')"
           />
-          <p class="err-msg"></p>
         </div>
         <div class="form-group">
           <label for="email">Email : </label>
@@ -37,7 +32,6 @@
             placeholder="Enter your Email"
             required
           />
-          <p class="err-msg"></p>
         </div>
         <div class="form-group">
           <label for="password">Password : </label>
@@ -47,8 +41,12 @@
             placeholder="Enter your password"
             minlength="8"
             required
+            oninvalid="this.setCustomValidity('Your password must be a least 8 caracters and contain 1 caps and 1 number')"
           />
-          <p class="err-msg"></p>
+        </div>
+        <div class="message" v-if="error || valid">
+          <p class="err-msg" v-if="error">{{ error }}</p>
+          <p class="valid-msg" v-if="valid">{{ valid }}</p>
         </div>
         <div class="form-group">
           <button type="submit">Submit</button>
@@ -71,11 +69,8 @@ export default {
   name: "SignUp",
   data: function () {
     return {
-      username: "",
-      email: "",
-      password: "",
-      account: false,
-      message: "",
+      error: false,
+      valid: false,
     };
   },
 
@@ -88,18 +83,22 @@ export default {
       this.email = email;
       this.password = password;
 
-      const User = { username, email, password };
-      // const userJson = JSON.stringify({ username, email, password });
-      console.log(User);
-
       axios
-        .post("http://localhost:3000/api/user/signup", User)
-        .then(function (res) {
-          console.log(res);
-          this.message = "Welcome to the Groupomania familly !";
-          this.account = true;
+        .post("http://localhost:3000/api/user/signup", {
+          username,
+          email,
+          password,
         })
-        .catch((err) => console.log(err));
+        .then((res) => {
+          // this.valid = res.response.data.message; MARCHE PAS !!!
+          console.log(res);
+          this.valid = "Your account is now created !"
+          this.error = false;
+        })
+        .catch((err) => {
+          this.valid = false;
+          this.error = err.response.data.message;
+        });
     },
   },
 };
@@ -170,23 +169,8 @@ h1 {
   position: relative;
 }
 
-.modal {
-  color: var(--black);
-  background-color: var(--white);
-  position: absolute;
-  z-index: 5;
-  inset: 1rem;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal h2 {
-  width: 100%;
-}
-
-.form-group {
+.form-group,
+.message {
   width: 100%;
   margin: 1rem 0;
   display: flex;
@@ -215,17 +199,22 @@ h1 {
   color: var(--primary);
 }
 
-.form-group input:valid {
-  outline: 2px solid green;
-}
-
-.form-group .err-msg {
-  color: #dd4124;
+.err-msg,
+.valid-msg {
+  color: var(--white);
   margin-top: 0.3rem;
   text-align: center;
   font-size: 0.9rem;
   width: 90%;
-  display: none;
+  border-radius: 15px;
+}
+
+.err-msg {
+  background-color: var(--red);
+}
+
+.valid-msg {
+  background-color: var(--green);
 }
 
 .form-group button {
@@ -293,11 +282,14 @@ h1 {
   .form-image {
     background-size: 50%;
   }
-  .form-group {
+  .form-group,
+  .message {
     text-align: center;
     align-items: center;
   }
-  .form-group input {
+  .form-group input,
+  .err-msg,
+  .valid-msg {
     width: 70%;
   }
 }
