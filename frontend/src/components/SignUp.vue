@@ -44,6 +44,16 @@
             oninvalid="this.setCustomValidity('Your password must be a least 8 caracters and contain 1 caps and 1 number')"
           />
         </div>
+        <div class="form-group">
+          <label for="confirmation">Confirmation : </label>
+          <input
+            type="password"
+            name="confirmation"
+            placeholder="Confirm your password"
+            minlength="8"
+            required
+          />
+        </div>
         <div class="message" v-if="error || valid">
           <p class="err-msg" v-if="error">{{ error }}</p>
           <p class="valid-msg" v-if="valid">{{ valid }}</p>
@@ -76,29 +86,39 @@ export default {
 
   methods: {
     submitSignup(event) {
-      const { username, email, password } = Object.fromEntries(
+      const { username, email, password, confirm } = Object.fromEntries(
         new FormData(event.target)
       );
       this.username = username;
       this.email = email;
       this.password = password;
-
-      axios
-        .post("http://localhost:3000/api/user/signup", {
-          username,
-          email,
-          password,
-        })
-        .then((res) => {
-          // this.valid = res.response.data.message; MARCHE PAS !!!
-          console.log(res);
-          this.valid = "Your account is now created !"
-          this.error = false;
-        })
-        .catch((err) => {
-          this.valid = false;
-          this.error = err.response.data.message;
-        });
+      this.confirm = confirm;
+      if (this.confirm != this.password) {
+        this.error = "Your password doesn't match !";
+        this.onDelay(3000);
+      }
+      if (this.confirm == this.password) {
+        this.error = false;
+        axios
+          .post("http://localhost:3000/api/user/signup", {
+            username,
+            email,
+            password,
+          })
+          .then((res) => {
+            console.log(res);
+            this.valid = "Your account is now created !";
+            this.error = false;
+          })
+          .catch((err) => {
+            this.valid = false;
+            this.error = err.response.data.message;
+          });
+      }
+    },
+    onDelay(time) {
+      const action = alert("My action...");
+      setTimeout(action, time);
     },
   },
 };
@@ -161,7 +181,6 @@ h1 {
 .form-container {
   background-color: var(--transp2);
   width: 50%;
-  border-radius: 15px;
   overflow: hidden;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -188,7 +207,6 @@ h1 {
 
 .form-group input {
   width: 90%;
-  border-radius: 15px;
   padding: 0.6rem 0;
   text-align: center;
   outline: 1px solid --black;
@@ -206,7 +224,6 @@ h1 {
   text-align: center;
   font-size: 0.9rem;
   width: 90%;
-  border-radius: 15px;
 }
 
 .err-msg {
@@ -221,7 +238,6 @@ h1 {
   width: 40%;
   align-self: center;
   padding: 0.6rem 0;
-  border-radius: 20px;
   cursor: pointer;
   color: var(--white);
   background-color: var(--secondary);

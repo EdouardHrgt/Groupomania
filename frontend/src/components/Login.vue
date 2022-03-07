@@ -4,7 +4,7 @@
       <ul>
         <li><router-link to="/">HOME</router-link></li>
         <div class="bar"></div>
-        <li><router-link to="/signup">Sign Up</router-link></li>
+        <li><router-link to="/signup">SIGN UP</router-link></li>
       </ul>
     </header>
     <h1>Login In</h1>
@@ -151,7 +151,6 @@ h1 {
   background-color: var(--transp2);
   width: 50%;
   min-height: 18rem;
-  border-radius: 15px;
   overflow: hidden;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -178,7 +177,6 @@ h1 {
 
 .form-group input {
   width: 90%;
-  border-radius: 15px;
   padding: 0.6rem 0;
   text-align: center;
   outline: 1px solid --black;
@@ -196,7 +194,6 @@ h1 {
   text-align: center;
   font-size: 0.9rem;
   width: 90%;
-  border-radius: 15px;
 }
 
 .err-msg {
@@ -211,7 +208,6 @@ h1 {
   width: 40%;
   align-self: center;
   padding: 0.6rem 0;
-  border-radius: 20px;
   cursor: pointer;
   color: var(--white);
   background-color: var(--secondary);
