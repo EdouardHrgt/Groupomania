@@ -64,18 +64,18 @@
           <div class="infos">
             <p class="post-author">
               <span>Author :</span>
-              {{post.userId}}
+              {{ post.userId }}
             </p>
             <p class="post-date">
               <span>Date :</span>
-              {{post.date}}
+              {{ post.date }}
             </p>
           </div>
           <div class="post-content">
             <img src="#" alt="#" />
-            <p>{{post.title}}</p>
+            <p>{{ post.title }}</p>
             <p>
-              {{post.content}}
+              {{ post.content }}
             </p>
           </div>
           <div class="actions">
@@ -87,7 +87,7 @@
           </div>
         </div>
         <!-- COMMENT -->
-        <div class="comment-container">
+        <div class="comment-container" v-if="comments">
           <div class="infos">
             <p class="post-author">
               <span>Author :</span>
@@ -124,7 +124,10 @@ export default {
   name: "Posts",
   data: function () {
     return {
+      user: null,
       posts: [],
+      comments: false,
+      error: null,
     };
   },
   methods: {
@@ -133,8 +136,9 @@ export default {
     },
   },
   created() {
+    this.user = JSON.parse(localStorage.getItem("user"));
     axios
-      .get("http://localhost:3000/api/post")
+      .get("http://localhost:3000/api/post", { headers: { Authorization: "Bearer " + this.user.token } })
       .then((res) => {
         this.posts = res.data;
         console.log(this.posts);
@@ -161,6 +165,7 @@ header {
   top: 0;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 header .picture {
@@ -213,6 +218,7 @@ main {
   padding: 2rem 5rem;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .logo {

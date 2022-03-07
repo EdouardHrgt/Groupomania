@@ -8,7 +8,6 @@
       </ul>
     </header>
     <h1>Sign Up</h1>
-
     <div class="form-container">
       <form @submit.prevent="submitSignup">
         <div class="form-group">
@@ -45,10 +44,10 @@
           />
         </div>
         <div class="form-group">
-          <label for="confirmation">Confirmation : </label>
+          <label for="confirm">Confirmation : </label>
           <input
             type="password"
-            name="confirmation"
+            name="confirm"
             placeholder="Confirm your password"
             minlength="8"
             required
@@ -81,6 +80,7 @@ export default {
     return {
       error: false,
       valid: false,
+      user: null,
     };
   },
 
@@ -93,9 +93,11 @@ export default {
       this.email = email;
       this.password = password;
       this.confirm = confirm;
+      this.user = { username, email, password };
+
       if (this.confirm != this.password) {
         this.error = "Your password doesn't match !";
-        this.onDelay(3000);
+        console.log({ username, email, password, confirm });
       }
       if (this.confirm == this.password) {
         this.error = false;
@@ -109,6 +111,7 @@ export default {
             console.log(res);
             this.valid = "Your account is now created !";
             this.error = false;
+            this.autoLogin();
           })
           .catch((err) => {
             this.valid = false;
@@ -116,9 +119,23 @@ export default {
           });
       }
     },
-    onDelay(time) {
-      const action = alert("My action...");
-      setTimeout(action, time);
+    autoLogin() {
+      axios
+        .post("http://localhost:3000/api/user/login", this.user)
+        .then((res) => {
+          this.user = res.data;
+          localStorage.setItem("user", JSON.stringify(this.user));
+          this.toPosts(2000);
+        })
+        .catch((err) => {
+          this.valid = false;
+          this.error = err.response.data.message;
+        });
+    },
+    toPosts(time) {
+      setTimeout(() => {
+        this.$router.push("posts");
+      }, time);
     },
   },
 };

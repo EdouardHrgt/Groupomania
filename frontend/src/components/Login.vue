@@ -64,17 +64,20 @@ export default {
     };
   },
   methods: {
+    onDelay(time) {
+      setTimeout(() => {
+        this.$router.push("posts");
+      }, time);
+    },
     submitLogin(event) {
-      const { username, email, password } = Object.fromEntries(
+      const { username, password } = Object.fromEntries(
         new FormData(event.target)
       );
       this.username = username;
-      this.email = email;
       this.password = password;
       axios
         .post("http://localhost:3000/api/user/login", {
           username,
-          email,
           password,
         })
         .then((res) => {
@@ -82,7 +85,7 @@ export default {
           this.valid = "User logged successfully";
           this.error = false;
           localStorage.setItem("user", JSON.stringify(this.user));
-          //this.$router.push("posts");
+          this.onDelay(2500);
         })
         .catch((err) => {
           this.valid = false;
