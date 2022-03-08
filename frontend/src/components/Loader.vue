@@ -24,6 +24,9 @@ export default {
 </script>
 
 <style scoped>
+.loader-container {
+  text-align: center;
+}
 .lds-spinner {
   color: official;
   display: inline-block;

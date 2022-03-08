@@ -1,8 +1,5 @@
 <template>
   <div class="posts-container">
-    <div class="global-message" v-if="error">
-      <p>{{ error }}</p>
-    </div>
     <header>
       <a class="picture" href="#">
         <img src="../assets/default_user.jpg" alt="profile-picture" />
@@ -13,9 +10,9 @@
             ><i class="fa-solid fa-circle-plus"></i><span>Post</span></a
           >
           <a href="#"><i class="fa-solid fa-user"></i><span>Profile</span></a>
-          <router-link to="/"
+          <a href="#" @click="logOut()"
             ><i class="fa-solid fa-arrow-right-from-bracket"></i
-            ><span>Log Out</span></router-link
+            ><span>Log Out</span></a
           >
         </li>
       </ul>
@@ -59,13 +56,22 @@
           </div>
         </form>
       </div>
+      <loader v-if="loading" />
+      <div class="error-msg" v-if="error">
+        <p>{{ error }}</p>
+      </div>
       <!-- POST -->
       <div class="post-block">
-        <div class="post-container" v-for="post in posts" :key="post.id">
+        <div
+          class="post-container"
+          v-for="(post, i) in posts"
+          :key="post.id"
+          :index="i"
+        >
           <div class="infos">
             <p class="post-author">
               <span>Author :</span>
-              Put username
+              Username
             </p>
             <p class="post-date">
               <span>Date :</span>
@@ -80,38 +86,39 @@
             </p>
           </div>
           <div class="actions">
-            <i class="fa-solid fa-reply"></i>
             <div class="owner-actions">
-              <i class="fa-solid fa-pen"></i>
-              <i class="fa-solid fa-trash"></i>
+              <i class="fa-solid fa-pen" @click="temp()"></i>
+              <i class="fa-solid fa-trash" @click="temp()"></i>
             </div>
+            <i class="fa-solid fa-reply" @click="temp()"></i>
           </div>
         </div>
         <!-- COMMENT -->
-        <div class="comment-container" v-if="comments.length > 5">
+        <div
+          class="comment-container"
+          v-for="(comment, i) in comments"
+          :key="comment.id"
+          :index="i"
+        >
           <div class="infos">
             <p class="post-author">
               <span>Author :</span>
-              User
+              UserName
             </p>
             <p class="post-date">
               <span>Date :</span>
-              02/26/2022 - 08:15
+              {{ comment.date }}
             </p>
           </div>
           <div class="comment-content">
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas
-              quod aut est minus soluta earum iure facere error, ex laudantium
-              non exercitationem vero ab.
-            </p>
+            <p>{{ comment.content }}</p>
           </div>
           <div class="actions">
-            <i class="fa-solid fa-reply"></i>
             <div class="owner-actions">
-              <i class="fa-solid fa-pen"></i>
-              <i class="fa-solid fa-trash"></i>
+              <i class="fa-solid fa-pen" @click="temp()"></i>
+              <i class="fa-solid fa-trash" @click="temp()"></i>
             </div>
+            <i class="fa-solid fa-reply" @click="temp()"></i>
           </div>
         </div>
       </div>
@@ -121,28 +128,41 @@
 
 <script>
 import axios from 'axios';
+import Loader from '@/components/Loader.vue';
 export default {
   name: 'Posts',
+  components: {
+    loader: Loader,
+  },
   data: function () {
     return {
       user: null,
+      error: '',
+      loading: false,
       posts: [],
       comments: [],
-      error: null,
     };
   },
   methods: {
+    logOut() {
+      localStorage.removeItem('user');
+      this.user = null;
+      this.$router.push('/');
+    },
+    temp() {
+      alert('Element clicked ! ');
+    },
     dateFormat(date) {
       return date.toLocaleDateString('fr');
     },
   },
   created() {
     if (!localStorage.getItem('user')) {
-      this.$router.push('Home');
+      this.$router.push('/');
     } else {
+      this.loading = true;
       this.user = JSON.parse(localStorage.getItem('user'));
       //{headers: { Authorization: 'Bearer ' + this.user.token }};
-      //Get all Posts
       axios
         .get('http://localhost:3000/api/post')
         .then((res) => {
@@ -150,18 +170,19 @@ export default {
           console.log(this.posts);
         })
         .catch((err) => {
-          console.log(err);
+          this.error = err;
         });
-      //Get all Comments
       axios
         .get('http://localhost:3000/api/comment')
         .then((res) => {
           this.comments = res.data;
+          this.error = '';
           console.log(this.comments);
         })
         .catch((err) => {
-          console.log(err);
-        });
+          this.error = err;
+        })
+        .finally((this.loading = false));
     }
   },
 };
@@ -176,7 +197,7 @@ export default {
 
 header {
   background-color: var(--transp2);
-  width: 35%;
+  width: 20rem;
   padding: 2rem;
   position: sticky;
   top: 0;
@@ -186,8 +207,8 @@ header {
 }
 
 header .picture {
-  width: 3.5rem;
-  height: 3.5rem;
+  width: 3.7rem;
+  height: 3.7rem;
   border-radius: 50%;
   overflow: hidden;
   align-self: center;
@@ -214,7 +235,7 @@ header li a {
   padding: 0.3rem 0;
   margin: 0.5rem 0;
   transition: 0.4s;
-  width: 6.5rem;
+  width: 6.1rem;
 }
 
 header li a:hover {
@@ -252,32 +273,11 @@ main {
   object-fit: cover;
 }
 
-.global-message {
-  background-color: var(--white);
-  width: 70%;
-  margin: auto;
-  min-height: 10rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-}
-
-.global-message p {
-  color: var(--red);
-  font-weight: bolder;
-  letter-spacing: 1.3px;
-}
-
 /*===== FORM =====*/
 .form-container {
   background-color: var(--transp2);
   width: 70%;
-  border-radius: 15px;
   margin: auto;
-  margin-bottom: 3rem;
 }
 
 .form-container h1 {
@@ -304,26 +304,12 @@ main {
 
 .form-group input {
   width: 100%;
-  border-radius: 5px;
   padding: 0.6rem;
   outline: 1px solid --black;
 }
 
 .form-group input::placeholder {
   color: var(--primary);
-}
-
-.form-group input:focus {
-  background-color: var(--light-gray);
-}
-
-.form-group .err-msg {
-  color: #dd4124;
-  margin-top: 0.3rem;
-  text-align: center;
-  font-size: 0.9rem;
-  width: 90%;
-  display: none;
 }
 
 #file-btn {
@@ -334,7 +320,6 @@ main {
   padding: 0.3rem;
   cursor: pointer;
   outline: var(--black) 1px solid;
-  border-radius: 3px;
 }
 
 #file {
@@ -342,10 +327,9 @@ main {
 }
 
 .form-group button {
-  width: 10rem;
+  width: 7rem;
   align-self: center;
   padding: 0.6rem 0;
-  border-radius: 20px;
   cursor: pointer;
   color: var(--white);
   background-color: var(--secondary);
@@ -359,6 +343,22 @@ main {
   background-color: transparent;
 }
 
+.error-msg {
+  background-color: var(--red);
+  width: 70%;
+  min-height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
+
+.error-msg p {
+  color: var(--white);
+  font-weight: bolder;
+  letter-spacing: 1.3px;
+}
+
 /* ===== POSTS ===== */
 .post-block {
   width: 70%;
@@ -368,7 +368,7 @@ main {
 
 .post-container {
   background-color: var(--white);
-  min-height: 15rem;
+  min-height: 11rem;
   padding: 2rem 3rem;
   margin-bottom: 1.5rem; /*TEMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 }
