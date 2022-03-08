@@ -53,9 +53,9 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from 'axios';
 export default {
-  name: "Login",
+  name: 'Login',
   data: function () {
     return {
       user: null,
@@ -64,11 +64,6 @@ export default {
     };
   },
   methods: {
-    onDelay(time) {
-      setTimeout(() => {
-        this.$router.push("posts");
-      }, time);
-    },
     submitLogin(event) {
       const { username, password } = Object.fromEntries(
         new FormData(event.target)
@@ -76,16 +71,16 @@ export default {
       this.username = username;
       this.password = password;
       axios
-        .post("http://localhost:3000/api/user/login", {
+        .post('http://localhost:3000/api/user/login', {
           username,
           password,
         })
         .then((res) => {
           this.user = res.data;
-          this.valid = "User logged successfully";
+          this.valid = 'User logged successfully';
           this.error = false;
-          localStorage.setItem("user", JSON.stringify(this.user));
-          this.onDelay(2500);
+          localStorage.setItem('user', JSON.stringify(this.user));
+          this.$router.push('posts');
         })
         .catch((err) => {
           this.valid = false;

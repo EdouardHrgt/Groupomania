@@ -1,5 +1,8 @@
 <template>
   <div class="posts-container">
+    <div class="global-message" v-if="error">
+      <p>{{ error }}</p>
+    </div>
     <header>
       <a class="picture" href="#">
         <img src="../assets/default_user.jpg" alt="profile-picture" />
@@ -12,7 +15,7 @@
           <a href="#"><i class="fa-solid fa-user"></i><span>Profile</span></a>
           <router-link to="/"
             ><i class="fa-solid fa-arrow-right-from-bracket"></i
-            ><span>Home</span></router-link
+            ><span>Log Out</span></router-link
           >
         </li>
       </ul>
@@ -46,15 +49,13 @@
               required
               maxlength="250"
             />
-            <p class="err-msg"></p>
           </div>
           <div class="form-group">
             <label for="file" id="file-btn">image</label>
             <input id="file" type="file" />
-            <p class="err-msg"></p>
           </div>
           <div class="form-group">
-            <button type="submit">Submit</button>
+            <button type="submit">Post !</button>
           </div>
         </form>
       </div>
@@ -64,7 +65,7 @@
           <div class="infos">
             <p class="post-author">
               <span>Author :</span>
-              {{ post.userId }}
+              Put username
             </p>
             <p class="post-date">
               <span>Date :</span>
@@ -87,7 +88,7 @@
           </div>
         </div>
         <!-- COMMENT -->
-        <div class="comment-container" v-if="comments">
+        <div class="comment-container" v-if="comments.length > 5">
           <div class="infos">
             <p class="post-author">
               <span>Author :</span>
@@ -119,33 +120,49 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from 'axios';
 export default {
-  name: "Posts",
+  name: 'Posts',
   data: function () {
     return {
       user: null,
       posts: [],
-      comments: false,
+      comments: [],
       error: null,
     };
   },
   methods: {
-    myTest() {
-      alert("ok");
+    dateFormat(date) {
+      return date.toLocaleDateString('fr');
     },
   },
   created() {
-    this.user = JSON.parse(localStorage.getItem("user"));
-    axios
-      .get("http://localhost:3000/api/post", { headers: { Authorization: "Bearer " + this.user.token } })
-      .then((res) => {
-        this.posts = res.data;
-        console.log(this.posts);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    if (!localStorage.getItem('user')) {
+      this.$router.push('Home');
+    } else {
+      this.user = JSON.parse(localStorage.getItem('user'));
+      //{headers: { Authorization: 'Bearer ' + this.user.token }};
+      //Get all Posts
+      axios
+        .get('http://localhost:3000/api/post')
+        .then((res) => {
+          this.posts = res.data;
+          console.log(this.posts);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      //Get all Comments
+      axios
+        .get('http://localhost:3000/api/comment')
+        .then((res) => {
+          this.comments = res.data;
+          console.log(this.comments);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   },
 };
 </script>
@@ -197,7 +214,7 @@ header li a {
   padding: 0.3rem 0;
   margin: 0.5rem 0;
   transition: 0.4s;
-  width: 6rem;
+  width: 6.5rem;
 }
 
 header li a:hover {
@@ -233,6 +250,25 @@ main {
   width: 20rem;
   height: 5rem;
   object-fit: cover;
+}
+
+.global-message {
+  background-color: var(--white);
+  width: 70%;
+  margin: auto;
+  min-height: 10rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+.global-message p {
+  color: var(--red);
+  font-weight: bolder;
+  letter-spacing: 1.3px;
 }
 
 /*===== FORM =====*/
@@ -334,6 +370,7 @@ main {
   background-color: var(--white);
   min-height: 15rem;
   padding: 2rem 3rem;
+  margin-bottom: 1.5rem; /*TEMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 }
 
 .infos {

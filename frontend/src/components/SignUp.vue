@@ -73,9 +73,9 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from 'axios';
 export default {
-  name: "SignUp",
+  name: 'SignUp',
   data: function () {
     return {
       error: false,
@@ -97,19 +97,19 @@ export default {
 
       if (this.confirm != this.password) {
         this.error = "Your password doesn't match !";
-        console.log({ username, email, password, confirm });
       }
+      // Else If
       if (this.confirm == this.password) {
         this.error = false;
         axios
-          .post("http://localhost:3000/api/user/signup", {
+          .post('http://localhost:3000/api/user/signup', {
             username,
             email,
             password,
           })
           .then((res) => {
             console.log(res);
-            this.valid = "Your account is now created !";
+            this.valid = 'Your account is now created !';
             this.error = false;
             this.autoLogin();
           })
@@ -121,11 +121,11 @@ export default {
     },
     autoLogin() {
       axios
-        .post("http://localhost:3000/api/user/login", this.user)
+        .post('http://localhost:3000/api/user/login', this.user)
         .then((res) => {
           this.user = res.data;
-          localStorage.setItem("user", JSON.stringify(this.user));
-          this.toPosts(2000);
+          localStorage.setItem('user', JSON.stringify(this.user));
+          this.toPosts(1500);
         })
         .catch((err) => {
           this.valid = false;
@@ -134,7 +134,7 @@ export default {
     },
     toPosts(time) {
       setTimeout(() => {
-        this.$router.push("posts");
+        this.$router.push('posts');
       }, time);
     },
   },

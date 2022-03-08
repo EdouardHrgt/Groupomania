@@ -1,21 +1,25 @@
 <template>
-    <div class="homepage">
-        <div class="container">
-            <img src="../assets/groupo-logo-white.png" alt="Logo de groupomania" />
-            <ul>
-                <li>
-                    <button><router-link to="/signup">Sign Up</router-link></button>
-                    <button><router-link to="/login">Login In</router-link></button>
-                    <button><router-link to="/posts">Posts</router-link></button>
-                </li>
-            </ul>
-      </div>
+  <div class="homepage">
+    <div class="container">
+      <img src="../assets/groupo-logo-white.png" alt="Logo de groupomania" />
+      <ul>
+        <li>
+          <button><router-link to="/signup">Sign Up</router-link></button>
+          <button><router-link to="/login">Login In</router-link></button>
+        </li>
+      </ul>
     </div>
+  </div>
 </template>
 
 <script>
 export default {
-  name: "HomePage",
+  name: 'HomePage',
+  mounted() {
+    if (localStorage.getItem('user')) {
+      this.$router.push('posts');
+    }
+  },
 };
 </script>
 
@@ -33,7 +37,7 @@ export default {
 }
 
 .homepage::after {
-  content: "";
+  content: '';
   position: absolute;
   z-index: 1;
   inset: 0;
@@ -68,7 +72,6 @@ export default {
   outline: none;
   border: none;
   background-color: var(--transp1);
-  border-radius: 15px;
   transition: 0.4s;
   padding: 0.3rem 1rem;
   width: 7rem;
@@ -77,6 +80,7 @@ export default {
 
 .container button:nth-child(2) {
   background-color: var(--transp4);
+  margin-left: 1.5rem;
 }
 
 .container button:hover {
@@ -90,13 +94,12 @@ export default {
   font-family: var(--font-2);
 }
 
-
 @media screen and (max-width: 1024px) {
   .homepage {
     clip-path: none;
     align-items: center;
   }
-    .homepage .container {
+  .homepage .container {
     width: 100%;
     flex-direction: column;
   }
