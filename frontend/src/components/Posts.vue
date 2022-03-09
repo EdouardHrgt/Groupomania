@@ -9,7 +9,7 @@
           <a href="#"
             ><i class="fa-solid fa-circle-plus"></i><span>Post</span></a
           >
-          <a href="#"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+          <a href="#" @click="openProfile()"><i class="fa-solid fa-user"></i><span>Profile</span></a>
           <a href="#" @click="logOut()"
             ><i class="fa-solid fa-arrow-right-from-bracket"></i
             ><span>Log Out</span></a
@@ -17,6 +17,9 @@
         </li>
       </ul>
     </header>
+    <section class="profile-page" v-if="profile">
+      <h2 @click="closeProfile()">My profile page</h2>
+    </section>
     <main>
       <div class="logo">
         <img src="../assets/groupo-logo-white.png" alt="logo groupomania" />
@@ -33,6 +36,7 @@
               placeholder="Title of your post..."
               required
               maxlength="70"
+              v-model="postTitle"
             />
             <p class="err-msg"></p>
           </div>
@@ -45,6 +49,7 @@
               placeholder="Content of your post..."
               required
               maxlength="250"
+              v-model="postContent"
             />
           </div>
           <div class="form-group">
@@ -57,21 +62,22 @@
         </form>
       </div>
       <loader v-if="loading" />
-      <div class="error-msg" v-if="error">
-        <p>{{ error }}</p>
+      <div class="error-msg" v-if="postErr || commentErr">
+        <p>{{ postErr }}</p>
+        <p>{{ commentErr }}</p>
       </div>
       <!-- POST -->
       <div class="post-block">
         <div
           class="post-container"
           v-for="(post, i) in posts"
-          :key="post.id"
+          :key="'post ' + post.id"
           :index="i"
         >
           <div class="infos">
             <p class="post-author">
               <span>Author :</span>
-              Username
+              UserId: {{ post.userId }}
             </p>
             <p class="post-date">
               <span>Date :</span>
@@ -79,11 +85,12 @@
             </p>
           </div>
           <div class="post-content">
-            <img src="#" alt="#" />
-            <p>{{ post.title }}</p>
+            <h2>{{ post.title }}</h2>
             <p>
               {{ post.content }}
+              {{ post.imageUrl }}
             </p>
+            <img src="#" alt="#" />
           </div>
           <div class="actions">
             <div class="owner-actions">
@@ -97,13 +104,13 @@
         <div
           class="comment-container"
           v-for="(comment, i) in comments"
-          :key="comment.id"
+          :key="'comment ' + comment.id"
           :index="i"
         >
           <div class="infos">
             <p class="post-author">
               <span>Author :</span>
-              UserName
+              UserId: {{ comment.userId }}
             </p>
             <p class="post-date">
               <span>Date :</span>
@@ -129,6 +136,8 @@
 <script>
 import axios from 'axios';
 import Loader from '@/components/Loader.vue';
+const url = 'http://localhost:3000/api/';
+//{headers: { Authorization: 'Bearer ' + this.user.token }};
 export default {
   name: 'Posts',
   components: {
@@ -137,10 +146,16 @@ export default {
   data: function () {
     return {
       user: null,
-      error: '',
+      profile: false,
       loading: false,
       posts: [],
       comments: [],
+      activities: [],
+      postTitle: '',
+      postContent: '',
+      postFile: '',
+      postErr: '',
+      commentErr: '',
     };
   },
   methods: {
@@ -155,32 +170,38 @@ export default {
     dateFormat(date) {
       return date.toLocaleDateString('fr');
     },
+    openProfile() {
+      return (this.profile = true);
+    },
+    closeProfile() {
+      return (this.profile = false);
+    },
   },
   created() {
     if (!localStorage.getItem('user')) {
       this.$router.push('/');
     } else {
-      this.loading = true;
       this.user = JSON.parse(localStorage.getItem('user'));
-      //{headers: { Authorization: 'Bearer ' + this.user.token }};
+      this.loading = true;
+      // Get all posts
       axios
-        .get('http://localhost:3000/api/post')
+        .get(`${url}post`)
         .then((res) => {
           this.posts = res.data;
           console.log(this.posts);
         })
         .catch((err) => {
-          this.error = err;
+          this.postErr = err;
         });
+      // Get all comments
       axios
-        .get('http://localhost:3000/api/comment')
+        .get(`${url}comment`)
         .then((res) => {
           this.comments = res.data;
-          this.error = '';
           console.log(this.comments);
         })
         .catch((err) => {
-          this.error = err;
+          this.commentErr = err;
         })
         .finally((this.loading = false));
     }
@@ -194,7 +215,7 @@ export default {
   margin: auto;
   display: flex;
 }
-
+/* ===== Header ===== */
 header {
   background-color: var(--transp2);
   width: 20rem;
@@ -250,7 +271,15 @@ header li a span {
   font-size: 1rem;
   margin-left: 1rem;
 }
-
+/* ===== Profile page ===== */
+.profile-page {
+  background-color: var(--white);
+  position: absolute;
+  inset: 0 10%;
+  z-index: 10;
+  text-align: center;
+  font-size: 3rem;
+}
 /* ===== MAIN ===== */
 main {
   padding: 2rem 5rem;
@@ -389,6 +418,9 @@ main {
   margin-right: 0.3rem;
 }
 
+.post-content h2 {
+  font-size: 1.1rem;
+}
 .post-content img {
   width: 100%;
   height: 300px;
@@ -420,7 +452,8 @@ main {
 
 /* ===== COMMENTS ===== */
 .comment-container {
-  background-color: var(--light-gray);
+  /*background-color: var(--light-gray);*/
+  background-color: var(--red);
   align-self: center;
   padding: 0.5rem 3rem;
   border-top: 1px solid var(--black);
