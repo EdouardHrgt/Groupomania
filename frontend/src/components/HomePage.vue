@@ -118,6 +118,7 @@ export default {
   }
   .homepage .container img {
     margin-left: 2rem;
+    width: 85%;
   }
   .container ul {
     margin: 2rem 0 0 2rem;

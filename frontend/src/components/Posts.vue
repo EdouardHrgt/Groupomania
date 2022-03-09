@@ -9,7 +9,9 @@
           <a href="#"
             ><i class="fa-solid fa-circle-plus"></i><span>Post</span></a
           >
-          <a href="#" @click="openProfile()"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+          <a href="#" @click="openProfile()"
+            ><i class="fa-solid fa-user"></i><span>Profile</span></a
+          >
           <a href="#" @click="logOut()"
             ><i class="fa-solid fa-arrow-right-from-bracket"></i
             ><span>Log Out</span></a
@@ -68,12 +70,7 @@
       </div>
       <!-- POST -->
       <div class="post-block">
-        <div
-          class="post-container"
-          v-for="(post, i) in posts"
-          :key="'post ' + post.id"
-          :index="i"
-        >
+        <div class="post-container" v-for="post in posts" :key="post.id">
           <div class="infos">
             <p class="post-author">
               <span>Author :</span>
@@ -87,45 +84,45 @@
           <div class="post-content">
             <h2>{{ post.title }}</h2>
             <p>
+              POSTS ID = {{ post.id }}
               {{ post.content }}
               {{ post.imageUrl }}
             </p>
             <img src="#" alt="#" />
           </div>
           <div class="actions">
-            <div class="owner-actions">
-              <i class="fa-solid fa-pen" @click="temp()"></i>
-              <i class="fa-solid fa-trash" @click="temp()"></i>
+            <div class="owner-actions" v-if="user.userId == post.userId">
+              <i class="fa-solid fa-pen"></i>
+              <i class="fa-solid fa-trash"></i>
             </div>
-            <i class="fa-solid fa-reply" @click="temp()"></i>
+            <i class="fa-solid fa-reply"></i>
           </div>
-        </div>
-        <!-- COMMENT -->
-        <div
-          class="comment-container"
-          v-for="(comment, i) in comments"
-          :key="'comment ' + comment.id"
-          :index="i"
-        >
-          <div class="infos">
-            <p class="post-author">
-              <span>Author :</span>
-              UserId: {{ comment.userId }}
-            </p>
-            <p class="post-date">
-              <span>Date :</span>
-              {{ comment.date }}
-            </p>
-          </div>
-          <div class="comment-content">
-            <p>{{ comment.content }}</p>
-          </div>
-          <div class="actions">
-            <div class="owner-actions">
-              <i class="fa-solid fa-pen" @click="temp()"></i>
-              <i class="fa-solid fa-trash" @click="temp()"></i>
+          <!-- COMMENT -->
+          <div
+            class="comment-container"
+            v-for="comment in filterComments(post.id)"
+            :key="comment.id"
+          >
+            <div class="infos">
+              <p class="post-author">
+                <span>Author :</span>
+                PostID : {{ comment.postId }}
+              </p>
+              <p class="post-date">
+                <span>Date :</span>
+                {{ comment.date }}
+              </p>
             </div>
-            <i class="fa-solid fa-reply" @click="temp()"></i>
+            <div class="comment-content">
+              <p>{{ comment.content }}</p>
+            </div>
+            <div class="actions">
+              <div class="owner-actions" v-if="user.userId == comment.userId">
+                <i class="fa-solid fa-pen"></i>
+                <i class="fa-solid fa-trash"></i>
+              </div>
+              <i class="fa-solid fa-reply"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -156,19 +153,18 @@ export default {
       postFile: '',
       postErr: '',
       commentErr: '',
+      commentOK: false,
     };
   },
   methods: {
+    filterComments(idPost) {
+      console.log('filter is called');
+      return this.comments.filter((comment) => comment.postId == idPost);
+    },
     logOut() {
       localStorage.removeItem('user');
       this.user = null;
       this.$router.push('/');
-    },
-    temp() {
-      alert('Element clicked ! ');
-    },
-    dateFormat(date) {
-      return date.toLocaleDateString('fr');
     },
     openProfile() {
       return (this.profile = true);
@@ -188,7 +184,6 @@ export default {
         .get(`${url}post`)
         .then((res) => {
           this.posts = res.data;
-          console.log(this.posts);
         })
         .catch((err) => {
           this.postErr = err;
@@ -198,7 +193,6 @@ export default {
         .get(`${url}comment`)
         .then((res) => {
           this.comments = res.data;
-          console.log(this.comments);
         })
         .catch((err) => {
           this.commentErr = err;
@@ -210,6 +204,10 @@ export default {
 </script>
 
 <style scoped>
+.temp-comment {
+  background-color: orange;
+  border-bottom: 2px black solid;
+}
 .posts-container {
   width: 1440px;
   margin: auto;
