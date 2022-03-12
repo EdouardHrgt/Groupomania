@@ -1,6 +1,6 @@
 <template>
-  <div class="signup-container">
-    <header>
+  <div class="flex signup-container">
+    <header class="flex">
       <ul>
         <li><router-link to="/">HOME</router-link></li>
         <div class="bar"></div>
@@ -146,17 +146,11 @@ export default {
   width: 1440px;
   min-height: 100vh;
   margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
 }
 
 header {
   width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: fixed;
   top: 5rem;
 }
@@ -326,7 +320,6 @@ h1 {
     width: 70%;
   }
 }
-
 @media screen and (max-width: 800px) {
   .form-container {
     width: 90%;

@@ -1,5 +1,5 @@
 <template>
-  <div class="login-container">
+  <div class="flex login-container">
     <header>
       <ul>
         <li><router-link to="/">HOME</router-link></li>
@@ -8,6 +8,9 @@
       </ul>
     </header>
     <h1>Login In</h1>
+    <div class="loader" v-if="loading">
+      <loader />
+    </div>
     <div class="form-container">
       <form @submit.prevent="submitLogin">
         <div class="form-group">
@@ -34,7 +37,7 @@
           />
         </div>
         <div class="message" v-if="error || valid">
-          <p class="err-msg" v-if="error">{{ error }}</p>
+          <p class="err-msg" v-if="error">{{ error }} {{ fail }}</p>
           <p class="valid-msg" v-if="valid">{{ valid }}</p>
         </div>
         <div class="form-group">
@@ -54,17 +57,24 @@
 
 <script>
 import axios from 'axios';
+import Loader from '@/components/Loader.vue';
 export default {
   name: 'Login',
+  components: {
+    loader: Loader,
+  },
   data: function () {
     return {
       user: null,
       error: false,
       valid: false,
+      fail: null,
+      loading: false,
     };
   },
   methods: {
     submitLogin(event) {
+      this.loading = true;
       const { username, password } = Object.fromEntries(
         new FormData(event.target)
       );
@@ -81,10 +91,17 @@ export default {
           this.error = false;
           localStorage.setItem('user', JSON.stringify(this.user));
           this.$router.push('posts');
+          this.loading = false;
         })
         .catch((err) => {
           this.valid = false;
-          this.error = err.response.data.message;
+          if (err.response === undefined) {
+            this.fail = 'Something went wrong... Please try again later !';
+            this.error = true;
+          } else {
+            this.error = err.response.data.message;
+          }
+          this.loading = false;
         });
     },
   },
@@ -96,9 +113,6 @@ export default {
   width: 1440px;
   min-height: 100vh;
   margin: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
 }
 

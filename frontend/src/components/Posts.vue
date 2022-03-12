@@ -1,34 +1,37 @@
 <template>
-  <div class="posts-container">
+  <div class="page-container">
+    <div class="loader" v-if="loading">
+      <loader />
+    </div>
     <header>
-      <a class="picture" href="#">
-        <img src="../assets/default_user.jpg" alt="profile-picture" />
-      </a>
-      <ul>
-        <li>
-          <a href="#"
-            ><i class="fa-solid fa-circle-plus"></i><span>Post</span></a
-          >
-          <a href="#" @click="openProfile()"
-            ><i class="fa-solid fa-user"></i><span>Profile</span></a
-          >
-          <a href="#" @click="logOut()"
-            ><i class="fa-solid fa-arrow-right-from-bracket"></i
-            ><span>Log Out</span></a
-          >
-        </li>
-      </ul>
+      <div class="header-content">
+        <div class="picture" @click="openProfile()">
+          <img src="../assets/default_user.jpg" alt="profile-picture" />
+        </div>
+        <ul>
+          <li>
+            <div @click="openProfile()">
+              <i class="fa-solid fa-user"></i><span>Profile</span>
+            </div>
+            <div @click="logOut()">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i
+              ><span>Log Out</span>
+            </div>
+          </li>
+        </ul>
+      </div>
     </header>
-    <section class="profile-page" v-if="profile">
-      <h2 @click="closeProfile()">My profile page</h2>
-    </section>
-    <main>
-      <div class="logo">
-        <img src="../assets/groupo-logo-white.png" alt="logo groupomania" />
+    <main class="activities-container">
+      <div class="logo-wrapper">
+        <img
+          class="logo"
+          src="../assets/groupo-logo-white.png"
+          alt="logo groupomania"
+        />
       </div>
       <div class="form-container">
         <h1>New post</h1>
-        <form>
+        <form @submit.prevent="newPost">
           <div class="form-group">
             <label for="title">Title : </label>
             <input
@@ -37,8 +40,8 @@
               id="title"
               placeholder="Title of your post..."
               required
+              minLength="5"
               maxlength="70"
-              v-model="postTitle"
             />
             <p class="err-msg"></p>
           </div>
@@ -51,44 +54,38 @@
               placeholder="Content of your post..."
               required
               maxlength="250"
-              v-model="postContent"
             />
           </div>
           <div class="form-group">
             <label for="file" id="file-btn">image</label>
-            <input id="file" type="file" />
+            <input id="file" type="file" name="image" />
           </div>
           <div class="form-group">
             <button type="submit">Post !</button>
           </div>
         </form>
       </div>
-      <loader v-if="loading" />
       <div class="error-msg" v-if="postErr || commentErr">
         <p>{{ postErr }}</p>
         <p>{{ commentErr }}</p>
       </div>
-      <!-- POST -->
-      <div class="post-block">
+      <!-- ###### POSTS ###### -->
+      <section class="all-posts-container">
+        <!-- 1 post -->
         <div class="post-container" v-for="post in posts" :key="post.id">
           <div class="infos">
-            <p class="post-author">
-              <span>Author :</span>
-              UserId: {{ post.userId }}
-            </p>
-            <p class="post-date">
-              <span>Date :</span>
-              {{ post.date }}
-            </p>
+            <div class="author">
+              <img src="../assets/default_user.jpg" alt="Profile picture" />
+              <p class="username">UserID: {{ post.userId }}</p>
+            </div>
+            <p class="date">{{ post.date }}</p>
           </div>
-          <div class="post-content">
-            <h2>{{ post.title }}</h2>
+          <div class="content">
+            <h3>{{ post.title }}</h3>
             <p>
-              POSTS ID = {{ post.id }}
               {{ post.content }}
-              {{ post.imageUrl }}
             </p>
-            <img src="#" alt="#" />
+            <img src="../assets/home-bg.jpg" alt="#" />
           </div>
           <div class="actions">
             <div class="owner-actions" v-if="user.userId == post.userId">
@@ -97,35 +94,37 @@
             </div>
             <i class="fa-solid fa-reply"></i>
           </div>
-          <!-- COMMENT -->
+          <!-- 1 Comment -->
           <div
             class="comment-container"
             v-for="comment in filterComments(post.id)"
             :key="comment.id"
           >
-            <div class="infos">
-              <p class="post-author">
-                <span>Author :</span>
-                PostID : {{ comment.postId }}
-              </p>
-              <p class="post-date">
-                <span>Date :</span>
-                {{ comment.date }}
-              </p>
+            <div class="comment-infos">
+              <img src="../assets/default_user.jpg" alt="Profile picture" />
+              <p class="comment-username">PostID: {{ comment.postId }}</p>
+              <p class="comment-date">{{ comment.date }}</p>
             </div>
             <div class="comment-content">
-              <p>{{ comment.content }}</p>
+              <p>
+                {{ comment.content }}
+              </p>
             </div>
-            <div class="actions">
-              <div class="owner-actions" v-if="user.userId == comment.userId">
+            <div class="comment-actions">
+              <div
+                class="comment-owner-actions"
+                v-if="user.userId == comment.userId"
+              >
                 <i class="fa-solid fa-pen"></i>
                 <i class="fa-solid fa-trash"></i>
               </div>
               <i class="fa-solid fa-reply"></i>
             </div>
           </div>
+          <!-- End comment -->
         </div>
-      </div>
+        <!-- End post -->
+      </section>
     </main>
   </div>
 </template>
@@ -158,7 +157,7 @@ export default {
   },
   methods: {
     filterComments(idPost) {
-      console.log('filter is called');
+      // console.log('filter is called');
       return this.comments.filter((comment) => comment.postId == idPost);
     },
     logOut() {
@@ -167,13 +166,25 @@ export default {
       this.$router.push('/');
     },
     openProfile() {
+      alert(this.user.username);
       return (this.profile = true);
     },
     closeProfile() {
+      alert('Profile page close');
       return (this.profile = false);
     },
+    newPost(event) {
+      const { userId, title, content, image } = Object.fromEntries(
+        new FormData(event.target)
+      );
+      this.userId = this.user.username;
+      this.title = title;
+      this.content = content;
+      this.image = image;
+      console.log({ userId, title, content, image });
+    },
   },
-  created() {
+  mounted() {
     if (!localStorage.getItem('user')) {
       this.$router.push('/');
     } else {
@@ -193,134 +204,109 @@ export default {
         .get(`${url}comment`)
         .then((res) => {
           this.comments = res.data;
+          this.loading = false;
         })
         .catch((err) => {
           this.commentErr = err;
-        })
-        .finally((this.loading = false));
+        });
     }
   },
 };
 </script>
 
 <style scoped>
-.temp-comment {
-  background-color: orange;
-  border-bottom: 2px black solid;
-}
-.posts-container {
+/*MAIN WRAPPER*/
+.page-container {
   width: 1440px;
+  min-height: 100vh;
   margin: auto;
   display: flex;
 }
-/* ===== Header ===== */
+/*HEADER*/
 header {
+  min-height: 100vh;
   background-color: var(--transp2);
-  width: 20rem;
-  padding: 2rem;
-  position: sticky;
-  top: 0;
+}
+.header-content {
+  min-width: 15rem;
+  max-width: 15rem;
+  padding: 2rem 0;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  position: sticky;
+  top: 0;
 }
-
 header .picture {
-  width: 3.7rem;
-  height: 3.7rem;
-  border-radius: 50%;
+  width: 4rem;
+  height: 4rem;
   overflow: hidden;
-  align-self: center;
   margin-bottom: 2rem;
-  transition: 0.4s;
+  align-self: center;
+  border-radius: 10px;
 }
-
 .picture img {
   width: inherit;
   height: inherit;
   object-fit: cover;
 }
-
 header ul li {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-left: 1rem;
 }
-
-header li a {
+header li div {
   color: var(--white);
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   font-family: var(--font-2);
-  padding: 0.3rem 0;
   margin: 0.5rem 0;
   transition: 0.4s;
   width: 6.1rem;
+  cursor: pointer;
 }
-
-header li a:hover {
+header li div:hover {
   color: #dd00ff;
 }
-
-header li a i {
-  width: 1.5rem;
+header li i {
+  width: 1rem;
 }
-
-header li a span {
+header li span {
   font-size: 1rem;
   margin-left: 1rem;
 }
-/* ===== Profile page ===== */
-.profile-page {
-  background-color: var(--white);
-  position: absolute;
-  inset: 0 10%;
-  z-index: 10;
-  text-align: center;
-  font-size: 3rem;
-}
-/* ===== MAIN ===== */
-main {
-  padding: 2rem 5rem;
-  display: flex;
-  flex-direction: column;
+/*ACTIVITIES*/
+.activities-container {
   width: 100%;
 }
-
-.logo {
-  display: flex;
-  justify-content: center;
-  border-bottom: 1px solid var(--white);
-  padding-bottom: 1rem;
-  margin-bottom: 3rem;
+.logo-wrapper {
+  text-align: center;
+  width: 100%;
 }
-
-.logo img {
-  width: 20rem;
-  height: 5rem;
+.logo {
+  margin: 2rem;
+  width: 21rem;
+  height: 4rem;
   object-fit: cover;
 }
-
-/*===== FORM =====*/
 .form-container {
   background-color: var(--transp2);
-  width: 70%;
+  width: 60%;
   margin: auto;
 }
-
 .form-container h1 {
   font-family: var(--font-2);
-  color: var(--white);
+  color: var(--secondary);
   text-align: center;
   padding-top: 0.5rem;
+  font-size: 1.5rem;
 }
-
 .form-group {
-  width: 100%;
+  width: 90%;
+  margin: auto;
   display: flex;
   flex-direction: column;
-  padding: 0.3rem 2rem;
+  padding: 0.3rem 1.5rem;
 }
-
 .form-group label {
   font-family: var(--font-2);
   font-size: 1.1rem;
@@ -328,17 +314,14 @@ main {
   width: 100%;
   margin-bottom: 0.3rem;
 }
-
 .form-group input {
   width: 100%;
   padding: 0.6rem;
   outline: 1px solid --black;
 }
-
 .form-group input::placeholder {
   color: var(--primary);
 }
-
 #file-btn {
   background-color: var(--white);
   color: var(--primary);
@@ -348,11 +331,9 @@ main {
   cursor: pointer;
   outline: var(--black) 1px solid;
 }
-
 #file {
   display: none;
 }
-
 .form-group button {
   width: 7rem;
   align-self: center;
@@ -364,78 +345,65 @@ main {
   font-weight: 700;
   transition: 0.4s;
 }
-
 .form-group button:hover {
   outline: var(--white) 1px solid;
   background-color: transparent;
 }
-
 .error-msg {
   background-color: var(--red);
-  width: 70%;
-  min-height: 4rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 60%;
+  margin: 1rem auto;
+  text-align: center;
+  color: var(--white);
+  display: none;
+}
+/*POSTS + COMMENTS*/
+.all-posts-container {
+  width: 60%;
   margin: auto;
 }
-
-.error-msg p {
-  color: var(--white);
-  font-weight: bolder;
-  letter-spacing: 1.3px;
-}
-
-/* ===== POSTS ===== */
-.post-block {
-  width: 70%;
-  align-self: center;
-  margin-bottom: 3rem;
-}
-
-.post-container {
-  background-color: var(--white);
-  min-height: 11rem;
-  padding: 2rem 3rem;
-  margin-bottom: 1.5rem; /*TEMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-}
-
 .infos {
-  background-color: var(--light-gray);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
-  padding: 0.2rem 0;
-}
-
-.infos span {
-  font-family: var(--font-2);
+  padding: 0.5rem 1rem;
+  background-color: var(--white);
+  border-bottom: 1px solid var(--primary);
   color: var(--primary);
   font-weight: bolder;
-  margin-right: 0.3rem;
 }
-
-.post-content h2 {
+.author {
+  display: flex;
+  align-items: center;
+}
+.infos img {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+.content {
+  padding: 0.5rem 1rem 0 1rem;
+  background-color: var(--white);
+}
+.content h3 {
   font-size: 1.1rem;
 }
-.post-content img {
+.content img {
   width: 100%;
   height: 300px;
   object-fit: cover;
   margin-bottom: 0.5rem;
 }
-
-.post-content p {
+.content p {
   text-align: justify;
 }
-
 .actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 0.5rem;
+  padding: 0rem 1rem;
+  background-color: var(--white);
 }
-
 .actions i {
   color: var(--primary);
   font-size: 1.2rem;
@@ -443,77 +411,136 @@ main {
   transition: 0.4s;
   cursor: pointer;
 }
-
-.actions i:hover {
-  color: var(--secondary);
+.actions .fa-trash {
+  color: var(--red);
 }
-
-/* ===== COMMENTS ===== */
+.actions i:hover,
+.comment-actions i:hover {
+  opacity: 0.7;
+  transform: scale(1.2);
+}
 .comment-container {
-  /*background-color: var(--light-gray);*/
-  background-color: var(--red);
-  align-self: center;
-  padding: 0.5rem 3rem;
-  border-top: 1px solid var(--black);
+  background-color: var(--gray);
+  padding: 1rem;
+  font-size: 0.8rem;
 }
-
+.comment-infos {
+  background-color: var(--white);
+  display: flex;
+  align-items: center;
+  position: relative;
+  color: var(--primary);
+  border-bottom: 1px solid var(--gray);
+}
+.comment-infos img {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  margin-right: 1rem;
+}
+.comment-username {
+  font-weight: bolder;
+}
+.comment-date {
+  width: auto;
+  margin-left: auto;
+}
 .comment-content {
   background-color: var(--white);
-  padding: 0.4rem 0;
+  font-style: italic;
+  padding: 0.3rem;
 }
+.comment-actions {
+  display: flex;
+  background-color: var(--white);
+  align-items: center;
+  justify-content: flex-end;
+}
+.comment-actions i {
+  margin: 0 0.3rem;
+  padding: 0.3rem 0;
+  cursor: pointer;
+}
+/*RESPONSIVE*/
 @media screen and (max-width: 1440px) {
-  .posts-container {
-    width: 100%;
+  .page-container {
+    width: 90%;
+  }
+  .form-container,
+  .all-posts-container {
+    width: 80%;
   }
 }
 @media screen and (max-width: 1024px) {
-  .posts-container {
-    width: 100%;
-    display: block;
-  }
-  .logo {
-    display: none;
+  .page-container {
+    flex-direction: column;
   }
   header {
-    width: 100%;
-    height: 7rem;
+    min-height: 6rem;
+    max-height: 7rem;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    z-index: 100;
+    top: 0;
+    background-color: var(--transp5);
+    backdrop-filter: blur(2px);
+  }
+  .header-content {
+    min-width: 90%;
+    margin: auto;
+    padding: 0;
     flex-direction: row;
-    background-color: #10001b;
-    border-bottom: white 2px solid;
+    align-items: center;
+    justify-content: space-between;
   }
   header .picture {
     margin-bottom: 0;
-  }
-  header ul {
-    width: 100%;
+    align-self: center;
+    outline: none;
   }
   header ul li {
     flex-direction: row;
-    justify-content: center;
+    align-items: center;
+    padding-left: 1rem;
   }
-  header li a {
-    padding: 0.3rem 0;
-    margin: 0.5rem 1rem;
+  header li div {
+    margin: 0;
   }
-  header li a span {
+  .logo-wrapper {
     display: none;
   }
+  .form-container {
+    margin-top: 2rem;
+  }
   .form-container,
-  .post-block {
-    width: 90%;
+  .all-posts-container {
+    width: 80%;
   }
 }
 @media screen and (max-width: 800px) {
-  .posts-container,
-  .form-container,
-  .post-block {
+  .page-container {
     width: 100%;
   }
-  main {
-    padding: 2rem 2rem;
+  header li div {
+    width: auto;
   }
-  .post-container {
-    padding: 1rem;
+  header li i {
+    width: auto;
+    font-size: 1.5rem;
+    padding: 0 1rem;
+  }
+  header li span {
+    display: none;
+  }
+  header .picture {
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 50%;
+  }
+  .form-container,
+  .all-posts-container {
+    width: 100%;
   }
 }
 </style>
