@@ -207,7 +207,7 @@ export default {
         .get(`${url}comment/filter/${postId}`)
         .then((res) => {
           console.log(res.data);
-          
+          console.log('ok');
         })
         .catch((err) => {
           console.log(err);
