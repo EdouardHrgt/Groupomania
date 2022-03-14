@@ -10,6 +10,19 @@ exports.getAllComments = (req, res, next) => {
   });
 };
 
+exports.getLinkedComments = (req, res, next) => {
+  const postId = req.params.postId;
+  console.log(postId);
+  db.query(`SELECT * FROM comments WHERE postId= ?`, postId, (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json(err);
+    }
+    console.log(result);
+    return res.status(200).json(result);
+  });
+};
+
 exports.getOneComment = (req, res, next) => {
   const id = req.params.id;
   db.query(`SELECT * FROM comments WHERE id= ?`, id, (err, result, fields) => {

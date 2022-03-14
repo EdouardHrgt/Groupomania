@@ -5,14 +5,12 @@
     </div>
     <header>
       <div class="header-content">
-        <div class="picture" @click="openProfile()">
+        <div class="picture" @click="getComments(3)">
           <img src="../assets/default_user.jpg" alt="profile-picture" />
         </div>
         <ul>
           <li>
-            <div @click="openProfile()">
-              <i class="fa-solid fa-user"></i><span>Profile</span>
-            </div>
+            <div><i class="fa-solid fa-user"></i><span>Profile</span></div>
             <div @click="logOut()">
               <i class="fa-solid fa-arrow-right-from-bracket"></i
               ><span>Log Out</span>
@@ -43,7 +41,6 @@
               minLength="5"
               maxlength="70"
             />
-            <p class="err-msg"></p>
           </div>
           <div class="form-group">
             <label for="content">Content : </label>
@@ -59,6 +56,11 @@
           <div class="form-group">
             <label for="file" id="file-btn">image</label>
             <input id="file" type="file" name="image" />
+          </div>
+          <div class="form-group">
+            <p class="new-post-msg" v-if="newPostMsg">
+              Your new post is created !
+            </p>
           </div>
           <div class="form-group">
             <button type="submit">Post !</button>
@@ -83,16 +85,17 @@
           <div class="content">
             <h3>{{ post.title }}</h3>
             <p>
+              Post Id : {{ post.id }} <br />
               {{ post.content }}
             </p>
-            <img src="../assets/home-bg.jpg" alt="#" />
+            <img :src="post.imageUrl" v-if="post.imageUrl" alt="#" />
           </div>
           <div class="actions">
             <div class="owner-actions" v-if="user.userId == post.userId">
               <i class="fa-solid fa-pen"></i>
               <i class="fa-solid fa-trash"></i>
             </div>
-            <i class="fa-solid fa-reply"></i>
+            <i class="fa-solid fa-message"></i>
           </div>
           <!-- 1 Comment -->
           <div
@@ -118,8 +121,28 @@
                 <i class="fa-solid fa-pen"></i>
                 <i class="fa-solid fa-trash"></i>
               </div>
-              <i class="fa-solid fa-reply"></i>
+              <i class="fa-solid fa-reply" @click="openComment()"></i>
             </div>
+            <!-- COMMENT FORM -->
+            <div class="comment-form-container" v-show="commentForm">
+              <form>
+                <div class="form-group">
+                  <label for="content">Comment :</label>
+                  <input
+                    type="textarea"
+                    name="content"
+                    id="content"
+                    placeholder="Content of your comment..."
+                    required
+                    maxlength="250"
+                  />
+                </div>
+                <div class="form-group">
+                  <button type="submit">Comment !</button>
+                </div>
+              </form>
+            </div>
+            <!-- END COMMENT FORM -->
           </div>
           <!-- End comment -->
         </div>
@@ -141,23 +164,55 @@ export default {
   },
   data: function () {
     return {
-      user: null,
       profile: false,
       loading: false,
       posts: [],
       comments: [],
-      activities: [],
-      postTitle: '',
-      postContent: '',
-      postFile: '',
       postErr: '',
       commentErr: '',
-      commentOK: false,
+      commentForm: false,
+      user: null,
+      newPostMsg: null,
     };
   },
   methods: {
+    newPost(event) {
+      const userId = String(this.user.userId);
+      const { title, content, image } = Object.fromEntries(
+        new FormData(event.target)
+      );
+      this.title = title;
+      this.content = content;
+      this.image = image;
+      let newPost = {};
+
+      if (this.image.name == '') {
+        newPost = { title, content, userId };
+      } else {
+        newPost = { title, content, image, userId };
+      }
+      console.log(newPost);
+      axios
+        .post(`${url}post`, newPost)
+        .then((res) => {
+          console.log(res.data);
+          this.newPostMsg = res.data.message;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    getComments(postId) {
+      axios
+        .get(`${url}comment/filter/${postId}`)
+        .then((res) => {
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
     filterComments(idPost) {
-      // console.log('filter is called');
       return this.comments.filter((comment) => comment.postId == idPost);
     },
     logOut() {
@@ -165,23 +220,8 @@ export default {
       this.user = null;
       this.$router.push('/');
     },
-    openProfile() {
-      alert(this.user.username);
-      return (this.profile = true);
-    },
-    closeProfile() {
-      alert('Profile page close');
-      return (this.profile = false);
-    },
-    newPost(event) {
-      const { userId, title, content, image } = Object.fromEntries(
-        new FormData(event.target)
-      );
-      this.userId = this.user.username;
-      this.title = title;
-      this.content = content;
-      this.image = image;
-      console.log({ userId, title, content, image });
+    openComment() {
+      return (this.commentForm = true);
     },
   },
   mounted() {
@@ -190,16 +230,15 @@ export default {
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
       this.loading = true;
-      // Get all posts
       axios
         .get(`${url}post`)
         .then((res) => {
           this.posts = res.data;
+          console.log(res.data);
         })
         .catch((err) => {
           this.postErr = err;
         });
-      // Get all comments
       axios
         .get(`${url}comment`)
         .then((res) => {
@@ -300,6 +339,10 @@ header li span {
   padding-top: 0.5rem;
   font-size: 1.5rem;
 }
+.comment-form-container {
+  width: 100%;
+  background-color: var(--transp2);
+}
 .form-group {
   width: 90%;
   margin: auto;
@@ -357,10 +400,18 @@ header li span {
   color: var(--white);
   display: none;
 }
+.new-post-msg {
+  color: var(--white);
+  background-color: var(--green);
+  text-align: center;
+}
 /*POSTS + COMMENTS*/
 .all-posts-container {
   width: 60%;
   margin: auto;
+}
+.post-container {
+  margin-top: 1rem;
 }
 .infos {
   display: flex;
@@ -421,7 +472,7 @@ header li span {
 }
 .comment-container {
   background-color: var(--gray);
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   font-size: 0.8rem;
 }
 .comment-infos {

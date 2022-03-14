@@ -28,7 +28,6 @@
         <div class="form-group">
           <label for="password">Password : </label>
           <input
-            oninvalid="this.setCustomValidity('Your password must be a least 8 caracters with caps and number')"
             type="password"
             name="password"
             placeholder="Enter your password"
@@ -68,7 +67,6 @@ export default {
       user: null,
       error: false,
       valid: false,
-      fail: null,
       loading: false,
     };
   },
@@ -87,17 +85,16 @@ export default {
         })
         .then((res) => {
           this.user = res.data;
+          localStorage.setItem('user', JSON.stringify(this.user));
           this.valid = 'User logged successfully';
           this.error = false;
-          localStorage.setItem('user', JSON.stringify(this.user));
-          this.$router.push('posts');
           this.loading = false;
+          this.$router.push('posts');
         })
         .catch((err) => {
           this.valid = false;
           if (err.response === undefined) {
-            this.fail = 'Something went wrong... Please try again later !';
-            this.error = true;
+            this.error = 'Something went wrong... Please try again later !';
           } else {
             this.error = err.response.data.message;
           }
