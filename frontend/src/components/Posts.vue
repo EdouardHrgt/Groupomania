@@ -98,20 +98,14 @@
             <i class="fa-solid fa-message"></i>
           </div>
           <!-- 1 Comment -->
-          <div
-            class="comment-container"
-            v-for="comment in filterComments(post.id)"
-            :key="comment.id"
-          >
+          <div class="comment-container">
             <div class="comment-infos">
               <img src="../assets/default_user.jpg" alt="Profile picture" />
-              <p class="comment-username">PostID: {{ comment.postId }}</p>
-              <p class="comment-date">{{ comment.date }}</p>
+              <p class="comment-username">comment.postId</p>
+              <p class="comment-date">comment.date</p>
             </div>
             <div class="comment-content">
-              <p>
-                {{ comment.content }}
-              </p>
+              <p>comment content</p>
             </div>
             <div class="comment-actions">
               <div
@@ -123,7 +117,7 @@
               </div>
               <i class="fa-solid fa-reply" @click="openComment()"></i>
             </div>
-            <!-- COMMENT FORM -->
+            <!-- Comment form -->
             <div class="comment-form-container" v-show="commentForm">
               <form>
                 <div class="form-group">
@@ -142,7 +136,7 @@
                 </div>
               </form>
             </div>
-            <!-- END COMMENT FORM -->
+            <!-- End comment form-->
           </div>
           <!-- End comment -->
         </div>
@@ -207,14 +201,10 @@ export default {
         .get(`${url}comment/filter/${postId}`)
         .then((res) => {
           console.log(res.data);
-          console.log('ok');
         })
         .catch((err) => {
           console.log(err);
         });
-    },
-    filterComments(idPost) {
-      return this.comments.filter((comment) => comment.postId == idPost);
     },
     logOut() {
       localStorage.removeItem('user');
@@ -235,19 +225,11 @@ export default {
         .get(`${url}post`)
         .then((res) => {
           this.posts = res.data;
+          this.loading = false;
           console.log(res.data);
         })
         .catch((err) => {
           this.postErr = err;
-        });
-      axios
-        .get(`${url}comment`)
-        .then((res) => {
-          this.comments = res.data;
-          this.loading = false;
-        })
-        .catch((err) => {
-          this.commentErr = err;
         });
     }
   },
