@@ -10,7 +10,7 @@ exports.getAllComments = (req, res, next) => {
   });
 };
 
-exports.getLinkedComments = (req, res, next) => {
+exports.getPostComments = (req, res, next) => {
   const postId = req.params.postId;
   console.log(postId);
   db.query(`SELECT * FROM comments WHERE postId= ?`, postId, (err, result, fields) => {

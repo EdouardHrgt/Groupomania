@@ -1,5 +1,5 @@
 <template>
-  <div class="flex loader-container">
+  <div class="loader-container">
     <div class="lds-spinner">
       <div></div>
       <div></div>
@@ -24,6 +24,11 @@ export default {
 </script>
 
 <style scoped>
+.loader-container {
+  margin: auto;
+  width: 100%;
+  text-align: center;
+}
 .lds-spinner {
   color: official;
   display: inline-block;

@@ -54,8 +54,8 @@
             />
           </div>
           <div class="form-group">
-            <label for="file" id="file-btn">image</label>
-            <input id="file" type="file" name="image" />
+            <label for="image" id="file-btn">image</label>
+            <input id="image" type="file" name="image" />
           </div>
           <div class="form-group">
             <p class="new-post-msg" v-if="newPostMsg">
@@ -67,9 +67,8 @@
           </div>
         </form>
       </div>
-      <div class="error-msg" v-if="postErr || commentErr">
-        <p>{{ postErr }}</p>
-        <p>{{ commentErr }}</p>
+      <div class="error-msg" v-if="fetchErr">
+        <p>{{ fetchErr }}</p>
       </div>
       <!-- ###### POSTS ###### -->
       <section class="all-posts-container">
@@ -164,8 +163,7 @@ export default {
       loading: false,
       posts: [],
       comments: [],
-      postErr: '',
-      commentErr: '',
+      fetchErr: '',
       commentForm: false,
       user: null,
       newPostMsg: null,
@@ -174,22 +172,10 @@ export default {
   methods: {
     newPost(event) {
       const userId = String(this.user.userId);
-      const { title, content, image } = Object.fromEntries(
-        new FormData(event.target)
-      );
-      this.title = title;
-      this.content = content;
-      this.image = image;
-      let newPost = {};
-
-      if (this.image.name == '') {
-        newPost = { title, content, userId };
-      } else {
-        newPost = { title, content, image, userId };
-      }
-      console.log(newPost);
+      const post = Object.fromEntries(new FormData(event.target));
+      post['userId'] = userId;
       axios
-        .post(`${url}post`, newPost)
+        .post(`${url}post`, post)
         .then((res) => {
           console.log(res.data);
           this.newPostMsg = res.data.message;
@@ -202,8 +188,8 @@ export default {
       axios
         .get(`${url}comment/filter/${postId}`)
         .then((res) => {
-          console.log(res.data);
           this.comments = res.data;
+          console.log('COMMENTS : ', this.comments);
         })
         .catch((err) => {
           console.log(err);
@@ -228,11 +214,11 @@ export default {
         .get(`${url}post`)
         .then((res) => {
           this.posts = res.data;
-          this.loading = false;
         })
         .catch((err) => {
-          this.postErr = err;
+          this.fetchErr = err;
         });
+        this.loading = false;
     }
   },
 };
@@ -359,7 +345,7 @@ header li span {
   cursor: pointer;
   outline: var(--black) 1px solid;
 }
-#file {
+#image {
   display: none;
 }
 .form-group button {
