@@ -74,7 +74,12 @@
       <!-- ###### POSTS ###### -->
       <section class="all-posts-container">
         <!-- 1 post -->
-        <div class="post-container" v-for="post in posts" :key="post.id">
+        <div
+          class="post-container"
+          v-for="post in posts"
+          :key="post.id"
+          :data-id="post.id"
+        >
           <div class="infos">
             <div class="author">
               <img src="../assets/default_user.jpg" alt="Profile picture" />
@@ -108,10 +113,7 @@
               <p>comment content</p>
             </div>
             <div class="comment-actions">
-              <div
-                class="comment-owner-actions"
-                v-if="user.userId == comment.userId"
-              >
+              <div class="comment-owner-actions">
                 <i class="fa-solid fa-pen"></i>
                 <i class="fa-solid fa-trash"></i>
               </div>
@@ -201,6 +203,7 @@ export default {
         .get(`${url}comment/filter/${postId}`)
         .then((res) => {
           console.log(res.data);
+          this.comments = res.data;
         })
         .catch((err) => {
           console.log(err);
@@ -226,7 +229,6 @@ export default {
         .then((res) => {
           this.posts = res.data;
           this.loading = false;
-          console.log(res.data);
         })
         .catch((err) => {
           this.postErr = err;
@@ -435,8 +437,9 @@ header li span {
 .actions {
   display: flex;
   justify-content: flex-end;
-  padding: 0rem 1rem;
+  padding: 0.3rem 1rem;
   background-color: var(--white);
+  border-bottom: 1px solid var(--primary);
 }
 .actions i {
   color: var(--primary);
