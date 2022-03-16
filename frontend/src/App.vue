@@ -24,6 +24,10 @@
   --transp3: rgba(221, 0, 255, 0.6);
   --transp4: rgba(230, 230, 230, 0.2);
   --transp5: rgba(16, 0, 27, 0.7);
+
+  --blue-main : hsl(240, 41%, 33%);
+  --blue-dark: hsl(235, 41%, 25%);
+  --blue-light : hsl(242, 42%, 51%);
 }
 * {
   margin: 0;

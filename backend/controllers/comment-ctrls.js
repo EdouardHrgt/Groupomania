@@ -12,13 +12,11 @@ exports.getAllComments = (req, res, next) => {
 
 exports.getFilteredComments = (req, res, next) => {
   const postId = req.params.postId;
-  console.log(postId);
   db.query(`SELECT * FROM comments WHERE postId= ?`, postId, (err, result, fields) => {
     if (err) {
       console.log(err);
       return res.status(400).json(err);
     }
-    console.log(result);
     return res.status(200).json(result);
   });
 };

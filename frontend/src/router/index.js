@@ -28,12 +28,6 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "posts" */ '../views/Posts.vue'),
   },
-  {
-    path: '/profile',
-    name: 'Profile',
-    component: () =>
-      import(/* webpackChunkName: "posts" */ '../views/Profile.vue'),
-  },
 ];
 
 const router = new VueRouter({

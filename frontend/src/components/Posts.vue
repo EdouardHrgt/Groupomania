@@ -3,6 +3,9 @@
     <div class="loader" v-if="loading">
       <loader />
     </div>
+    <div class="profile-page">
+      <profile v-show="profile" />
+    </div>
     <header>
       <div class="header-content">
         <div class="picture">
@@ -10,7 +13,9 @@
         </div>
         <ul>
           <li>
-            <div><i class="fa-solid fa-user"></i><span>Profile</span></div>
+            <div @click="openProfile()">
+              <i class="fa-solid fa-user"></i><span>Profile</span>
+            </div>
             <div @click="logOut()">
               <i class="fa-solid fa-arrow-right-from-bracket"></i
               ><span>Log Out</span>
@@ -95,8 +100,32 @@
               <i class="fa-solid fa-pen"></i>
               <i class="fa-solid fa-trash" @click="deletePost(post)"></i>
             </div>
-            <i class="fa-solid fa-message" @click="openComment(postIndex)"></i>
+            <i
+              class="fa-solid fa-message"
+              @click="showCommentForm(postIndex)"
+            ></i>
           </div>
+          <!-- Comment form -->
+          <div class="comment-form-container" v-if="commentForm == postIndex">
+            <form @submit.prevent="newComment(post.id)">
+              <div class="form-group">
+                <label for="content">Comment :</label>
+                <input
+                  type="textarea"
+                  name="content"
+                  id="content"
+                  placeholder="Content of your comment..."
+                  required
+                  maxlength="250"
+                  v-model="comment"
+                />
+              </div>
+              <div class="form-group">
+                <button type="submit">Comment !</button>
+              </div>
+            </form>
+          </div>
+          <!-- End comment form-->
           <!-- 1 Comment -->
           <div
             class="comment-container"
@@ -118,26 +147,6 @@
               </div>
               <i class="fa-solid fa-reply"></i>
             </div>
-            <!-- Comment form -->
-            <div class="comment-form-container" v-show="commentForm">
-              <form>
-                <div class="form-group">
-                  <label for="content">Comment :</label>
-                  <input
-                    type="textarea"
-                    name="content"
-                    id="content"
-                    placeholder="Content of your comment..."
-                    required
-                    maxlength="250"
-                  />
-                </div>
-                <div class="form-group">
-                  <button type="submit">Comment !</button>
-                </div>
-              </form>
-            </div>
-            <!-- End comment form-->
           </div>
           <!-- End comment -->
         </div>
@@ -150,37 +159,43 @@
 <script>
 import axios from 'axios';
 import Loader from '@/components/Loader.vue';
+import Profile from '@/components/Profile.vue';
 const url = 'http://localhost:3000/api/';
-//{headers: { Authorization: 'Bearer ' + this.user.token }};
+//{headers: {'Content-type': 'application/json', Authorization: 'Bearer ' + this.user.token}};
 export default {
   name: 'Posts',
   components: {
     loader: Loader,
+    profile: Profile,
   },
   data: function () {
     return {
       profile: false,
       loading: false,
-      fetchErr: '',
-      commentForm: false,
+      fetchErr: null,
       user: null,
+      commentForm: -1,
       posts: [],
       comments: [],
+      comment: '',
     };
   },
   methods: {
+    /*ALL ABOUT POSTS */
     newPost(event) {
       const userId = String(this.user.userId);
       const post = Object.fromEntries(new FormData(event.target));
       post['userId'] = userId;
+      console.log(post);
       axios
         .post(`${url}post`, post)
         .then((res) => {
-          console.log(res.data);
+          console.log(res);
+          this.commentForm = -1;
           this.posts.unshift(post);
         })
         .catch((err) => {
-          console.log(err);
+          this.fetchErr = err;
         });
     },
     deletePost(post) {
@@ -192,24 +207,48 @@ export default {
       };
       console.log(toSend);
     },
+    /*ALL ABOUT COMMENTS */
+    showCommentForm(i) {
+      if (this.commentForm == i) {
+        this.commentForm = -1;
+      } else {
+        this.commentForm = i;
+      }
+    },
+    newComment(idPost) {
+      const userId = String(this.user.userId);
+      const comment = { content: this.comment };
+      comment['userId'] = userId;
+      comment['postId'] = idPost;
+      console.log(comment);
+      axios
+        .post(`${url}comment`, comment)
+        .then((res) => {
+          console.log(res.data);
+          this.commentForm = -1;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
     getComments(postId) {
       axios
         .get(`${url}comment/filter/${postId}`)
         .then((res) => {
-          console.log(res.data);
           return res.data;
         })
         .catch((err) => {
           console.log(err);
         });
     },
-    openComment(index) {
-      return (this.commentForm[index] = true);
-    },
+    /*ALL ABOUT USER */
     logOut() {
       localStorage.removeItem('user');
       this.user = null;
       this.$router.push('/');
+    },
+    openProfile() {
+      this.profile = true;
     },
   },
   mounted() {
@@ -222,11 +261,12 @@ export default {
         .get(`${url}post`)
         .then((res) => {
           this.posts = res.data;
+          this.loading = false;
         })
         .catch((err) => {
           this.fetchErr = err;
+          this.loading = false;
         });
-      this.loading = false;
     }
   },
 };
@@ -377,7 +417,6 @@ header li span {
   margin: 1rem auto;
   text-align: center;
   color: var(--white);
-  display: none;
 }
 .new-post-msg {
   color: var(--white);
@@ -491,6 +530,9 @@ header li span {
   margin: 0 0.3rem;
   padding: 0.3rem 0;
   cursor: pointer;
+}
+.comment-form-container label {
+  visibility: hidden;
 }
 /*RESPONSIVE*/
 @media screen and (max-width: 1440px) {
