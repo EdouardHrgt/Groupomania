@@ -5,7 +5,7 @@
     </div>
     <header>
       <div class="header-content">
-        <div class="picture" @click="getComments(3)">
+        <div class="picture">
           <img src="../assets/default_user.jpg" alt="profile-picture" />
         </div>
         <ul>
@@ -57,11 +57,7 @@
             <label for="image" id="file-btn">image</label>
             <input id="image" type="file" name="image" />
           </div>
-          <div class="form-group">
-            <p class="new-post-msg" v-if="newPostMsg">
-              Your new post is created !
-            </p>
-          </div>
+
           <div class="form-group">
             <button type="submit">Post !</button>
           </div>
@@ -75,7 +71,7 @@
         <!-- 1 post -->
         <div
           class="post-container"
-          v-for="post in posts"
+          v-for="(post, postIndex) in posts"
           :key="post.id"
           :data-id="post.id"
         >
@@ -97,26 +93,30 @@
           <div class="actions">
             <div class="owner-actions" v-if="user.userId == post.userId">
               <i class="fa-solid fa-pen"></i>
-              <i class="fa-solid fa-trash"></i>
+              <i class="fa-solid fa-trash" @click="deletePost(post)"></i>
             </div>
-            <i class="fa-solid fa-message"></i>
+            <i class="fa-solid fa-message" @click="openComment(postIndex)"></i>
           </div>
           <!-- 1 Comment -->
-          <div class="comment-container">
+          <div
+            class="comment-container"
+            v-for="comment in getComments(post.id)"
+            :key="comment.id"
+          >
             <div class="comment-infos">
               <img src="../assets/default_user.jpg" alt="Profile picture" />
-              <p class="comment-username">comment.postId</p>
-              <p class="comment-date">comment.date</p>
+              <p class="comment-username">{{ comment.postId }}</p>
+              <p class="comment-date">{{ comment.date }}</p>
             </div>
             <div class="comment-content">
-              <p>comment content</p>
+              <p>{{ comment.content }}</p>
             </div>
             <div class="comment-actions">
               <div class="comment-owner-actions">
                 <i class="fa-solid fa-pen"></i>
                 <i class="fa-solid fa-trash"></i>
               </div>
-              <i class="fa-solid fa-reply" @click="openComment()"></i>
+              <i class="fa-solid fa-reply"></i>
             </div>
             <!-- Comment form -->
             <div class="comment-form-container" v-show="commentForm">
@@ -161,12 +161,11 @@ export default {
     return {
       profile: false,
       loading: false,
-      posts: [],
-      comments: [],
       fetchErr: '',
       commentForm: false,
       user: null,
-      newPostMsg: null,
+      posts: [],
+      comments: [],
     };
   },
   methods: {
@@ -178,30 +177,39 @@ export default {
         .post(`${url}post`, post)
         .then((res) => {
           console.log(res.data);
-          this.newPostMsg = res.data.message;
+          this.posts.unshift(post);
         })
         .catch((err) => {
           console.log(err);
         });
+    },
+    deletePost(post) {
+      // if(this.user.id == this.post.userId) {}
+      let toSend = {
+        userID: this.user.id,
+        postID: post.id,
+        postUserID: post.userId,
+      };
+      console.log(toSend);
     },
     getComments(postId) {
       axios
         .get(`${url}comment/filter/${postId}`)
         .then((res) => {
-          this.comments = res.data;
-          console.log('COMMENTS : ', this.comments);
+          console.log(res.data);
+          return res.data;
         })
         .catch((err) => {
           console.log(err);
         });
     },
+    openComment(index) {
+      return (this.commentForm[index] = true);
+    },
     logOut() {
       localStorage.removeItem('user');
       this.user = null;
       this.$router.push('/');
-    },
-    openComment() {
-      return (this.commentForm = true);
     },
   },
   mounted() {
@@ -218,7 +226,7 @@ export default {
         .catch((err) => {
           this.fetchErr = err;
         });
-        this.loading = false;
+      this.loading = false;
     }
   },
 };

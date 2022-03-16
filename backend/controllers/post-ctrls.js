@@ -31,7 +31,7 @@ exports.getOnePost = (req, res, next) => {
 };
 
 exports.createPost = (req, res, next) => {
-  console.log(req.body);
+  console.log(req.file);
   const title = req.body.title;
   const content = req.body.content;
   const userId = req.body.userId;
