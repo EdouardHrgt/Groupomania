@@ -107,7 +107,7 @@
           </div>
           <!-- Comment form -->
           <div class="comment-form-container" v-if="commentForm == postIndex">
-            <form @submit.prevent="newComment(post.id)">
+            <form @submit.prevent="tmpNewComment">
               <div class="form-group">
                 <label for="content">Comment :</label>
                 <input
@@ -184,11 +184,11 @@ export default {
     /*ALL ABOUT POSTS */
     newPost(event) {
       const userId = String(this.user.userId);
-      const post = Object.fromEntries(new FormData(event.target));
-      post['userId'] = userId;
+      const post = new FormData(event.target);
       console.log(post);
+      console.log(userId);
       axios
-        .post(`${url}post`, post)
+        .post(`${url}post/${userId}`, post)
         .then((res) => {
           console.log(res);
           this.commentForm = -1;
