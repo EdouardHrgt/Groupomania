@@ -31,9 +31,10 @@ exports.getOnePost = (req, res, next) => {
 };
 
 exports.createPost = (req, res, next) => {
+  console.log(req.params.id);
   const title = req.body.title;
   const content = req.body.content;
-  const userId = req.params.userId;
+  const userId = req.params.id;
   //if req, soit image url = req.file soit un default user et 1 seule query
   if (req.file) {
     let imageUrl = `${req.protocol}://${req.get('host')}/images/${

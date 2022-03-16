@@ -107,7 +107,7 @@
           </div>
           <!-- Comment form -->
           <div class="comment-form-container" v-if="commentForm == postIndex">
-            <form @submit.prevent="tmpNewComment">
+            <form @submit.prevent="newComment(post.id)">
               <div class="form-group">
                 <label for="content">Comment :</label>
                 <input
@@ -183,10 +183,9 @@ export default {
   methods: {
     /*ALL ABOUT POSTS */
     newPost(event) {
+      // TODO : faire une method avec fetch de Mounted et l'appeller dans mpounted et ici dans le then pour refrsh les posts
       const userId = String(this.user.userId);
-      const post = new FormData(event.target);
-      console.log(post);
-      console.log(userId);
+      let post = new FormData(event.target);
       axios
         .post(`${url}post/${userId}`, post)
         .then((res) => {
@@ -198,12 +197,12 @@ export default {
           this.fetchErr = err;
         });
     },
-    deletePost(post) {
+    deletePost(idPost, userIdPost) {
       // if(this.user.id == this.post.userId) {}
       let toSend = {
         userID: this.user.id,
-        postID: post.id,
-        postUserID: post.userId,
+        postID: idPost,
+        postUserID: userIdPost,
       };
       console.log(toSend);
     },
@@ -219,7 +218,7 @@ export default {
       const userId = String(this.user.userId);
       const comment = { content: this.comment };
       comment['userId'] = userId;
-      comment['postId'] = idPost;
+      comment['postId'] = String(idPost);
       console.log(comment);
       axios
         .post(`${url}comment`, comment)
@@ -235,7 +234,10 @@ export default {
       axios
         .get(`${url}comment/filter/${postId}`)
         .then((res) => {
-          return res.data;
+          if (res.data.length >= 1) {
+            this.comments = res.data;
+            console.log(this.comments);
+          }
         })
         .catch((err) => {
           console.log(err);
@@ -461,8 +463,7 @@ header li span {
 .content img {
   width: 100%;
   height: 300px;
-  object-fit: cover;
-  margin-bottom: 0.5rem;
+  object-fit: contain;
 }
 .content p {
   text-align: justify;
