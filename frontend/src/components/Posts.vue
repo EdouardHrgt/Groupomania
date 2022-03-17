@@ -82,18 +82,21 @@
         >
           <div class="infos">
             <div class="author">
-              <img src="../assets/default_user.jpg" alt="Profile picture" />
-              <p class="username">UserID: {{ post.userId }}</p>
+              <img :src="post.image" :alt="'picture of ' + post.username" />
+              <p class="username">
+                By: <strong>{{ post.username }}</strong>
+              </p>
             </div>
             <p class="date">{{ post.date }}</p>
           </div>
           <div class="content">
-            <h3>{{ post.title }}</h3>
+            <img :src="post.imageUrl" v-if="post.imageUrl" alt="#" />
+            <h3>
+              {{ post.title }}
+            </h3>
             <p>
-              Post Id : {{ post.id }} <br />
               {{ post.content }}
             </p>
-            <img :src="post.imageUrl" v-if="post.imageUrl" alt="#" />
           </div>
           <div class="actions">
             <div class="owner-actions" v-if="user.userId == post.userId">
@@ -191,7 +194,16 @@ export default {
         .then((res) => {
           console.log(res);
           this.commentForm = -1;
-          this.posts.unshift(post);
+          axios
+            .get(`${url}post`)
+            .then((res) => {
+              this.posts = res.data;
+              this.loading = false;
+            })
+            .catch((err) => {
+              this.fetchErr = err;
+              this.loading = false;
+            });
         })
         .catch((err) => {
           this.fetchErr = err;
@@ -234,16 +246,17 @@ export default {
       axios
         .get(`${url}comment/filter/${postId}`)
         .then((res) => {
-          this.comments = res.data;
+          console.log(res);
+          //return res.data  <-- Besoin d'un return ici
         })
         .catch((err) => {
           console.log(err);
         });
     },
-    getDate(post){
+    /*getDate(post){
       post.date = Date.parse(post.date);
       return post;
-    },
+    },*/
     /*ALL ABOUT USER */
     logOut() {
       localStorage.removeItem('user');
@@ -263,9 +276,9 @@ export default {
       axios
         .get(`${url}post`)
         .then((res) => {
-          res.data.map(getDate(n))
+          // res.data.map(getDate(n))
           this.posts = res.data;
-
+          console.log(this.posts);
           this.loading = false;
         })
         .catch((err) => {
@@ -444,7 +457,7 @@ header li span {
   background-color: var(--white);
   border-bottom: 1px solid var(--primary);
   color: var(--primary);
-  font-weight: bolder;
+  font-style: italic;
 }
 .author {
   display: flex;
