@@ -134,7 +134,7 @@
           >
             <div class="comment-infos">
               <img src="../assets/default_user.jpg" alt="Profile picture" />
-              <p class="comment-username">{{ comment.postId }}</p>
+              <p class="comment-username">content</p>
               <p class="comment-date">{{ comment.date }}</p>
             </div>
             <div class="comment-content">
@@ -234,14 +234,15 @@ export default {
       axios
         .get(`${url}comment/filter/${postId}`)
         .then((res) => {
-          if (res.data.length >= 1) {
-            this.comments = res.data;
-            console.log(this.comments);
-          }
+          this.comments = res.data;
         })
         .catch((err) => {
           console.log(err);
         });
+    },
+    getDate(post){
+      post.date = Date.parse(post.date);
+      return post;
     },
     /*ALL ABOUT USER */
     logOut() {
@@ -262,7 +263,9 @@ export default {
       axios
         .get(`${url}post`)
         .then((res) => {
+          res.data.map(getDate(n))
           this.posts = res.data;
+
           this.loading = false;
         })
         .catch((err) => {
