@@ -80,6 +80,14 @@
           :key="post.id"
           :data-id="post.id"
         >
+          <div class="box alert flex" v-if="alert"></div>
+          <div class="box confirmation flex" v-if="confirmation">
+            <p>Do you want to delete this post ?</p>
+            <div class="icons">
+              <i class="fa-solid fa-check" @click="confirmPostdelete(0)"></i>
+              <i class="fa-solid fa-xmark" @click="confirmPostdelete(1)"></i>
+            </div>
+          </div>
           <div class="infos">
             <div class="author">
               <img :src="post.image" :alt="'picture of ' + post.username" />
@@ -177,6 +185,9 @@ export default {
       loading: false,
       fetchErr: null,
       user: null,
+      alert: '',
+      confirmation: false,
+      isPostDelete: null,
       commentForm: -1,
       posts: [],
       comments: [],
@@ -184,9 +195,10 @@ export default {
     };
   },
   methods: {
+    /*=====================*/
     /*ALL ABOUT POSTS */
+    /*=====================*/
     newPost(event) {
-      // TODO : faire une method avec fetch de Mounted et l'appeller dans mpounted et ici dans le then pour refrsh les posts
       const userId = String(this.user.userId);
       let post = new FormData(event.target);
       axios
@@ -209,16 +221,28 @@ export default {
           this.fetchErr = err;
         });
     },
-    deletePost(idPost, userIdPost) {
-      // if(this.user.id == this.post.userId) {}
-      let toSend = {
-        userID: this.user.id,
-        postID: idPost,
-        postUserID: userIdPost,
-      };
-      console.log(toSend);
+    deletePost(post) {
+      if (post.userId == this.user.userId) {
+        this.confirmation = true;
+        if (this.isPostDelete == 1) {
+          alert('cancel Deleted');
+        } else if (this.isPostDelete == 0) {
+          alert('post Deleted');
+        }
+        /*axios.delete(`${url}post/delete/`, post.id).then((res) => {console.log(res);}).catch((err) => {console.log(err);});*/
+      } else {
+        this.alert = 'You have not the permission to do that !';
+        setTimeout(() => {
+          this.alert = '';
+        }, 2000);
+      }
     },
+    confirmPostdelete(int) {
+      this.isPostDelete = int;
+    },
+    /*=====================*/
     /*ALL ABOUT COMMENTS */
+    /*=====================*/
     showCommentForm(i) {
       if (this.commentForm == i) {
         this.commentForm = -1;
@@ -231,7 +255,6 @@ export default {
       const comment = { content: this.comment };
       comment['userId'] = userId;
       comment['postId'] = String(idPost);
-      console.log(comment);
       axios
         .post(`${url}comment`, comment)
         .then((res) => {
@@ -246,18 +269,15 @@ export default {
       axios
         .get(`${url}comment/filter/${postId}`)
         .then((res) => {
-          console.log(res);
-          //return res.data  <-- Besoin d'un return ici
+          console.log(res.data);
         })
         .catch((err) => {
           console.log(err);
         });
     },
-    /*getDate(post){
-      post.date = Date.parse(post.date);
-      return post;
-    },*/
+    /*=====================*/
     /*ALL ABOUT USER */
+    /*=====================*/
     logOut() {
       localStorage.removeItem('user');
       this.user = null;
@@ -274,11 +294,9 @@ export default {
       this.user = JSON.parse(localStorage.getItem('user'));
       this.loading = true;
       axios
-        .get(`${url}post`)
+        .get(`${url}post`,{headers: {'Content-type': 'application/json', Authorization: 'Bearer ' + this.user.token}})
         .then((res) => {
-          // res.data.map(getDate(n))
           this.posts = res.data;
-          console.log(this.posts);
           this.loading = false;
         })
         .catch((err) => {
@@ -448,6 +466,38 @@ header li span {
 }
 .post-container {
   margin-top: 1rem;
+  position: relative;
+}
+.box {
+  position: absolute;
+  z-index: 10;
+  inset: 0;
+  background-color: var(--white);
+  color: var(--black);
+  opacity: 0.9;
+}
+.alert {
+  border: 5px solid var(--red);
+}
+.confirmation {
+  border: 5px solid var(--primary);
+  flex-direction: column;
+}
+.confirmation i {
+  margin: 0 0.5rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.confirmation i:first-child {
+  color: var(--green);
+}
+.confirmation i:last-child {
+  color: var(--red);
+}
+.confirmation i:hover {
+  opacity: 0.8;
+  transform: scale(1.2);
 }
 .infos {
   display: flex;
