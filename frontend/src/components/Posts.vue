@@ -80,7 +80,9 @@
           :key="post.id"
           :data-id="post.id"
         >
-          <div class="box alert flex" v-if="alert"></div>
+          <div class="box alert flex" v-if="alertDeletePost == postIndex">
+            <p>An error occured, please try again later !</p>
+          </div>
           <div class="box confirmation flex" v-if="deletePostBox == postIndex">
             <div class="confirmation-wrapper">
               <p>Do you want to delete this post ?</p>
@@ -91,7 +93,7 @@
                 ></i>
                 <i
                   class="fa-solid fa-xmark"
-                  @click="deletePost(post, false)"
+                  @click="deletePost(post, false, postIndex)"
                 ></i>
               </div>
             </div>
@@ -194,32 +196,32 @@ export default {
     return {
       profile: false,
       loading: false,
-      fetchErr: null,
       user: null,
-      alert: '',
+      fetchErr: null,
       deletePostBox: -1,
+      alertDeletePost: -1,
       isPostDelete: null,
-      commentForm: -1,
       posts: [],
       comments: [],
       comment: '',
+      commentForm: -1,
     };
   },
   methods: {
-    /*=====================*/
-    /*ALL ABOUT POSTS */
-    /*=====================*/
-    getAllPosts(){
-       axios
-            .get(`${url}post`)
-            .then((res) => {
-              this.posts = res.data;
-              this.loading = false;
-            })
-            .catch((err) => {
-              this.fetchErr = err;
-              this.loading = false;
-            });
+    /*=====================================*/
+    /* ALL ABOUT POSTS */
+    /*=====================================*/
+    getAllPosts() {
+      axios
+        .get(`${url}post`)
+        .then((res) => {
+          this.posts = res.data;
+          this.loading = false;
+        })
+        .catch((err) => {
+          this.fetchErr = err;
+          this.loading = false;
+        });
     },
     newPost(event) {
       const userId = String(this.user.userId);
@@ -229,53 +231,49 @@ export default {
         .then((res) => {
           console.log(res.json());
           this.commentForm = -1;
-          axios
-            .get(`${url}post`)
-            .then((res) => {
-              this.posts = res.data;
-              this.loading = false;
-            })
-            .catch((err) => {
-              this.fetchErr = err;
-              this.loading = false;
-            });
+          this.getAllPosts();
         })
         .catch((err) => {
           this.fetchErr = err;
         });
     },
-    deletePost(post, bool) {
+    deletePost(post, bool, index) {
       if (post.userId == this.user.userId) {
         this.isPostDelete = bool;
         if (this.isPostDelete == false) {
           this.deletePostBox = -1;
         } else if (this.isPostDelete == true) {
           const postId = JSON.stringify(post.id);
-          console.log(postId);
           axios
             .delete(`${url}post/delete/${postId}`)
             .then((res) => {
               console.log(res);
               this.isPostDelete = null;
+              this.deletePostBox = -1;
+              this.getAllPosts();
             })
             .catch((err) => {
               console.log(err);
+              this.alertDeletePost = index;
               this.isPostDelete = null;
+              setTimeout(() => {
+                this.alertDeletePost = -1;
+              }, 2000);
             });
         }
       } else {
-        this.alert = 'You have not the permission to do that !';
+        this.alertDeletePost = index;
         setTimeout(() => {
-          this.alert = '';
+          this.alertDeletePost = -1;
         }, 2000);
       }
     },
     openDeletePost(index) {
       this.deletePostBox = index;
     },
-    /*=====================*/
-    /*ALL ABOUT COMMENTS */
-    /*=====================*/
+    /*=====================================*/
+    /* ALL ABOUT COMMENTS */
+    /*=====================================*/
     showCommentForm(i) {
       if (this.commentForm == i) {
         this.commentForm = -1;
@@ -309,9 +307,9 @@ export default {
           console.log(err);
         });
     },
-    /*=====================*/
-    /*ALL ABOUT USER */
-    /*=====================*/
+    /*=====================================*/
+    /* ALL ABOUT USER */
+    /*=====================================*/
     logOut() {
       localStorage.removeItem('user');
       this.user = null;
@@ -321,6 +319,9 @@ export default {
       this.profile = true;
     },
   },
+  /*=====================================*/
+  /* MAIN FETCH */
+  /*=====================================*/
   mounted() {
     if (!localStorage.getItem('user')) {
       this.$router.push('/');
