@@ -81,11 +81,19 @@
           :data-id="post.id"
         >
           <div class="box alert flex" v-if="alert"></div>
-          <div class="box confirmation flex" v-if="confirmation">
-            <p>Do you want to delete this post ?</p>
-            <div class="icons">
-              <i class="fa-solid fa-check" @click="confirmPostdelete(0)"></i>
-              <i class="fa-solid fa-xmark" @click="confirmPostdelete(1)"></i>
+          <div class="box confirmation flex" v-if="deletePostBox == postIndex">
+            <div class="confirmation-wrapper">
+              <p>Do you want to delete this post ?</p>
+              <div class="icons">
+                <i
+                  class="fa-solid fa-check"
+                  @click="deletePost(post, true)"
+                ></i>
+                <i
+                  class="fa-solid fa-xmark"
+                  @click="deletePost(post, false)"
+                ></i>
+              </div>
             </div>
           </div>
           <div class="infos">
@@ -109,7 +117,10 @@
           <div class="actions">
             <div class="owner-actions" v-if="user.userId == post.userId">
               <i class="fa-solid fa-pen"></i>
-              <i class="fa-solid fa-trash" @click="deletePost(post)"></i>
+              <i
+                class="fa-solid fa-trash"
+                @click="openDeletePost(postIndex)"
+              ></i>
             </div>
             <i
               class="fa-solid fa-message"
@@ -186,7 +197,7 @@ export default {
       fetchErr: null,
       user: null,
       alert: '',
-      confirmation: false,
+      deletePostBox: -1,
       isPostDelete: null,
       commentForm: -1,
       posts: [],
@@ -198,13 +209,25 @@ export default {
     /*=====================*/
     /*ALL ABOUT POSTS */
     /*=====================*/
+    getAllPosts(){
+       axios
+            .get(`${url}post`)
+            .then((res) => {
+              this.posts = res.data;
+              this.loading = false;
+            })
+            .catch((err) => {
+              this.fetchErr = err;
+              this.loading = false;
+            });
+    },
     newPost(event) {
       const userId = String(this.user.userId);
       let post = new FormData(event.target);
       axios
         .post(`${url}post/${userId}`, post)
         .then((res) => {
-          console.log(res);
+          console.log(res.json());
           this.commentForm = -1;
           axios
             .get(`${url}post`)
@@ -221,15 +244,25 @@ export default {
           this.fetchErr = err;
         });
     },
-    deletePost(post) {
+    deletePost(post, bool) {
       if (post.userId == this.user.userId) {
-        this.confirmation = true;
-        if (this.isPostDelete == 1) {
-          alert('cancel Deleted');
-        } else if (this.isPostDelete == 0) {
-          alert('post Deleted');
+        this.isPostDelete = bool;
+        if (this.isPostDelete == false) {
+          this.deletePostBox = -1;
+        } else if (this.isPostDelete == true) {
+          const postId = JSON.stringify(post.id);
+          console.log(postId);
+          axios
+            .delete(`${url}post/delete/${postId}`)
+            .then((res) => {
+              console.log(res);
+              this.isPostDelete = null;
+            })
+            .catch((err) => {
+              console.log(err);
+              this.isPostDelete = null;
+            });
         }
-        /*axios.delete(`${url}post/delete/`, post.id).then((res) => {console.log(res);}).catch((err) => {console.log(err);});*/
       } else {
         this.alert = 'You have not the permission to do that !';
         setTimeout(() => {
@@ -237,8 +270,8 @@ export default {
         }, 2000);
       }
     },
-    confirmPostdelete(int) {
-      this.isPostDelete = int;
+    openDeletePost(index) {
+      this.deletePostBox = index;
     },
     /*=====================*/
     /*ALL ABOUT COMMENTS */
@@ -269,7 +302,8 @@ export default {
       axios
         .get(`${url}comment/filter/${postId}`)
         .then((res) => {
-          console.log(res.data);
+          // console.log(res.data);
+          return res.data;
         })
         .catch((err) => {
           console.log(err);
@@ -294,7 +328,12 @@ export default {
       this.user = JSON.parse(localStorage.getItem('user'));
       this.loading = true;
       axios
-        .get(`${url}post`,{headers: {'Content-type': 'application/json', Authorization: 'Bearer ' + this.user.token}})
+        .get(`${url}post`, {
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: 'Bearer ' + this.user.token,
+          },
+        })
         .then((res) => {
           this.posts = res.data;
           this.loading = false;
@@ -472,9 +511,8 @@ header li span {
   position: absolute;
   z-index: 10;
   inset: 0;
-  background-color: var(--white);
+  background-color: var(--transp6);
   color: var(--black);
-  opacity: 0.9;
 }
 .alert {
   border: 5px solid var(--red);
@@ -483,9 +521,15 @@ header li span {
   border: 5px solid var(--primary);
   flex-direction: column;
 }
+.confirmation-wrapper {
+  text-align: center;
+  background-color: var(--gray);
+  padding: 1rem;
+  border-radius: 5px;
+}
 .confirmation i {
   margin: 0 0.5rem;
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   cursor: pointer;
   transition: 0.3s;
 }

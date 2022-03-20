@@ -24,6 +24,7 @@
   --transp3: rgba(221, 0, 255, 0.6);
   --transp4: rgba(230, 230, 230, 0.2);
   --transp5: rgba(16, 0, 27, 0.7);
+  --transp6: rgba(255, 255, 255, 0.8);
 
   --blue-main : hsl(240, 41%, 33%);
   --blue-dark: hsl(235, 41%, 25%);
