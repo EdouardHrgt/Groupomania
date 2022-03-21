@@ -129,8 +129,8 @@ exports.updatePost = (req, res, next) => {
 };
 
 exports.deletePost = (req, res, next) => {
-  const id = req.params.id;
-  db.query(`SELECT * FROM posts WHERE id= ?`, id, (err, result, fields) => {
+  const postId = req.params.id;
+  db.query(`SELECT * FROM posts WHERE id= ?`, postId, (err, result, fields) => {
     if (err) {
       return res.status(400).json(err);
     }
@@ -147,14 +147,9 @@ exports.deletePost = (req, res, next) => {
       });
     }
   });
-
-  db.query(`DELETE FROM posts WHERE id= ?`, id, (err, result, fields) => {
+  db.query(`DELETE FROM posts WHERE id= ?`, postId, (err, result, fields) => {
     if (err) {
       return res.status(400).json({ err });
-    }
-    if (result.affectedRows == 0) {
-      console.log('post not found');
-      return res.status(404).json({ message: 'Post Not Found...' });
     }
     console.log('post Deleted');
     return res.status(200).json({ message: 'Post Deleted...' });

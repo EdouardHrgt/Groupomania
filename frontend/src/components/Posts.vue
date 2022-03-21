@@ -1,10 +1,10 @@
 <template>
   <div class="page-container">
+    <div class="profile-page" v-show="profile">
+      <profile />
+    </div>
     <div class="loader" v-if="loading">
       <loader />
-    </div>
-    <div class="profile-page">
-      <profile v-show="profile" />
     </div>
     <header>
       <div class="header-content">
@@ -80,6 +80,7 @@
           :key="post.id"
           :data-id="post.id"
         >
+          <!-- Delete Post box -->
           <div class="box alert flex" v-if="alertDeletePost == postIndex">
             <p>An error occured, please try again later !</p>
           </div>
@@ -96,6 +97,46 @@
                   @click="deletePost(post, false, postIndex)"
                 ></i>
               </div>
+            </div>
+          </div>
+          <!-- Modify post Box -->
+          <div class="box modify-post flex" v-if="updatePostBox == postIndex">
+            <div class="form-container">
+              <h2>Modify your post</h2>
+              <i
+                class="fa-solid fa-xmark"
+                @click="toggleUpdatePost(postIndex)"
+              ></i>
+              <form @submit.prevent="updatePost(post.id)">
+                <div class="form-group">
+                  <label for="title">Title : </label>
+                  <input
+                    type="text"
+                    name="title"
+                    id="title"
+                    :placeholder="post.title"
+                    minLength="5"
+                    maxlength="70"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="content">Content : </label>
+                  <input
+                    type="textarea"
+                    name="content"
+                    id="content"
+                    :placeholder="post.content"
+                    maxlength="250"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="image" id="file-btn">image</label>
+                  <input id="image" type="file" name="image" />
+                </div>
+                <div class="form-group">
+                  <button type="submit">Modify !</button>
+                </div>
+              </form>
             </div>
           </div>
           <div class="infos">
@@ -118,7 +159,10 @@
           </div>
           <div class="actions">
             <div class="owner-actions" v-if="user.userId == post.userId">
-              <i class="fa-solid fa-pen"></i>
+              <i
+                class="fa-solid fa-pen"
+                @click="toggleUpdatePost(postIndex)"
+              ></i>
               <i
                 class="fa-solid fa-trash"
                 @click="openDeletePost(postIndex)"
@@ -201,6 +245,7 @@ export default {
       deletePostBox: -1,
       alertDeletePost: -1,
       isPostDelete: null,
+      updatePostBox: -1,
       posts: [],
       comments: [],
       comment: '',
@@ -226,11 +271,13 @@ export default {
     newPost(event) {
       const userId = String(this.user.userId);
       let post = new FormData(event.target);
+      console.log(post);
       axios
         .post(`${url}post/${userId}`, post)
         .then((res) => {
-          console.log(res.json());
+          console.log(res);
           this.commentForm = -1;
+          this.fetchErr = null;
           this.getAllPosts();
         })
         .catch((err) => {
@@ -243,7 +290,7 @@ export default {
         if (this.isPostDelete == false) {
           this.deletePostBox = -1;
         } else if (this.isPostDelete == true) {
-          const postId = JSON.stringify(post.id);
+          const postId = post.id;
           axios
             .delete(`${url}post/delete/${postId}`)
             .then((res) => {
@@ -270,6 +317,18 @@ export default {
     },
     openDeletePost(index) {
       this.deletePostBox = index;
+    },
+    toggleUpdatePost(index) {
+      if (this.updatePostBox == index) {
+        this.updatePostBox = -1;
+      } else {
+        this.updatePostBox = index;
+      }
+    },
+    updatePost(event, id) {
+      const postId = id;
+      const updatedPost = new FormData(event.target);
+      console.log(updatedPost, postId);
     },
     /*=====================================*/
     /* ALL ABOUT COMMENTS */
@@ -356,6 +415,12 @@ export default {
   margin: auto;
   display: flex;
 }
+.profile-page {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background-color: var(--transp2);
+}
 /*HEADER*/
 header {
   min-height: 100vh;
@@ -426,13 +491,18 @@ header li span {
   background-color: var(--transp2);
   width: 60%;
   margin: auto;
+  position: relative;
 }
-.form-container h1 {
+.form-container h1,
+.form-container h2 {
   font-family: var(--font-2);
   color: var(--secondary);
   text-align: center;
   padding-top: 0.5rem;
   font-size: 1.5rem;
+}
+.form-container h2 {
+  color: var(--black);
 }
 .comment-form-container {
   width: 100%;
@@ -543,6 +613,13 @@ header li span {
 .confirmation i:hover {
   opacity: 0.8;
   transform: scale(1.2);
+}
+.modify-post i {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 1.3rem;
+  cursor: pointer;
 }
 .infos {
   display: flex;
