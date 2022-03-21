@@ -62,7 +62,6 @@
             <label for="image" id="file-btn">image</label>
             <input id="image" type="file" name="image" />
           </div>
-
           <div class="form-group">
             <button type="submit">Post !</button>
           </div>
@@ -99,15 +98,15 @@
               </div>
             </div>
           </div>
-          <!-- Modify post Box -->
+          <!-- Update post Box -->
           <div class="box modify-post flex" v-if="updatePostBox == postIndex">
             <div class="form-container">
-              <h2>Modify your post</h2>
+              <h2>Update your post</h2>
               <i
                 class="fa-solid fa-xmark"
                 @click="toggleUpdatePost(postIndex)"
               ></i>
-              <form @submit.prevent="updatePost(post.id)">
+              <form @submit.prevent="updatePost($event, post.id)">
                 <div class="form-group">
                   <label for="title">Title : </label>
                   <input
@@ -134,7 +133,7 @@
                   <input id="image" type="file" name="image" />
                 </div>
                 <div class="form-group">
-                  <button type="submit">Modify !</button>
+                  <button type="submit">Update !</button>
                 </div>
               </form>
             </div>
@@ -284,6 +283,21 @@ export default {
           this.fetchErr = err;
         });
     },
+    updatePost($event, id) {
+      const postId = String(id);
+      const updatedPost = new FormData($event.target);
+      console.log(updatedPost);
+      axios
+        .put(`${url}post/update/${postId}`, updatedPost)
+        .then((res) => {
+          console.log(res);
+          this.toggleUpdatePost();
+          this.getAllPosts();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
     deletePost(post, bool, index) {
       if (post.userId == this.user.userId) {
         this.isPostDelete = bool;
@@ -324,11 +338,6 @@ export default {
       } else {
         this.updatePostBox = index;
       }
-    },
-    updatePost(event, id) {
-      const postId = id;
-      const updatedPost = new FormData(event.target);
-      console.log(updatedPost, postId);
     },
     /*=====================================*/
     /* ALL ABOUT COMMENTS */

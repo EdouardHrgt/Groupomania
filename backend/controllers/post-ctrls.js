@@ -4,13 +4,16 @@ const { json } = require('express/lib/response');
 
 exports.getAllPosts = (req, res, next) => {
   //trier par ID de post ***************
-  db.query(`SELECT title, content, imageUrl, userId, posts.id, username, permission, image, date  FROM posts JOIN user ON posts.userId = user.id ORDER BY posts.id DESC`, (err, result, fields) => {
-    if (err) {
-      console.log(err);
-      return res.status(400).json(err);
+  db.query(
+    `SELECT title, content, imageUrl, userId, posts.id, username, permission, image, date  FROM posts JOIN user ON posts.userId = user.id ORDER BY posts.id DESC`,
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json(err);
+      }
+      return res.status(200).json(result);
     }
-    return res.status(200).json(result);
-  });
+  );
 };
 
 exports.getOnePost = (req, res, next) => {
@@ -31,7 +34,7 @@ exports.getOnePost = (req, res, next) => {
 };
 
 exports.createPost = (req, res, next) => {
-  console.log(req.params.id);
+  console.log(req.file);
   const title = req.body.title;
   const content = req.body.content;
   const userId = req.params.id;
@@ -71,7 +74,7 @@ exports.updatePost = (req, res, next) => {
   const id = req.params.id;
   const title = req.body.title;
   const content = req.body.content;
-
+  console.log(req.file);
   if (req.file) {
     db.query(`SELECT * FROM posts WHERE id= ?`, id, (err, result, fields) => {
       if (err) {
@@ -104,6 +107,7 @@ exports.updatePost = (req, res, next) => {
         if (result.affectedRows == 0) {
           return res.status(404).json({ message: 'Post Not Found...' });
         }
+        console.log('post updated with img...');
         return res
           .status(200)
           .json({ message: 'Post Updated with new image...' });
@@ -122,6 +126,7 @@ exports.updatePost = (req, res, next) => {
         if (result.affectedRows == 0) {
           return res.status(404).json({ message: 'Post Not Found...' });
         }
+        console.log('post updated NO img...');
         return res.status(200).json({ message: 'Post Updated...' });
       }
     );
