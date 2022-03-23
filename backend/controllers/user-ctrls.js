@@ -45,7 +45,6 @@ exports.logIn = (req, res, next) => {
         console.log(err);
         return res.status(400).json(err);
       }
-
       if (result.length > 0) {
         bcrypt.compare(password, result[0].password).then((valid) => {
           if (!valid) {
@@ -57,6 +56,8 @@ exports.logIn = (req, res, next) => {
           return res.status(200).json({
             userId: result[0].id,
             username: result[0].username,
+            permission: result[0].permission,
+            image: result[0].image,
             token: jwt.sign({ userId: result[0].id }, process.env.TOKEN, {
               expiresIn: '24h',
             }),

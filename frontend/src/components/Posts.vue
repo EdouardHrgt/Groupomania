@@ -78,6 +78,7 @@
           v-for="(post, postIndex) in posts"
           :key="post.id"
           :data-id="post.id"
+          @click="getComments(post.id, postIndex)"
         >
           <!-- Delete Post box -->
           <div class="box alert flex" v-if="alertDeletePost == postIndex">
@@ -89,7 +90,7 @@
               <div class="icons">
                 <i
                   class="fa-solid fa-check"
-                  @click="deletePost(post, true)"
+                  @click="deletePost(post, true, postIndex)"
                 ></i>
                 <i
                   class="fa-solid fa-xmark"
@@ -113,7 +114,7 @@
                     type="text"
                     name="title"
                     id="title"
-                    :placeholder="post.title"
+                    :value="post.title"
                     minLength="5"
                     maxlength="70"
                   />
@@ -124,7 +125,7 @@
                     type="textarea"
                     name="content"
                     id="content"
-                    :placeholder="post.content"
+                    :value="post.content"
                     maxlength="250"
                   />
                 </div>
@@ -195,24 +196,33 @@
           <!-- End comment form-->
           <!-- 1 Comment -->
           <div
-            class="comment-container"
-            v-for="comment in getComments(post.id)"
-            :key="comment.id"
+            class="comment-global-container"
+            v-if="comments && commentBlock == postIndex"
           >
-            <div class="comment-infos">
-              <img src="../assets/default_user.jpg" alt="Profile picture" />
-              <p class="comment-username">content</p>
-              <p class="comment-date">{{ comment.date }}</p>
-            </div>
-            <div class="comment-content">
-              <p>{{ comment.content }}</p>
-            </div>
-            <div class="comment-actions">
-              <div class="comment-owner-actions">
-                <i class="fa-solid fa-pen"></i>
-                <i class="fa-solid fa-trash"></i>
+            <div
+              class="comment-container"
+              v-for="comment in comments"
+              :key="comment.id"
+            >
+              <div class="comment-infos">
+                <img
+                  :src="comment.image"
+                  :alt="'Profile picture of' + comment.username"
+                />
+                <p class="comment-username">{{ comment.username }}</p>
+                <p class="comment-date">{{ comment.date }}</p>
               </div>
-              <i class="fa-solid fa-reply"></i>
+              <div class="comment-content">
+                <p>{{ comment.content }}</p>
+              </div>
+              <div class="comment-actions">
+                <div
+                  class="comment-owner-actions"
+                  v-if="user.id == comment.userId"
+                >
+                  <i class="fa-solid fa-trash"></i>
+                </div>
+              </div>
             </div>
           </div>
           <!-- End comment -->
@@ -246,9 +256,10 @@ export default {
       isPostDelete: null,
       updatePostBox: -1,
       posts: [],
-      comments: [],
+      comments: null,
       comment: '',
       commentForm: -1,
+      commentBlock: -1,
     };
   },
   methods: {
@@ -286,7 +297,6 @@ export default {
     updatePost($event, id) {
       const postId = String(id);
       const updatedPost = new FormData($event.target);
-      console.log(updatedPost);
       axios
         .put(`${url}post/update/${postId}`, updatedPost)
         .then((res) => {
@@ -364,12 +374,16 @@ export default {
           console.log(err);
         });
     },
-    getComments(postId) {
+    getComments(postId, index) {
+      if (this.comments && this.commentBlock != -1) {
+        this.comments = null;
+        this.commentBlock = -1;
+      }
       axios
         .get(`${url}comment/filter/${postId}`)
         .then((res) => {
-          // console.log(res.data);
-          return res.data;
+          this.comments = res.data;
+          this.commentBlock = index;
         })
         .catch((err) => {
           console.log(err);
@@ -586,6 +600,11 @@ header li span {
 .post-container {
   margin-top: 1rem;
   position: relative;
+  cursor: pointer;
+  transition: 0.4s;
+}
+.post-container:hover {
+  transform: scale(1.01);
 }
 .box {
   position: absolute;
@@ -674,7 +693,7 @@ header li span {
 }
 .actions i {
   color: var(--primary);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin: 0 0.5rem;
   transition: 0.4s;
   cursor: pointer;

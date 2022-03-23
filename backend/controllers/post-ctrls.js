@@ -3,7 +3,6 @@ const fs = require('fs');
 const { json } = require('express/lib/response');
 
 exports.getAllPosts = (req, res, next) => {
-  //trier par ID de post ***************
   db.query(
     `SELECT title, content, imageUrl, userId, posts.id, username, permission, image, date  FROM posts JOIN user ON posts.userId = user.id ORDER BY posts.id DESC`,
     (err, result, fields) => {
@@ -75,6 +74,7 @@ exports.updatePost = (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
   console.log(req.file);
+  console.log(req.body);
   if (req.file) {
     db.query(`SELECT * FROM posts WHERE id= ?`, id, (err, result, fields) => {
       if (err) {
