@@ -9,7 +9,7 @@
     <header>
       <div class="header-content">
         <div class="picture">
-          <img src="../assets/default_user.jpg" alt="profile-picture" />
+          <img :src="user.image" alt="profile-picture" />
         </div>
         <ul>
           <li>
@@ -77,7 +77,6 @@
           class="post-container"
           v-for="(post, postIndex) in posts"
           :key="post.id"
-          :data-id="post.id"
           @click="getComments(post.id, postIndex)"
         >
           <!-- Delete Post box -->
@@ -248,6 +247,7 @@ export default {
   data: function () {
     return {
       profile: false,
+      profileModal: false,
       loading: false,
       user: null,
       fetchErr: null,
@@ -602,9 +602,6 @@ header li span {
   position: relative;
   cursor: pointer;
   transition: 0.4s;
-}
-.post-container:hover {
-  transform: scale(1.01);
 }
 .box {
   position: absolute;

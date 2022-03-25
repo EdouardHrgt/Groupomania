@@ -74,10 +74,10 @@ exports.logIn = (req, res, next) => {
 
 exports.updateUser = (req, res, next) => {
   const id = req.params.id;
-  const email = req.body.email;
   const username = req.body.username;
   let password = req.body.password;
-
+  console.log(req.body);
+  console.log(req.file);
   bcrypt.hash(password, 10).then((hash) => {
     password = hash;
     // Si nouvelle image
@@ -86,7 +86,7 @@ exports.updateUser = (req, res, next) => {
         req.file.filename
       }`;
       db.query(
-        `UPDATE user SET email='${email}', username='${username}', password='${password}', image='${imageUrl}' WHERE id=${id}`,
+        `UPDATE user SET username='${username}', password='${password}', image='${imageUrl}' WHERE id=${id}`,
         (err, result, fields) => {
           if (err) {
             console.log(err);
@@ -104,7 +104,7 @@ exports.updateUser = (req, res, next) => {
     // Si pas de nouvelle image
     if (!req.file) {
       db.query(
-        `UPDATE user SET email='${email}', username='${username}', password='${password}' WHERE id=${id}`,
+        `UPDATE user SET username='${username}', password='${password}' WHERE id=${id}`,
         (err, result, fields) => {
           if (err) {
             console.log(err);

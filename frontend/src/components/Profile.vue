@@ -14,7 +14,7 @@
             {{ user.permission }}
           </h2>
         </div>
-        <i class="fa-solid fa-xmark" @click="goToPosts"></i>
+        <i class="fa-solid fa-xmark" @click="closeProfile"></i>
       </div>
       <!-- Profile btns -->
       <div class="profile-update-container flex">
@@ -27,7 +27,7 @@
       </div>
       <!-- Update Profile -->
       <div class="updateprofile" v-if="updateProfileBox">
-        <form>
+        <form @submit.prevent="updateUser">
           <div class="form-group">
             <label for="username">Username : </label>
             <input
@@ -47,21 +47,28 @@
               id="password"
               placeholder="Enter your password"
               required
+              minlength="8"
+              v-model="password"
             />
           </div>
           <div class="form-group">
-            <label for="password">Confirmation : </label>
+            <label for="confirmation">Confirmation : </label>
             <input
               type="password"
-              name="password"
-              id="password"
+              name="confirmation"
+              id="confirmation"
               placeholder="Confirm your password"
               required
+              minlength="8"
+              v-model="confirmation"
             />
           </div>
           <div class="form-group">
             <label for="file" id="file-btn">Profile-picture</label>
             <input id="file" type="file" />
+          </div>
+          <div class="form-group">
+            <p class="err-msg" v-if="error">{{ error }}</p>
           </div>
           <div class="form-group">
             <button type="submit">Update my profile</button>
@@ -83,14 +90,19 @@
 </template>
 
 <script>
-const url = 'http://localhost:3000/api/';
+import axios from 'axios';
+const url = 'http://localhost:3000/api/user/';
 export default {
   name: 'Profile',
+  props: ['toggleprofile', 'USER'],
   data: function () {
     return {
       user: null,
       updateProfileBox: false,
       deleteProfileBox: false,
+      password: '',
+      confirmation: '',
+      error: false,
     };
   },
   methods: {
@@ -114,9 +126,26 @@ export default {
       alert('Account deleted');
       //this.$router.push('/');
     },
-    goToPosts() {
-      alert('ok');
-      //  dire au parent : this.profile = false;
+    closeProfile() {
+      alert('closed');
+    },
+    updateUser(event) {
+      if (this.confirmation != this.password) {
+        this.error = 'Password do not match !';
+      } else if (this.confirmation == this.password) {
+        const userId = String(this.user.userId);
+        let USER = new FormData(event.target);
+        axios
+          .put(`${url}update/${userId}`, USER)
+          .then((res) => {
+            alert('Ok');
+            console.log(res.data);
+          })
+          .catch((err) => {
+            alert('Ko');
+            console.log(err);
+          });
+      }
     },
   },
   mounted() {
@@ -225,6 +254,14 @@ form {
 }
 .form-group input::placeholder {
   color: var(--primary);
+}
+.err-msg {
+  color: var(--white);
+  text-align: center;
+  font-size: 0.9rem;
+  margin-left: 8rem;
+  width: 100%;
+  background-color: var(--red);
 }
 .form-group button {
   width: 30%;
