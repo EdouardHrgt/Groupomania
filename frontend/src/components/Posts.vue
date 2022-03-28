@@ -1,8 +1,6 @@
 <template>
   <div class="page-container">
-    <div class="profile-page" v-show="profile">
-      <profile />
-    </div>
+    <profile v-show="profile" @profileCloser="closeProfile" />
     <div class="loader" v-if="loading">
       <loader />
     </div>
@@ -400,6 +398,9 @@ export default {
     openProfile() {
       this.profile = true;
     },
+    closeProfile(bool) {
+      this.profile = bool;
+    },
   },
   /*=====================================*/
   /* MAIN FETCH */
@@ -438,12 +439,6 @@ export default {
   margin: auto;
   display: flex;
 }
-.profile-page {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background-color: var(--transp2);
-}
 /*HEADER*/
 header {
   min-height: 100vh;
@@ -464,7 +459,7 @@ header .picture {
   overflow: hidden;
   margin-bottom: 2rem;
   align-self: center;
-  border-radius: 10px;
+  border-radius: 50%;
 }
 .picture img {
   width: inherit;
@@ -721,6 +716,7 @@ header li span {
   height: 2rem;
   border-radius: 50%;
   margin-right: 1rem;
+  object-fit: cover;
 }
 .comment-username {
   font-weight: bolder;
@@ -761,6 +757,7 @@ header li span {
 @media screen and (max-width: 1024px) {
   .page-container {
     flex-direction: column;
+    width: 100%;
   }
   header {
     min-height: 6rem;

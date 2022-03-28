@@ -1,87 +1,89 @@
 <template>
-  <div class="profile-container">
-    <div class="profile-card">
-      <!-- Profile infos -->
-      <div class="profile-infos">
-        <img :src="user.image" :alt="'profile picture of ' + user.username" />
-        <div class="user">
-          <h1>{{ user.username }}</h1>
-          <h2 v-if="user.permission == 'member'">{{ user.permission }}</h2>
-          <h2 class="admin" v-if="user.permission == 'admin'">
-            {{ user.permission }}
-          </h2>
-          <h2 class="modo" v-if="user.permission == 'moderator'">
-            {{ user.permission }}
-          </h2>
+  <div class="profile-page">
+    <div class="profile-container">
+      <div class="profile-card">
+        <!-- Profile infos -->
+        <div class="profile-infos">
+          <img :src="user.image" :alt="'profile picture of ' + user.username" />
+          <div class="user">
+            <h1>{{ user.username }}</h1>
+            <h2 v-if="user.permission == 'member'">{{ user.permission }}</h2>
+            <h2 class="admin" v-if="user.permission == 'admin'">
+              {{ user.permission }}
+            </h2>
+            <h2 class="modo" v-if="user.permission == 'moderator'">
+              {{ user.permission }}
+            </h2>
+          </div>
+          <i class="fa-solid fa-xmark" @click="closeProfile"></i>
         </div>
-        <i class="fa-solid fa-xmark" @click="closeProfile"></i>
-      </div>
-      <!-- Profile btns -->
-      <div class="profile-update-container flex">
-        <div class="profile-update" @click="toggleUpdateProfile">
-          <p>Update my profile</p>
+        <!-- Profile btns -->
+        <div class="profile-update-container flex">
+          <div class="profile-update" @click="toggleUpdateProfile">
+            <p>Update my profile</p>
+          </div>
+          <div class="profile-update" @click="toggleDeleteProfile">
+            <p>Delete my profile</p>
+          </div>
         </div>
-        <div class="profile-update" @click="toggleDeleteProfile">
-          <p>Delete my profile</p>
+        <!-- Update Profile -->
+        <div class="updateprofile" v-if="updateProfileBox">
+          <form @submit.prevent="updateUser">
+            <div class="form-group">
+              <label for="username">Username : </label>
+              <input
+                type="text"
+                name="username"
+                id="username"
+                :value="user.username"
+                required
+                maxlength="50"
+              />
+            </div>
+            <div class="form-group">
+              <label for="password">Password : </label>
+              <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="Enter your password"
+                required
+                minlength="8"
+                v-model="password"
+              />
+            </div>
+            <div class="form-group">
+              <label for="confirmation">Confirmation : </label>
+              <input
+                type="password"
+                name="confirmation"
+                id="confirmation"
+                placeholder="Confirm your password"
+                required
+                minlength="8"
+                v-model="confirmation"
+              />
+            </div>
+            <div class="form-group file-div">
+              <label for="image">Profile-picture</label>
+              <input type="file" name="image" />
+            </div>
+            <div class="form-group">
+              <p class="err-msg" v-if="error">{{ error }}</p>
+            </div>
+            <div class="form-group">
+              <button type="submit">Update my profile</button>
+            </div>
+          </form>
         </div>
-      </div>
-      <!-- Update Profile -->
-      <div class="updateprofile" v-if="updateProfileBox">
-        <form @submit.prevent="updateUser">
-          <div class="form-group">
-            <label for="username">Username : </label>
-            <input
-              type="text"
-              name="username"
-              id="username"
-              :value="user.username"
-              required
-              maxlength="50"
-            />
-          </div>
-          <div class="form-group">
-            <label for="password">Password : </label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Enter your password"
-              required
-              minlength="8"
-              v-model="password"
-            />
-          </div>
-          <div class="form-group">
-            <label for="confirmation">Confirmation : </label>
-            <input
-              type="password"
-              name="confirmation"
-              id="confirmation"
-              placeholder="Confirm your password"
-              required
-              minlength="8"
-              v-model="confirmation"
-            />
-          </div>
-          <div class="form-group">
-            <label for="file" id="file-btn">Profile-picture</label>
-            <input id="file" type="file" />
-          </div>
-          <div class="form-group">
-            <p class="err-msg" v-if="error">{{ error }}</p>
-          </div>
-          <div class="form-group">
-            <button type="submit">Update my profile</button>
-          </div>
-        </form>
-      </div>
-      <!-- Delete Profile -->
-      <div class="delete-profile flex" v-if="deleteProfileBox">
-        <div class="confirmation-wrapper">
-          <p>Do you want to delete your profile ?</p>
-          <div class="icons">
-            <i class="fa-solid fa-check" @click="deleteAccount"></i>
-            <i class="fa-solid fa-xmark" @click="toggleDeleteProfile"></i>
+        <!-- Delete Profile -->
+        <div class="delete-profile flex" v-if="deleteProfileBox">
+          <div class="confirmation-wrapper">
+            <p>Do you want to delete your profile ?</p>
+            <div class="icons">
+              <i class="fa-solid fa-check" @click="deleteAccount"></i>
+              <i class="fa-solid fa-xmark" @click="toggleDeleteProfile"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -103,6 +105,7 @@ export default {
       password: '',
       confirmation: '',
       error: false,
+      bool: false,
     };
   },
   methods: {
@@ -124,22 +127,27 @@ export default {
     },
     deleteAccount() {
       alert('Account deleted');
+      console.log(this.user);
       //this.$router.push('/');
     },
     closeProfile() {
-      alert('closed');
+      //event + payload -->
+      this.$emit('profileCloser', this.bool);
     },
     updateUser(event) {
       if (this.confirmation != this.password) {
         this.error = 'Password do not match !';
       } else if (this.confirmation == this.password) {
+        this.error = false;
         const userId = String(this.user.userId);
         let USER = new FormData(event.target);
+        console.log(USER);
         axios
           .put(`${url}update/${userId}`, USER)
           .then((res) => {
-            alert('Ok');
             console.log(res.data);
+            this.user.username = res.data.username;
+            this.user.image = res.data.image;
           })
           .catch((err) => {
             alert('Ko');
@@ -153,13 +161,18 @@ export default {
       this.$router.push('/');
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
-      console.log(url);
     }
   },
 };
 </script>
 
 <style scoped>
+.profile-page {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  background-color: var(--transp2);
+}
 .profile-container {
   width: 100%;
   margin: auto;
@@ -186,7 +199,7 @@ export default {
 }
 .profile-infos i {
   color: var(--black);
-  font-size: 2rem;
+  font-size: 1.5rem;
   position: absolute;
   cursor: pointer;
   right: 0;
@@ -197,24 +210,25 @@ img {
   height: 10rem;
   margin-right: 2rem;
   outline: 1px solid var(--black);
+  object-fit: cover;
 }
 .user {
   text-align: left;
 }
 .user h1 {
   font-family: var(--font2);
-  font-size: 2.3rem;
+  font-size: 2rem;
 }
 .user h2 {
   color: var(--green);
   font-style: italic;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 .admin {
   color: var(--red);
 }
 .modo {
-  color: blue;
+  color: rgb(0, 67, 251);
 }
 .profile-update {
   padding: 0.5rem 1rem;
@@ -277,8 +291,9 @@ form {
 .form-group button:hover {
   outline: var(--white) 1px solid;
   background-color: transparent;
+  color: var(--black);
 }
-#file-btn {
+.file-div label {
   background-color: var(--white);
   color: var(--primary);
   width: 8rem;
@@ -288,8 +303,11 @@ form {
   cursor: pointer;
   outline: var(--black) 1px solid;
 }
-#file {
+.file-div input {
   display: none;
+}
+.file-div label:hover {
+  opacity: 0.7;
 }
 .delete-profile {
   position: absolute;
@@ -312,5 +330,63 @@ form {
 .confirmation-wrapper i:hover {
   opacity: 0.8;
   transform: scale(1.2);
+}
+@media screen and (max-width: 1440px) {
+  .profile-card {
+    width: 75%;
+  }
+}
+@media screen and (max-width: 1024px) {
+  .profile-card {
+    width: 90%;
+  }
+  form {
+    width: 80%;
+  }
+  .form-group button {
+    width: 50%;
+    margin-left: 7.5rem;
+  }
+  .file-div label {
+    margin-left: 7.5rem;
+  }
+}
+@media screen and (max-width: 800px) {
+  .profile-card {
+    width: 95%;
+    margin-top: 0rem;
+    min-height: 100vh;
+  }
+  .profile-infos {
+    margin-bottom: 2rem;
+  }
+  img {
+    width: 8rem;
+    height: 8rem;
+  }
+  form {
+    width: 100%;
+  }
+  .form-group {
+    width: 100%;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 0.3rem 0rem;
+  }
+  .form-group label {
+    font-size: 0.9rem;
+  }
+  .form-group input {
+    width: 85%;
+  }
+  .form-group button {
+    width: 50%;
+    margin-left: 0rem;
+  }
+  .file-div label {
+    margin-left: 0rem;
+  }
 }
 </style>

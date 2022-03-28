@@ -76,11 +76,8 @@ exports.updateUser = (req, res, next) => {
   const id = req.params.id;
   const username = req.body.username;
   let password = req.body.password;
-  console.log(req.body);
-  console.log(req.file);
   bcrypt.hash(password, 10).then((hash) => {
     password = hash;
-    // Si nouvelle image
     if (req.file) {
       const imageUrl = `${req.protocol}://${req.get('host')}/images/${
         req.file.filename
@@ -101,7 +98,6 @@ exports.updateUser = (req, res, next) => {
         }
       );
     }
-    // Si pas de nouvelle image
     if (!req.file) {
       db.query(
         `UPDATE user SET username='${username}', password='${password}' WHERE id=${id}`,
