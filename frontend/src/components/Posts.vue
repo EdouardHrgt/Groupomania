@@ -56,9 +56,9 @@
               maxlength="250"
             />
           </div>
-          <div class="form-group">
-            <label for="image" id="file-btn">image</label>
-            <input id="image" type="file" name="image" />
+          <div class="form-group file-input">
+            <label for="image">image</label>
+            <input type="file" name="image" />
           </div>
           <div class="form-group">
             <button type="submit">Post !</button>
@@ -126,9 +126,9 @@
                     maxlength="250"
                   />
                 </div>
-                <div class="form-group">
-                  <label for="image" id="file-btn">image</label>
-                  <input id="image" type="file" name="image" />
+                <div class="form-group file-input">
+                  <label for="image">image</label>
+                  <input type="file" name="image" />
                 </div>
                 <div class="form-group">
                   <button type="submit">Update !</button>
@@ -460,6 +460,7 @@ header .picture {
   margin-bottom: 2rem;
   align-self: center;
   border-radius: 50%;
+  outline: var(--gray) 1px solid;
 }
 .picture img {
   width: inherit;
@@ -482,7 +483,7 @@ header li div {
   cursor: pointer;
 }
 header li div:hover {
-  color: #dd00ff;
+  color: var(--secondary);
 }
 header li i {
   width: 1rem;
@@ -548,7 +549,8 @@ header li span {
 .form-group input::placeholder {
   color: var(--primary);
 }
-#file-btn {
+
+.file-input label {
   background-color: var(--white);
   color: var(--primary);
   width: 6rem;
@@ -557,7 +559,7 @@ header li span {
   cursor: pointer;
   outline: var(--black) 1px solid;
 }
-#image {
+.file-input input {
   display: none;
 }
 .form-group button {
@@ -655,6 +657,9 @@ header li span {
   display: flex;
   align-items: center;
 }
+.author .username strong {
+  color: var(--secondary);
+}
 .infos img {
   width: 3rem;
   height: 3rem;
@@ -684,7 +689,7 @@ header li span {
   border-bottom: 1px solid var(--primary);
 }
 .actions i {
-  color: var(--primary);
+  color: var(--ternary);
   font-size: 1.1rem;
   margin: 0 0.5rem;
   transition: 0.4s;
@@ -710,6 +715,7 @@ header li span {
   position: relative;
   color: var(--primary);
   border-bottom: 1px solid var(--gray);
+  padding: 0.2rem;
 }
 .comment-infos img {
   width: 2rem;
@@ -767,7 +773,7 @@ header li span {
     position: sticky;
     z-index: 100;
     top: 0;
-    background-color: var(--transp5);
+    background-color: var(--transp3);
     backdrop-filter: blur(2px);
   }
   .header-content {

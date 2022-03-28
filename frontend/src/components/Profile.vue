@@ -209,8 +209,9 @@ img {
   width: 10rem;
   height: 10rem;
   margin-right: 2rem;
-  outline: 1px solid var(--black);
+  outline: 1px solid var(--transp1);
   object-fit: cover;
+  border-radius: 50%;
 }
 .user {
   text-align: left;
