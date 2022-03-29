@@ -35,7 +35,7 @@
                 type="text"
                 name="username"
                 id="username"
-                :value="user.username"
+                placeholder="Enter a new name"
                 required
                 maxlength="50"
               />
@@ -65,11 +65,17 @@
               />
             </div>
             <div class="form-group file-div">
-              <label for="image">Profile-picture</label>
-              <input type="file" name="image" />
+              <label for="file-input">Profile-picture</label>
+              <input
+                type="file"
+                name="image"
+                accept="image/png, image/jpeg, image/jpg"
+                id="file-input"
+              />
             </div>
             <div class="form-group">
-              <p class="err-msg" v-if="error">{{ error }}</p>
+              <p class="infos-msg err-msg" v-if="error">{{ error }}</p>
+              <p class=".infos-msg success-msg" v-if="success">{{ success }}</p>
             </div>
             <div class="form-group">
               <button type="submit">Update my profile</button>
@@ -105,6 +111,7 @@ export default {
       password: '',
       confirmation: '',
       error: false,
+      success: false,
       bool: false,
     };
   },
@@ -127,31 +134,41 @@ export default {
     },
     deleteAccount() {
       alert('Account deleted');
-      console.log(this.user);
       //this.$router.push('/');
     },
     closeProfile() {
-      //event + payload -->
       this.$emit('profileCloser', this.bool);
     },
     updateUser(event) {
       if (this.confirmation != this.password) {
         this.error = 'Password do not match !';
-      } else if (this.confirmation == this.password) {
+      } else {
         this.error = false;
         const userId = String(this.user.userId);
         let USER = new FormData(event.target);
-        console.log(USER);
         axios
-          .put(`${url}update/${userId}`, USER)
+          .put(
+            `${url}update/${userId}`,
+            {
+              headers: {
+                'Content-type': 'application/json',
+                Authorization: 'Bearer ' + this.user.token,
+              },
+            },
+            USER
+          )
           .then((res) => {
-            console.log(res.data);
             this.user.username = res.data.username;
             this.user.image = res.data.image;
+            this.error = false;
+            this.success = 'Your profile is updated';
+            localStorage.removeItem('user');
+            localStorage.setItem('user', JSON.stringify(this.user));
           })
           .catch((err) => {
-            alert('Ko');
             console.log(err);
+            this.success = false;
+            this.error = 'An error occured, please try again later';
           });
       }
     },
@@ -270,13 +287,18 @@ form {
 .form-group input::placeholder {
   color: var(--primary);
 }
-.err-msg {
+.infos-msg {
   color: var(--white);
   text-align: center;
   font-size: 0.9rem;
   margin-left: 8rem;
   width: 100%;
+}
+.error-msg {
   background-color: var(--red);
+}
+.success-msg {
+  background-color: var(--green);
 }
 .form-group button {
   width: 30%;
@@ -304,7 +326,7 @@ form {
   cursor: pointer;
   outline: var(--black) 1px solid;
 }
-.file-div input {
+#file-input {
   display: none;
 }
 .file-div label:hover {

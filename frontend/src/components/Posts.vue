@@ -6,15 +6,15 @@
     </div>
     <header>
       <div class="header-content">
-        <div class="picture">
+        <div class="picture" @click="openProfile">
           <img :src="user.image" alt="profile-picture" />
         </div>
         <ul>
           <li>
-            <div @click="openProfile()">
+            <div @click="openProfile">
               <i class="fa-solid fa-user"></i><span>Profile</span>
             </div>
-            <div @click="logOut()">
+            <div @click="logOut">
               <i class="fa-solid fa-arrow-right-from-bracket"></i
               ><span>Log Out</span>
             </div>
@@ -57,8 +57,8 @@
             />
           </div>
           <div class="form-group file-input">
-            <label for="image">image</label>
-            <input type="file" name="image" />
+            <label for="new-post-image">image</label>
+            <input type="file" name="image" id="new-post-image" />
           </div>
           <div class="form-group">
             <button type="submit">Post !</button>
@@ -111,7 +111,7 @@
                     type="text"
                     name="title"
                     id="title"
-                    :value="post.title"
+                    :placeholder="post.title"
                     minLength="5"
                     maxlength="70"
                   />
@@ -122,13 +122,13 @@
                     type="textarea"
                     name="content"
                     id="content"
-                    :value="post.content"
+                    :placeholder="post.content"
                     maxlength="250"
                   />
                 </div>
                 <div class="form-group file-input">
-                  <label for="image">image</label>
-                  <input type="file" name="image" />
+                  <label for="update-post-image">image</label>
+                  <input type="file" name="image" id="update-post-image"/>
                 </div>
                 <div class="form-group">
                   <button type="submit">Update !</button>
@@ -235,7 +235,6 @@ import axios from 'axios';
 import Loader from '@/components/Loader.vue';
 import Profile from '@/components/Profile.vue';
 const url = 'http://localhost:3000/api/';
-//{headers: {'Content-type': 'application/json', Authorization: 'Bearer ' + this.user.token}};
 export default {
   name: 'Posts',
   components: {
@@ -266,7 +265,12 @@ export default {
     /*=====================================*/
     getAllPosts() {
       axios
-        .get(`${url}post`)
+        .get(`${url}post`, {
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: 'Bearer ' + this.user.token,
+          },
+        })
         .then((res) => {
           this.posts = res.data;
           this.loading = false;
@@ -279,9 +283,12 @@ export default {
     newPost(event) {
       const userId = String(this.user.userId);
       let post = new FormData(event.target);
-      console.log(post);
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
       axios
-        .post(`${url}post/${userId}`, post)
+        .post(`${url}post/${userId}`, post, { headers })
         .then((res) => {
           console.log(res);
           this.commentForm = -1;
@@ -295,8 +302,12 @@ export default {
     updatePost($event, id) {
       const postId = String(id);
       const updatedPost = new FormData($event.target);
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
       axios
-        .put(`${url}post/update/${postId}`, updatedPost)
+        .put(`${url}post/update/${postId}`, updatedPost, { headers })
         .then((res) => {
           console.log(res);
           this.toggleUpdatePost();
@@ -313,8 +324,12 @@ export default {
           this.deletePostBox = -1;
         } else if (this.isPostDelete == true) {
           const postId = post.id;
+          const headers = {
+            'Content-type': 'application/json',
+            Authorization: 'Bearer ' + this.user.token,
+          };
           axios
-            .delete(`${url}post/delete/${postId}`)
+            .delete(`${url}post/delete/${postId}`, { headers })
             .then((res) => {
               console.log(res);
               this.isPostDelete = null;
@@ -357,13 +372,27 @@ export default {
         this.commentForm = i;
       }
     },
+    showAllComments() {
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      axios.get(`${url}comment`, { headers }).then((res) => {
+        console.log(res);
+        alert('ok');
+      });
+    },
     newComment(idPost) {
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
       const userId = String(this.user.userId);
       const comment = { content: this.comment };
       comment['userId'] = userId;
       comment['postId'] = String(idPost);
       axios
-        .post(`${url}comment`, comment)
+        .post(`${url}comment`, comment, { headers })
         .then((res) => {
           console.log(res.data);
           this.commentForm = -1;
@@ -377,8 +406,12 @@ export default {
         this.comments = null;
         this.commentBlock = -1;
       }
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
       axios
-        .get(`${url}comment/filter/${postId}`)
+        .get(`${url}comment/filter/${postId}`, { headers })
         .then((res) => {
           this.comments = res.data;
           this.commentBlock = index;
@@ -411,13 +444,12 @@ export default {
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
       this.loading = true;
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
       axios
-        .get(`${url}post`, {
-          headers: {
-            'Content-type': 'application/json',
-            Authorization: 'Bearer ' + this.user.token,
-          },
-        })
+        .get(`${url}post`, { headers })
         .then((res) => {
           this.posts = res.data;
           this.loading = false;
@@ -460,7 +492,6 @@ header .picture {
   margin-bottom: 2rem;
   align-self: center;
   border-radius: 50%;
-  outline: var(--gray) 1px solid;
 }
 .picture img {
   width: inherit;
@@ -665,6 +696,7 @@ header li span {
   height: 3rem;
   border-radius: 50%;
   margin-right: 0.5rem;
+  object-fit: cover;
 }
 .content {
   padding: 0.5rem 1rem 0 1rem;

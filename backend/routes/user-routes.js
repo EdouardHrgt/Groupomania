@@ -8,7 +8,7 @@ const multer = require('../middleware/multer-mw');
 // router.post('/signup', password, userCtrl.signUp);
 router.post('/signup', password, userCtrl.signUp);
 router.post('/login', userCtrl.logIn);
-router.put('/update/:id', multer, userCtrl.updateUser);
-router.delete('/delete', userCtrl.deleteUser);
+router.put('/update/:id', auth, multer, userCtrl.updateUser);
+router.delete('/delete', auth, userCtrl.deleteUser);
 
 module.exports = router;

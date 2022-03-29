@@ -134,6 +134,7 @@ exports.updatePost = (req, res, next) => {
 
 exports.deletePost = (req, res, next) => {
   const postId = req.params.id;
+  // verif de l'id user
   db.query(`SELECT * FROM posts WHERE id= ?`, postId, (err, result, fields) => {
     if (err) {
       return res.status(400).json(err);

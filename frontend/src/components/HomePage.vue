@@ -25,7 +25,8 @@ export default {
 
 <style scoped>
 .homepage {
-  width: 100%;
+  width: 85%;
+  margin: auto;
   background-image: url(../assets/home-bg.jpg);
   background-size: cover;
   background-position: center;

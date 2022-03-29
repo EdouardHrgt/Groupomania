@@ -73,9 +73,12 @@ exports.logIn = (req, res, next) => {
 };
 
 exports.updateUser = (req, res, next) => {
+  console.log(req.body);
+  console.log(req.file);
   const id = req.params.id;
   const username = req.body.username;
   let password = req.body.password;
+
   bcrypt.hash(password, 10).then((hash) => {
     password = hash;
     if (req.file) {
@@ -88,31 +91,47 @@ exports.updateUser = (req, res, next) => {
           if (err) {
             console.log(err);
             return res.status(400).json(err);
-          }
-          if (result.affectedRows == 0) {
+          } else if (result.affectedRows == 0) {
             return res.status(404).json({ message: 'User not found...' });
+          } else {
+            console.log('User updated with an image...');
+            /*return res
+              .status(201)
+              .json({ message: 'User updated with an image...' });*/
           }
-          return res
-            .status(201)
-            .json({ message: 'User updated with an image...' });
         }
       );
-    }
-    if (!req.file) {
+    } else if (!req.file) {
       db.query(
         `UPDATE user SET username='${username}', password='${password}' WHERE id=${id}`,
         (err, result, fields) => {
           if (err) {
             console.log(err);
             return res.status(400).json(err);
-          }
-          if (result.affectedRows == 0) {
+          } else if (result.affectedRows == 0) {
             return res.status(404).json({ message: 'User not found...' });
+          } else {
+            // return res.status(201).json({ message: 'User updated...' });
+            console.log('User updated...');
           }
-          return res.status(201).json({ message: 'User updated...' });
         }
       );
     }
+    db.query(
+      `SELECT * FROM user WHERE username= ?`,
+      username,
+      (err, result, fields) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).json(err);
+        } else {
+          console.log('...............OOOOOOKKKK....................');
+          return res
+            .status(201)
+            .json({ username: result[0].username, image: result[0].image });
+        }
+      }
+    );
   });
 };
 
