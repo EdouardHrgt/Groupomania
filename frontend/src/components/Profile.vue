@@ -3,8 +3,12 @@
     <div class="profile-container">
       <div class="profile-card">
         <!-- Profile infos -->
-        <div class="profile-infos">
-          <img :src="user.image" :alt="'profile picture of ' + user.username" />
+        <div class="profile-infos" v-if="user">
+          <img
+            v-if="user.image"
+            :src="user.image"
+            :alt="'profile picture of ' + user.username"
+          />
           <div class="user">
             <h1>{{ user.username }}</h1>
             <h2 v-if="user.permission == 'member'">{{ user.permission }}</h2>

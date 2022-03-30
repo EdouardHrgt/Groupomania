@@ -6,7 +6,7 @@
     </div>
     <header>
       <div class="header-content">
-        <div class="picture" @click="openProfile">
+        <div class="picture" @click="openProfile" v-if="user">
           <img :src="user.image" alt="profile-picture" />
         </div>
         <ul>
@@ -75,7 +75,6 @@
           class="post-container"
           v-for="(post, postIndex) in posts"
           :key="post.id"
-          @click="getComments(post.id, postIndex)"
         >
           <!-- Delete Post box -->
           <div class="box alert flex" v-if="alertDeletePost == postIndex">
@@ -128,7 +127,7 @@
                 </div>
                 <div class="form-group file-input">
                   <label for="update-post-image">image</label>
-                  <input type="file" name="image" id="update-post-image"/>
+                  <input type="file" name="image" id="update-post-image" />
                 </div>
                 <div class="form-group">
                   <button type="submit">Update !</button>
@@ -136,40 +135,47 @@
               </form>
             </div>
           </div>
-          <div class="infos">
-            <div class="author">
-              <img :src="post.image" :alt="'picture of ' + post.username" />
-              <p class="username">
-                By: <strong>{{ post.username }}</strong>
+          <!-- The post -->
+          <section v-if="post">
+            <div class="infos" @click="getComments(post.id, postIndex)">
+              <div class="author">
+                <img
+                  v-if="post.image"
+                  :src="post.image"
+                  :alt="'picture of ' + post.username"
+                />
+                <p class="username">
+                  By: <strong>{{ post.username }}</strong>
+                </p>
+              </div>
+              <p class="date">{{ post.date }}</p>
+            </div>
+            <div class="content" @click="getComments(post.id, postIndex)">
+              <img v-if="post.imageUrl" :src="post.imageUrl" alt="#" />
+              <h3>
+                {{ post.title }}
+              </h3>
+              <p>
+                {{ post.content }}
               </p>
             </div>
-            <p class="date">{{ post.date }}</p>
-          </div>
-          <div class="content">
-            <img :src="post.imageUrl" v-if="post.imageUrl" alt="#" />
-            <h3>
-              {{ post.title }}
-            </h3>
-            <p>
-              {{ post.content }}
-            </p>
-          </div>
-          <div class="actions">
-            <div class="owner-actions" v-if="user.userId == post.userId">
+            <div class="actions">
+              <div class="owner-actions" v-if="user.userId == post.userId">
+                <i
+                  class="fa-solid fa-pen"
+                  @click="toggleUpdatePost(postIndex)"
+                ></i>
+                <i
+                  class="fa-solid fa-trash"
+                  @click="openDeletePost(postIndex)"
+                ></i>
+              </div>
               <i
-                class="fa-solid fa-pen"
-                @click="toggleUpdatePost(postIndex)"
-              ></i>
-              <i
-                class="fa-solid fa-trash"
-                @click="openDeletePost(postIndex)"
+                class="fa-solid fa-message"
+                @click="showCommentForm(postIndex)"
               ></i>
             </div>
-            <i
-              class="fa-solid fa-message"
-              @click="showCommentForm(postIndex)"
-            ></i>
-          </div>
+          </section>
           <!-- Comment form -->
           <div class="comment-form-container" v-if="commentForm == postIndex">
             <form @submit.prevent="newComment(post.id)">
@@ -183,6 +189,7 @@
                   required
                   maxlength="250"
                   v-model="comment"
+                  minlength="5"
                 />
               </div>
               <div class="form-group">
@@ -203,6 +210,7 @@
             >
               <div class="comment-infos">
                 <img
+                  v-if="comment.image"
                   :src="comment.image"
                   :alt="'Profile picture of' + comment.username"
                 />
@@ -283,6 +291,9 @@ export default {
     newPost(event) {
       const userId = String(this.user.userId);
       let post = new FormData(event.target);
+      for (let value of post.values()) {
+        console.log(value);
+      }
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
@@ -383,14 +394,18 @@ export default {
       });
     },
     newComment(idPost) {
+      const comment = new FormData();
+      comment.append('content', this.comment);
+      comment.append('userId', this.user.userId);
+      comment.append('postId', idPost);
+
+      for (let pairs of comment.entries()) {
+        console.log(pairs);
+      }
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
       };
-      const userId = String(this.user.userId);
-      const comment = { content: this.comment };
-      comment['userId'] = userId;
-      comment['postId'] = String(idPost);
       axios
         .post(`${url}comment`, comment, { headers })
         .then((res) => {

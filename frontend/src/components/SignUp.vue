@@ -8,7 +8,7 @@
       </ul>
     </header>
     <h1>Sign Up</h1>
-    <div class="form-container">
+    <div class="form-container flex">
       <form @submit.prevent="submitSignup">
         <div class="form-group">
           <label for="username">Username : </label>
@@ -40,7 +40,6 @@
             placeholder="Enter your password"
             minlength="8"
             required
-            oninvalid="this.setCustomValidity('Your password must be a least 8 caracters and contain 1 caps and 1 number')"
           />
         </div>
         <div class="form-group">
@@ -61,7 +60,6 @@
           <button type="submit">Submit</button>
         </div>
       </form>
-      <div class="form-image"></div>
     </div>
     <div class="infos">
       <p>
@@ -192,11 +190,11 @@ h1 {
 .form-container {
   background-color: var(--transp2);
   width: 50%;
-  overflow: hidden;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 1fr;
   position: relative;
+}
+
+.form-container form {
+  width: 70%;
 }
 
 .form-group,
@@ -262,15 +260,6 @@ h1 {
   background-color: transparent;
 }
 
-.form-image {
-  width: 100%;
-  height: 100%;
-  background-image: url(../assets/groupo-logo.png);
-  background-size: 70%;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
 .infos p {
   font-family: var(--font-2);
   color: var(--white);
@@ -296,18 +285,14 @@ h1 {
   .form-container {
     width: 700px;
   }
+  .form-container form {
+    width: 100%;
+  }
 }
 
 @media screen and (max-width: 1024px) {
   header {
     top: 0.3rem;
-  }
-  .form-container {
-    grid-template-rows: repeat(2, 1fr);
-    grid-template-columns: 1fr;
-  }
-  .form-image {
-    background-size: 50%;
   }
   .form-group,
   .message {
@@ -317,11 +302,16 @@ h1 {
   .form-group input,
   .err-msg,
   .valid-msg {
-    width: 70%;
+    width: 80%;
   }
 }
 @media screen and (max-width: 800px) {
   .form-container {
+    width: 90%;
+  }
+  .form-group input,
+  .err-msg,
+  .valid-msg {
     width: 90%;
   }
 }

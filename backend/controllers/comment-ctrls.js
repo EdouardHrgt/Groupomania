@@ -9,16 +9,19 @@ exports.getAllComments = (req, res, next) => {
     return res.status(200).json(result);
   });
 };
-//`SELECT title, content, imageUrl, userId, posts.id, username, permission, image, date  FROM posts JOIN user ON posts.userId = user.id ORDER BY posts.id DESC`
 exports.getFilteredComments = (req, res, next) => {
   const postId = req.params.postId;
-  db.query(`SELECT comments.id, content, date, userId, postId, username, image, permission FROM comments JOIN user ON comments.userId = user.id WHERE postId= ?`, postId, (err, result, fields) => {
-    if (err) {
-      console.log(err);
-      return res.status(400).json(err);
+  db.query(
+    `SELECT comments.id, content, date, userId, postId, username, image, permission FROM comments JOIN user ON comments.userId = user.id WHERE postId= ?`,
+    postId,
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json(err);
+      }
+      return res.status(200).json(result);
     }
-    return res.status(200).json(result);
-  });
+  );
 };
 
 exports.getOneComment = (req, res, next) => {
@@ -36,6 +39,8 @@ exports.getOneComment = (req, res, next) => {
 };
 
 exports.createComment = (req, res, next) => {
+  console.log('new comment............')
+  console.log(req.body);
   const content = req.body.content;
   const userId = req.body.userId;
   const postId = req.body.postId;
