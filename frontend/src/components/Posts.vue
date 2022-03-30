@@ -394,14 +394,20 @@ export default {
       });
     },
     newComment(idPost) {
+      /*
       const comment = new FormData();
       comment.append('content', this.comment);
       comment.append('userId', this.user.userId);
       comment.append('postId', idPost);
-
       for (let pairs of comment.entries()) {
-        console.log(pairs);
+      console.log(pairs);
       }
+      */
+      const comment = {
+        content: this.comment,
+        userId: this.user.userId,
+        postId: idPost,
+      };
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,

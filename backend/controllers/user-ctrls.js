@@ -4,19 +4,20 @@ const db = require('../config/db-config');
 const jwt = require('jsonwebtoken');
 const emailValidator = require('email-validator');
 const fs = require('fs');
-
+const { v4: uuidv4 } = require('uuid'); // uuidv4(); -> 'azfazefa654'
 require('dotenv').config({ path: './.env' });
 
 exports.signUp = (req, res, next) => {
-  console.log(req.body);
   const username = req.body.username;
   const email = req.body.email;
+  const rng = uuidv4();
+  const uuid = JSON.stringify(rng);
   if (emailValidator.validate(email)) {
     let password = req.body.password;
     bcrypt.hash(password, 10).then((hash) => {
       password = hash;
       db.query(
-        `INSERT INTO user (username, email, password) VALUES ('${username}', '${email}', '${password}')`,
+        `INSERT INTO user (username, email, password, uuid) VALUES ('${username}', '${email}', '${password}', ${uuid})`,
         (err, result, fields) => {
           if (err) {
             console.log(err);
