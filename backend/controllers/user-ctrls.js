@@ -10,6 +10,7 @@ require('dotenv').config({ path: './.env' });
 exports.signUp = (req, res, next) => {
   const username = req.body.username;
   const email = req.body.email;
+  //generation d'une UUID
   const rng = uuidv4();
   const uuid = JSON.stringify(rng);
   if (emailValidator.validate(email)) {
