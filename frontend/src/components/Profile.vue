@@ -11,11 +11,14 @@
           />
           <div class="user">
             <h1>{{ user.username }}</h1>
-            <h2 v-if="user.permission == 'member'">{{ user.permission }}</h2>
-            <h2 class="admin" v-if="user.permission == 'admin'">
+            <!-- <strong @click="saveUser" >User depuis vueX : {{ getUser }}</strong>
+            <br /><br />
+            <strong>Double de l'id : {{ doubleId }}</strong> -->
+            <h2 class="member" v-if="user.permission == 'member'">{{ user.permission }}</h2>
+            <h2 class="admin" v-else-if="user.permission == 'admin'">
               {{ user.permission }}
             </h2>
-            <h2 class="modo" v-if="user.permission == 'moderator'">
+            <h2 class="modo" v-else-if="user.permission == 'moderator'">
               {{ user.permission }}
             </h2>
           </div>
@@ -119,6 +122,24 @@ export default {
       bool: false,
     };
   },
+  /*computed: {
+    getUser() {
+      return this.$store.state.storedUser;
+    },
+    doubleId() {
+      const user = this.$store.state.storedUser;
+      if (user.userId === 0) {
+        return 'No user Id...';
+      } else {
+        return this.$store.getters.doTheMaths;
+      }
+    },
+    saveUser() {
+      //fonction commit prends 2 arguments : fonction mutation + data à prendre
+      return this.$store.commit('saveStoredUser', this.user);
+    },
+  },
+  */
   methods: {
     toggleUpdateProfile() {
       if (this.updateProfileBox) {
@@ -149,18 +170,13 @@ export default {
       } else {
         this.error = false;
         const userId = String(this.user.userId);
-        let USER = new FormData(event.target);
+        let User = new FormData(event.target);
+        const headers = {
+          'Content-type': 'application/json',
+          Authorization: 'Bearer ' + this.user.token,
+        };
         axios
-          .put(
-            `${url}update/${userId}`,
-            {
-              headers: {
-                'Content-type': 'application/json',
-                Authorization: 'Bearer ' + this.user.token,
-              },
-            },
-            USER
-          )
+          .put(`${url}update/${userId}`, User, { headers })
           .then((res) => {
             this.user.username = res.data.username;
             this.user.image = res.data.image;
@@ -241,7 +257,7 @@ img {
   font-family: var(--font2);
   font-size: 2rem;
 }
-.user h2 {
+.user .member {
   color: var(--green);
   font-style: italic;
   font-size: 1rem;

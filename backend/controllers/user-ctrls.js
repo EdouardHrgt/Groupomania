@@ -7,6 +7,16 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid'); // uuidv4(); -> 'azfazefa654'
 require('dotenv').config({ path: './.env' });
 
+exports.getAllUsers = (req, res, next) => {
+  db.query(`SELECT * FROM user ORDER BY id DESC`, (err, result, fields) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json(err);
+    }
+    return res.status(200).json(result);
+  });
+};
+
 exports.signUp = (req, res, next) => {
   const username = req.body.username;
   const email = req.body.email;
@@ -75,8 +85,6 @@ exports.logIn = (req, res, next) => {
 };
 
 exports.updateUser = (req, res, next) => {
-  console.log(req.body);
-  console.log(req.file);
   const id = req.params.id;
   const username = req.body.username;
   let password = req.body.password;
@@ -97,9 +105,6 @@ exports.updateUser = (req, res, next) => {
             return res.status(404).json({ message: 'User not found...' });
           } else {
             console.log('User updated with an image...');
-            /*return res
-              .status(201)
-              .json({ message: 'User updated with an image...' });*/
           }
         }
       );
@@ -113,8 +118,7 @@ exports.updateUser = (req, res, next) => {
           } else if (result.affectedRows == 0) {
             return res.status(404).json({ message: 'User not found...' });
           } else {
-            // return res.status(201).json({ message: 'User updated...' });
-            console.log('User updated...');
+            console.log('User updated with no Img...');
           }
         }
       );
@@ -127,7 +131,7 @@ exports.updateUser = (req, res, next) => {
           console.log(err);
           return res.status(400).json(err);
         } else {
-          console.log('...............OOOOOOKKKK....................');
+          console.log('User update retourné......');
           return res
             .status(201)
             .json({ username: result[0].username, image: result[0].image });

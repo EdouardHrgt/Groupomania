@@ -22,7 +22,7 @@
   --transp1: rgba(38, 42, 90, 0.6);
   --transp2: rgba(0, 0, 0, 0.3);
   --transp3: rgba(0, 0, 0, 0.7);
-  --transp5: rgba(204, 204, 255, 0.8);
+  --transp5: rgba(38, 42, 90, 0.5);
   --transp4: rgba(230, 230, 230, 0.2);
   --transp6: rgba(255, 255, 255, 0.8);
 }

@@ -75,7 +75,7 @@ export default {
 .container button {
   outline: none;
   border: none;
-  background-color: rgba(204, 204, 255, 0.8);
+  background-color: var(--transp5);
   transition: 0.4s;
   padding: 0.3rem 1rem;
   width: 7rem;

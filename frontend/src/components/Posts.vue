@@ -5,7 +5,7 @@
       <loader />
     </div>
     <header>
-      <div class="header-content">
+      <div class="header-content" v-if="user">
         <div class="picture" @click="openProfile" v-if="user">
           <img :src="user.image" alt="profile-picture" />
         </div>
@@ -14,9 +14,19 @@
             <div @click="openProfile">
               <i class="fa-solid fa-user"></i><span>Profile</span>
             </div>
+          </li>
+          <li>
             <div @click="logOut">
               <i class="fa-solid fa-arrow-right-from-bracket"></i
               ><span>Log Out</span>
+            </div>
+          </li>
+          <li>
+            <div class="panel-link" v-if="user.permission == 'admin'">
+              <router-link to="/panel">
+                <i class="fa-solid fa-lock"></i>
+                <span>Panel</span>
+              </router-link>
             </div>
           </li>
         </ul>
@@ -543,6 +553,9 @@ header li i {
 header li span {
   font-size: 1rem;
   margin-left: 1rem;
+}
+.panel-link a {
+  color: var(--red);
 }
 /*ACTIVITIES*/
 .activities-container {

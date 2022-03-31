@@ -123,7 +123,7 @@ export default {
         .then((res) => {
           this.user = res.data;
           localStorage.setItem('user', JSON.stringify(this.user));
-          this.toPosts(1500);
+          this.toPosts(1250);
         })
         .catch((err) => {
           this.valid = false;
