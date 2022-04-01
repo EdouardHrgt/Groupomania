@@ -14,7 +14,9 @@
             <!-- <strong @click="saveUser" >User depuis vueX : {{ getUser }}</strong>
             <br /><br />
             <strong>Double de l'id : {{ doubleId }}</strong> -->
-            <h2 class="member" v-if="user.permission == 'member'">{{ user.permission }}</h2>
+            <h2 class="member" v-if="user.permission == 'member'">
+              {{ user.permission }}
+            </h2>
             <h2 class="admin" v-else-if="user.permission == 'admin'">
               {{ user.permission }}
             </h2>
@@ -81,8 +83,8 @@
               />
             </div>
             <div class="form-group">
-              <p class="infos-msg err-msg" v-if="error">{{ error }}</p>
-              <p class=".infos-msg success-msg" v-if="success">{{ success }}</p>
+              <p class="infos-msg error-msg" v-if="error">{{ error }}</p>
+              <p class="infos-msg success-msg" v-if="success">{{ success }}</p>
             </div>
             <div class="form-group">
               <button type="submit">Update my profile</button>
@@ -97,6 +99,10 @@
               <i class="fa-solid fa-check" @click="deleteAccount"></i>
               <i class="fa-solid fa-xmark" @click="toggleDeleteProfile"></i>
             </div>
+            <p class="delete-msg" v-if="deleteMsg">{{ deleteMsg }}</p>
+            <p class="delete-msg" v-else-if="errDeleteMsg">
+              {{ errDeleteMsg }}
+            </p>
           </div>
         </div>
       </div>
@@ -120,6 +126,8 @@ export default {
       error: false,
       success: false,
       bool: false,
+      deleteMsg: '',
+      errDeleteMsg: '',
     };
   },
   /*computed: {
@@ -155,11 +163,33 @@ export default {
       } else {
         this.deleteProfileBox = true;
         this.updateProfileBox = false;
+        this.errDeleteMsg = '';
+        this.deleteMsg = '';
       }
     },
     deleteAccount() {
-      alert('Account deleted');
-      //this.$router.push('/');
+      const userId = this.user.userId;
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      axios
+        .delete(`${url}delete/${userId}`, { headers })
+        .then((res) => {
+          console.log(res);
+          this.errDeleteMsg = '';
+          this.deleteMsg = 'Account deleted !';
+          localStorage.removeItem('user');
+          this.user = null;
+          setTimeout(() => {
+            this.$router.push('/');
+          }, 2000);
+        })
+        .catch((err) => {
+          this.deleteMsg = '';
+          this.errDeleteMsg = 'An error occured, please try gain later !';
+          console.log(err);
+        });
     },
     closeProfile() {
       this.$emit('profileCloser', this.bool);
@@ -317,8 +347,13 @@ form {
 .error-msg {
   background-color: var(--red);
 }
-.success-msg {
+.success-msg,
+.delete-msg {
   background-color: var(--green);
+}
+.delete-msg {
+  width: 100%;
+  margin-top: 1rem;
 }
 .form-group button {
   width: 30%;
@@ -357,6 +392,9 @@ form {
   inset: 0;
   background-color: var(--transp6);
   backdrop-filter: blur(3px);
+}
+.confirmation-wrapper {
+  width: 40%;
 }
 .confirmation-wrapper i {
   margin: 0 0.5rem;

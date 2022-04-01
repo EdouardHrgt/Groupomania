@@ -36,44 +36,30 @@ exports.createPost = (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
   const userId = req.params.id;
-  //if req, soit image url = req.file soit un default user et 1 seule query
+  let imageUrl = '';
   if (req.file) {
-    let imageUrl = `${req.protocol}://${req.get('host')}/images/${
+    imageUrl = `${req.protocol}://${req.get('host')}/images/${
       req.file.filename
     }`;
-    db.query(
-      `INSERT INTO posts (title, content, imageUrl, userId) VALUES ('${title}', '${content}', '${imageUrl}', '${userId}')`,
-      (err, result, fields) => {
-        if (err) {
-          console.log(err);
-          return res.status(400).json(err);
-        }
-        return res
-          .status(201)
-          .json({ message: 'Post Created with an image...' });
-      }
-    );
+  } else if (!req.file) {
+    imageUrl = 'noImg';
   }
-  if (!req.file) {
-    db.query(
-      `INSERT INTO posts (title, content, userId) VALUES ('${title}', '${content}', '${userId}')`,
-      (err, result, fields) => {
-        if (err) {
-          console.log(err);
-          return res.status(400).json(err);
-        }
-        return res.status(201).json({ message: 'Post Created...' });
+  db.query(
+    `INSERT INTO posts (title, content, imageUrl, userId) VALUES ('${title}', '${content}', '${imageUrl}', '${userId}')`,
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json(err);
       }
-    );
-  }
+      return res.status(201).json({ message: 'Post Created...' });
+    }
+  );
 };
 
 exports.updatePost = (req, res, next) => {
   const id = req.params.id;
   const title = req.body.title;
   const content = req.body.content;
-  console.log(req.file);
-  console.log(req.body);
   if (req.file) {
     db.query(`SELECT * FROM posts WHERE id= ?`, id, (err, result, fields) => {
       if (err) {
@@ -134,12 +120,14 @@ exports.updatePost = (req, res, next) => {
 
 exports.deletePost = (req, res, next) => {
   const postId = req.params.id;
+  const userId = 1;
   // verif de l'id user
   db.query(`SELECT * FROM posts WHERE id= ?`, postId, (err, result, fields) => {
     if (err) {
       return res.status(400).json(err);
     }
-    if (result[0].imageUrl == null) {
+    console.log(result[0]); // if (userId != result[0].userId) on stop tout
+    if (result[0].imageUrl == null || result[0].imageUrl == 'noImg') {
       console.log('No image in this post...');
     } else {
       const filename = result[0].imageUrl.split('/images/')[1];

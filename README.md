@@ -36,8 +36,7 @@ Request content : {"username":..., "email":..., "password":...}
 /update/:id -> (put)
 Request content : {"username":..., "email":..., "password":...}
 
-/delete -> (delete)
-Request content : {"userId":...}
+/delete:userId -> (delete)
 
 ** POSTS **
 http://localhost:3000/api/post/

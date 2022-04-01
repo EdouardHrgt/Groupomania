@@ -161,7 +161,11 @@
               <p class="date">{{ post.date }}</p>
             </div>
             <div class="content" @click="getComments(post.id, postIndex)">
-              <img v-if="post.imageUrl" :src="post.imageUrl" alt="#" />
+              <img
+                v-if="post.imageUrl != 'noImg'"
+                :src="post.imageUrl"
+                alt="#"
+              />
               <h3>
                 {{ post.title }}
               </h3>
@@ -184,6 +188,10 @@
                 class="fa-solid fa-message"
                 @click="showCommentForm(postIndex)"
               ></i>
+              <p class="likes">
+                <i class="fa-solid fa-heart"></i>
+                <span>100</span>
+              </p>
             </div>
           </section>
           <!-- Comment form -->
@@ -301,9 +309,7 @@ export default {
     newPost(event) {
       const userId = String(this.user.userId);
       let post = new FormData(event.target);
-      for (let value of post.values()) {
-        console.log(value);
-      }
+      //for (let value of post.values()) {console.log(value);}
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
@@ -464,6 +470,7 @@ export default {
     },
     closeProfile(bool) {
       this.profile = bool;
+      this.user = JSON.parse(localStorage.getItem('user'));
     },
   },
   /*=====================================*/
@@ -744,25 +751,34 @@ header li span {
   height: 300px;
   object-fit: contain;
 }
-.content p {
-  text-align: justify;
-}
 .actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   padding: 0.3rem 1rem;
   background-color: var(--white);
   border-bottom: 1px solid var(--primary);
+  border-top: 1px solid var(--gray);
+  background: var(--white);
 }
 .actions i {
   color: var(--ternary);
-  font-size: 1.1rem;
   margin: 0 0.5rem;
   transition: 0.4s;
   cursor: pointer;
 }
 .actions .fa-trash {
   color: var(--red);
+}
+.likes {
+  display: flex;
+}
+.likes span {
+  font-size: 0.8rem;
+  color: var(--black);
+}
+.actions .fa-heart {
+  color: var(--secondary);
 }
 .actions i:hover,
 .comment-actions i:hover {

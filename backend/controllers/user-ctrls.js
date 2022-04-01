@@ -4,7 +4,7 @@ const db = require('../config/db-config');
 const jwt = require('jsonwebtoken');
 const emailValidator = require('email-validator');
 const fs = require('fs');
-const { v4: uuidv4 } = require('uuid'); // uuidv4(); -> 'azfazefa654'
+const { v4: uuidv4 } = require('uuid');
 require('dotenv').config({ path: './.env' });
 
 exports.getAllUsers = (req, res, next) => {
@@ -48,7 +48,6 @@ exports.signUp = (req, res, next) => {
 exports.logIn = (req, res, next) => {
   const username = req.body.username;
   let password = req.body.password;
-
   db.query(
     `SELECT * FROM user WHERE username= ?`,
     username,
@@ -64,20 +63,18 @@ exports.logIn = (req, res, next) => {
               .status(404)
               .json({ message: 'password do not match...' });
           }
-
           return res.status(200).json({
             userId: result[0].id,
             username: result[0].username,
             permission: result[0].permission,
             image: result[0].image,
+            uuid: result[0].uuid,
             token: jwt.sign({ userId: result[0].id }, process.env.TOKEN, {
               expiresIn: '24h',
             }),
           });
         });
-      }
-
-      if (result.length <= 0) {
+      } else if (result.length <= 0) {
         return res.status(404).json({ message: 'User not find...' });
       }
     }
@@ -92,6 +89,26 @@ exports.updateUser = (req, res, next) => {
   bcrypt.hash(password, 10).then((hash) => {
     password = hash;
     if (req.file) {
+      //Delete Old picture
+      db.query(`SELECT * FROM user WHERE id=?`, id, (err, result, fields) => {
+        if (err) {
+          return res.status(400).json(err);
+        } else if (
+          result[0].image != 'http://localhost:3000/images/default_user.jpg'
+        ) {
+          const filename = result[0].image.split('/images/')[1];
+          fs.unlink(`images/${filename}`, (err) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log('Old Profile picture deleted...');
+            }
+          });
+        } else {
+          console.log('No custom picture in this user...');
+        }
+      });
+      //Save New picture
       const imageUrl = `${req.protocol}://${req.get('host')}/images/${
         req.file.filename
       }`;
@@ -108,6 +125,7 @@ exports.updateUser = (req, res, next) => {
           }
         }
       );
+      //Save changes without Picture
     } else if (!req.file) {
       db.query(
         `UPDATE user SET username='${username}', password='${password}' WHERE id=${id}`,
@@ -131,10 +149,12 @@ exports.updateUser = (req, res, next) => {
           console.log(err);
           return res.status(400).json(err);
         } else {
-          console.log('User update retourné......');
-          return res
-            .status(201)
-            .json({ username: result[0].username, image: result[0].image });
+          return res.status(201).json({
+            userId: result[0].id,
+            username: result[0].username,
+            permission: result[0].permission,
+            image: result[0].image,
+          });
         }
       }
     );
@@ -142,19 +162,15 @@ exports.updateUser = (req, res, next) => {
 };
 
 exports.deleteUser = (req, res, next) => {
-  const userId = req.body.userId;
-  const defaultPicture = 'http://localhost:3000/images/default_user.png';
-
+  const userId = req.params.id;
+  const defaultPicture = 'http://localhost:3000/images/default_user.jpg';
   db.query(`SELECT * FROM user WHERE id= ?`, userId, (err, result, fields) => {
     if (err) {
       return res.status(400).json(err);
-    }
-
-    if (result.length <= 0) {
-      return res.status(404).json({ message: 'No image on user...' });
-    }
-
-    if (result[0].image == defaultPicture) {
+    } else if (userId != result[0].id) {
+      console.log('userId is not matching...');
+      return res.status(404).json({ message: 'Lack of permission...' });
+    } else if (result[0].image == defaultPicture) {
       console.log('No custom picture for this user...');
     } else {
       const filename = result[0].image.split('/images/')[1];
@@ -167,16 +183,14 @@ exports.deleteUser = (req, res, next) => {
       });
     }
   });
-
   db.query(`DELETE FROM user WHERE id= ?`, userId, (err, result, fields) => {
     if (err) {
       console.log(err);
       return res.status(400).json(err);
-    }
-
-    if (result.affectedRows == 0) {
+    } else if (result.affectedRows == 0) {
       return res.status(404).json({ message: 'User not found...' });
+    } else {
+      return res.status(201).json({ message: 'User Deleted...' });
     }
-    return res.status(201).json({ message: 'User Deleted...' });
   });
 };

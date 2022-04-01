@@ -36,7 +36,7 @@
           />
         </div>
         <div class="message" v-if="error || valid">
-          <p class="err-msg" v-if="error">{{ error }} {{ fail }}</p>
+          <p class="err-msg" v-if="error">{{ error }}</p>
           <p class="valid-msg" v-if="valid">{{ valid }}</p>
         </div>
         <div class="form-group">

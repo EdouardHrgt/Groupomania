@@ -17,7 +17,7 @@
   --ternary: #262a5a;
   --gray: #e9e9e9;
   --red: #dd4124;
-  --green: #3cb371;
+  --green: #00d646;
   --light-gray: #f0f0f0;
   --transp1: rgba(38, 42, 90, 0.6);
   --transp2: rgba(0, 0, 0, 0.3);
