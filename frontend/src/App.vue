@@ -19,6 +19,7 @@
   --red: #dd4124;
   --green: #00d646;
   --light-gray: #f0f0f0;
+  --gradient: linear-gradient(43deg, #4158d0 0%, #c850c0 46%, #ffcc70 100%);
   --transp1: rgba(38, 42, 90, 0.6);
   --transp2: rgba(0, 0, 0, 0.3);
   --transp3: rgba(0, 0, 0, 0.7);

@@ -146,7 +146,7 @@
             </div>
           </div>
           <!-- The post -->
-          <section v-if="post">
+          <section class="unique__post" v-if="post">
             <div class="infos" @click="getComments(post.id, postIndex)">
               <div class="author">
                 <img
@@ -284,6 +284,12 @@ export default {
       commentForm: -1,
       commentBlock: -1,
     };
+  },
+  computed: {
+    dateFormatter(timestamp) {
+      let date = new Date(timestamp);
+      return date.toLocaleDateString();
+    },
   },
   methods: {
     /*=====================================*/
@@ -452,6 +458,10 @@ export default {
         .then((res) => {
           this.comments = res.data;
           this.commentBlock = index;
+          this.comments.forEach((comment) => {
+            let date = new Date(comment.date);
+            comment.date = date.toLocaleString();
+          });
         })
         .catch((err) => {
           console.log(err);
@@ -490,6 +500,10 @@ export default {
         .get(`${url}post`, { headers })
         .then((res) => {
           this.posts = res.data;
+          this.posts.forEach((post) => {
+            let date = new Date(post.date);
+            post.date = date.toLocaleString();
+          });
           this.loading = false;
         })
         .catch((err) => {
@@ -672,6 +686,9 @@ header li span {
   cursor: pointer;
   transition: 0.4s;
 }
+.post-container:last-child {
+  margin-bottom: 10rem;
+}
 .box {
   position: absolute;
   z-index: 10;
@@ -730,7 +747,10 @@ header li span {
   align-items: center;
 }
 .author .username strong {
-  color: var(--secondary);
+  color: transparent;
+  background: linear-gradient(90deg, #ff9a8b 0%, #ff6a88 55%, #ff99ac 100%);
+  background-clip: text;
+  font-family: var(--font-2);
 }
 .infos img {
   width: 3rem;
@@ -778,12 +798,15 @@ header li span {
   color: var(--black);
 }
 .actions .fa-heart {
-  color: var(--secondary);
+  color: transparent;
+  background: linear-gradient(90deg, #ff9a8b 0%, #ff6a88 55%, #ff99ac 100%);
+  background-clip: text;
 }
+
 .actions i:hover,
 .comment-actions i:hover {
   opacity: 0.7;
-  transform: scale(1.2);
+  transform: scale(1.3);
 }
 .comment-container {
   background-color: var(--gray);

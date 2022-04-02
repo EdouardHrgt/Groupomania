@@ -3,6 +3,19 @@
     <i class="fa-solid fa-xmark closer" @click="toPost"></i>
     <h1>PANEL ADMIN</h1>
     <div class="members__container">
+      <div class="form-group">
+        <label for="search-bar">
+          <i class="fa-solid fa-magnifying-glass"></i
+        ></label>
+        <input
+          type="search"
+          name="search-bar"
+          id="search-bar"
+          v-model="searchBar"
+          @change="searchUser"
+        />
+        {{ member }}
+      </div>
       <h2>Members :</h2>
       <div class="members__grid">
         <div
@@ -29,8 +42,8 @@
               <p class="user-id">userId: {{ member.id }}</p>
             </div>
             <div class="actions">
-              <i class="fa-solid fa-arrow-up"></i>
-              <i class="fa-solid fa-trash"></i>
+              <i class="fa-solid fa-arrow-up" @click="promoteMember"></i>
+              <i class="fa-solid fa-trash" @click="deleteMember"></i>
             </div>
           </div>
         </div>
@@ -48,11 +61,25 @@ export default {
     return {
       user: null,
       membersList: null,
+      searchBar: '',
+      member: '',
     };
   },
   methods: {
     toPost() {
       this.$router.push('posts');
+    },
+    deleteMember() {
+      alert('Member delete');
+    },
+    promoteMember() {
+      alert('Member promoted');
+    },
+    searchUser() {
+      this.member = this.membersList.filter(
+        (member) => member == this.searchBar
+      );
+      console.log(this.member);
     },
   },
   mounted() {
@@ -83,7 +110,6 @@ export default {
   min-height: 100vh;
   margin: auto;
   background-color: var(--light-gray);
-  padding: 2rem 0;
   position: relative;
 }
 .closer {
@@ -97,10 +123,9 @@ h1 {
   color: var(--primary);
   text-align: center;
   padding: 2rem 0;
-  background-color: var(--gray);
   letter-spacing: 1.5px;
   font-family: var(--font-2);
-  margin: 0 auto 5rem;
+  margin: auto;
   width: 90%;
 }
 .members__container {
@@ -109,6 +134,29 @@ h1 {
   margin: auto;
   width: 90%;
   min-height: 75vh;
+}
+.form-group {
+  width: 100%;
+  margin: 1rem 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.form-group label {
+  font-family: var(--font-2);
+  font-size: 1.1rem;
+  color: var(--black);
+  font-weight: bolder;
+  margin-right: 1rem;
+}
+
+.form-group input {
+  width: 90%;
+  max-width: 20rem;
+  padding: 0.6rem;
+  border: 1px solid black;
 }
 .members__container h2 {
   color: var(--primary);
