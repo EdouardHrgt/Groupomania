@@ -120,7 +120,7 @@
                     type="text"
                     name="title"
                     id="title"
-                    :placeholder="post.title"
+                    :value="post.title"
                     minLength="5"
                     maxlength="70"
                   />
@@ -131,7 +131,7 @@
                     type="textarea"
                     name="content"
                     id="content"
-                    :placeholder="post.content"
+                    :value="post.content"
                     maxlength="250"
                   />
                 </div>
@@ -185,7 +185,7 @@
                 ></i>
               </div>
               <i
-                class="fa-solid fa-message"
+                class="fa-solid fa-paper-plane"
                 @click="showCommentForm(postIndex)"
               ></i>
               <p class="likes">
@@ -305,6 +305,10 @@ export default {
         })
         .then((res) => {
           this.posts = res.data;
+          this.posts.forEach((post) => {
+            let date = new Date(post.date);
+            post.date = date.toLocaleString();
+          });
           this.loading = false;
         })
         .catch((err) => {
@@ -544,6 +548,7 @@ header .picture {
   margin-bottom: 2rem;
   align-self: center;
   border-radius: 50%;
+  cursor: pointer;
 }
 .picture img {
   width: inherit;
@@ -748,7 +753,7 @@ header li span {
 }
 .author .username strong {
   color: transparent;
-  background: linear-gradient(90deg, #ff9a8b 0%, #ff6a88 55%, #ff99ac 100%);
+  background: var(--gradient-2);
   background-clip: text;
   font-family: var(--font-2);
 }
@@ -779,10 +784,14 @@ header li span {
   background-color: var(--white);
   border-bottom: 1px solid var(--primary);
   border-top: 1px solid var(--gray);
-  background: var(--white);
+  position: relative;
+}
+.actions .owner-actions {
+  position: absolute;
+  left: 1rem;
 }
 .actions i {
-  color: var(--ternary);
+  color: var(--primary);
   margin: 0 0.5rem;
   transition: 0.4s;
   cursor: pointer;
@@ -799,7 +808,7 @@ header li span {
 }
 .actions .fa-heart {
   color: transparent;
-  background: linear-gradient(90deg, #ff9a8b 0%, #ff6a88 55%, #ff99ac 100%);
+  background: var(--gradient-2);
   background-clip: text;
 }
 

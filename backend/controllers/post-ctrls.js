@@ -126,7 +126,7 @@ exports.deletePost = (req, res, next) => {
     if (err) {
       return res.status(400).json(err);
     }
-    console.log(result[0]); // if (userId != result[0].userId) on stop tout
+    // console.log(result[0]); if (userId != result[0].userId) on stop tout
     if (result[0].imageUrl == null || result[0].imageUrl == 'noImg') {
       console.log('No image in this post...');
     } else {

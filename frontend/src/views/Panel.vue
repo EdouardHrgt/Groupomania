@@ -11,10 +11,11 @@
           type="search"
           name="search-bar"
           id="search-bar"
-          v-model="searchBar"
+          v-model="searchBarValue"
+          placeholder="Username..."
           @change="searchUser"
         />
-        {{ member }}
+        {{ searchBarValue }}
       </div>
       <h2>Members :</h2>
       <div class="members__grid">
@@ -61,7 +62,7 @@ export default {
     return {
       user: null,
       membersList: null,
-      searchBar: '',
+      searchBarValue: '',
       member: '',
     };
   },
@@ -76,10 +77,10 @@ export default {
       alert('Member promoted');
     },
     searchUser() {
-      this.member = this.membersList.filter(
-        (member) => member == this.searchBar
-      );
-      console.log(this.member);
+      return this.membersList.filter((member) => {
+        // return member.username.toLowerCase().includes(this.searchBarValue.toLowerCase());
+        return member.username.includes(this.searchBarValue);
+      });
     },
   },
   mounted() {
