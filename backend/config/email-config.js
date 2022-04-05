@@ -11,7 +11,7 @@ let transporter = nodemailer.createTransport({
 
 let mailOptions = {
   from: 'herrengt.edouard@gmail.com',
-  to: 'joedutexlille59@hotmail.com',
+  to: 'herrengt.edouard@gmail.com',
   subject: 'Test envoi Email Node',
   text: 'Email envoyé depuis le back !',
 };

@@ -11,9 +11,7 @@
           />
           <div class="user">
             <h1>{{ user.username }}</h1>
-            <!-- <strong @click="saveUser" >User depuis vueX : {{ getUser }}</strong>
-            <br /><br />
-            <strong>Double de l'id : {{ doubleId }}</strong> -->
+
             <h2 class="member" v-if="user.permission == 'member'">
               {{ user.permission }}
             </h2>
@@ -23,6 +21,7 @@
             <h2 class="modo" v-else-if="user.permission == 'moderator'">
               {{ user.permission }}
             </h2>
+            <strong>User depuis vueX : {{ getUser }}</strong>
           </div>
           <i class="fa-solid fa-xmark" @click="closeProfile"></i>
         </div>
@@ -130,24 +129,15 @@ export default {
       errDeleteMsg: '',
     };
   },
-  /*computed: {
+  computed: {
     getUser() {
       return this.$store.state.storedUser;
-    },
-    doubleId() {
-      const user = this.$store.state.storedUser;
-      if (user.userId === 0) {
-        return 'No user Id...';
-      } else {
-        return this.$store.getters.doTheMaths;
-      }
     },
     saveUser() {
       //fonction commit prends 2 arguments : fonction mutation + data à prendre
       return this.$store.commit('saveStoredUser', this.user);
     },
   },
-  */
   methods: {
     toggleUpdateProfile() {
       if (this.updateProfileBox) {
@@ -166,6 +156,9 @@ export default {
         this.errDeleteMsg = '';
         this.deleteMsg = '';
       }
+    },
+    closeProfile() {
+      this.$emit('profileCloser', this.bool);
     },
     deleteAccount() {
       const userId = this.user.userId;
@@ -191,9 +184,6 @@ export default {
           console.log(err);
         });
     },
-    closeProfile() {
-      this.$emit('profileCloser', this.bool);
-    },
     updateUser(event) {
       if (this.confirmation != this.password) {
         this.error = 'Password do not match !';
@@ -214,6 +204,7 @@ export default {
             this.success = 'Your profile is updated';
             localStorage.removeItem('user');
             localStorage.setItem('user', JSON.stringify(this.user));
+            this.$store.commit('saveStoredUser', this.user);
           })
           .catch((err) => {
             console.log(err);

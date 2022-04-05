@@ -176,12 +176,12 @@
             <div class="actions">
               <div class="owner-actions" v-if="user.userId == post.userId">
                 <i
-                  class="fa-solid fa-pen"
-                  @click="toggleUpdatePost(postIndex)"
-                ></i>
-                <i
                   class="fa-solid fa-trash"
                   @click="openDeletePost(postIndex)"
+                ></i>
+                <i
+                  class="fa-solid fa-pen"
+                  @click="toggleUpdatePost(postIndex)"
                 ></i>
               </div>
               <i
@@ -289,6 +289,9 @@ export default {
     dateFormatter(timestamp) {
       let date = new Date(timestamp);
       return date.toLocaleDateString();
+    },
+    getUser() {
+      return this.$store.state.storedUser;
     },
   },
   methods: {
@@ -425,10 +428,12 @@ export default {
       comment.append('content', this.comment);
       comment.append('userId', this.user.userId);
       comment.append('postId', idPost);
+
       for (let pairs of comment.entries()) {
       console.log(pairs);
       }
-      */
+      faire un replace sur content avec ' = &lsquo
+      */ 
       const comment = {
         content: this.comment,
         userId: this.user.userId,

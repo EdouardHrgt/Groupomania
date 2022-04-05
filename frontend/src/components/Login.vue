@@ -43,7 +43,6 @@
           <button type="submit">Submit</button>
         </div>
       </form>
-      <div class="form-image"></div>
     </div>
     <div class="infos">
       <p>
@@ -86,6 +85,7 @@ export default {
         .then((res) => {
           this.user = res.data;
           localStorage.setItem('user', JSON.stringify(this.user));
+          this.$store.commit('saveStoredUser', this.user);
           this.valid = 'User logged successfully';
           this.error = false;
           this.loading = false;
@@ -158,13 +158,10 @@ h1 {
 
 .form-container {
   background-color: var(--transp2);
-  width: 50%;
+  width: 40%;
   min-height: 18rem;
   overflow: hidden;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 1fr;
-  position: relative;
+  padding: 0 3rem;
 }
 
 .form-group,
@@ -173,7 +170,7 @@ h1 {
   margin: 1rem 0;
   display: flex;
   flex-direction: column;
-  padding: 0.3rem 1.5rem;
+  padding: 0.3rem 0;
 }
 
 .form-group label {
@@ -185,7 +182,7 @@ h1 {
 }
 
 .form-group input {
-  width: 90%;
+  width: 100%;
   padding: 0.6rem 0;
   text-align: center;
   outline: 1px solid --black;
@@ -230,16 +227,6 @@ h1 {
   background-color: transparent;
 }
 
-.form-image {
-  width: 90%;
-  height: 90%;
-  background-image: url(../assets/groupo-logo.png);
-  background-size: 70%;
-  background-repeat: no-repeat;
-  background-position: center;
-  align-self: center;
-}
-
 .infos p {
   font-family: var(--font-2);
   color: var(--white);
@@ -263,7 +250,7 @@ h1 {
     width: 100%;
   }
   .form-container {
-    width: 700px;
+    width: 550px;
   }
 }
 
@@ -275,7 +262,7 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 55vh;
+    padding: 0;
   }
   form {
     width: 100%;
@@ -290,7 +277,6 @@ h1 {
   .message {
     text-align: center;
     align-items: center;
-    margin: 2rem 0;
   }
   .form-group input,
   .err-msg,
@@ -302,6 +288,7 @@ h1 {
 @media screen and (max-width: 800px) {
   .form-container {
     width: 90%;
+    padding: 0;
   }
   h1 {
     margin: 0;

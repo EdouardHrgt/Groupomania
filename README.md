@@ -73,3 +73,6 @@ Request content : {"content":...}
 
 /delete -> (delete)
 Request content : {"id":...}
+
+
+Permission stockée dans le token, et l'admin à la connexion arrive direct sur le panel.

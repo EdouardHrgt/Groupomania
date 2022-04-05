@@ -69,9 +69,13 @@ exports.logIn = (req, res, next) => {
             permission: result[0].permission,
             image: result[0].image,
             uuid: result[0].uuid,
-            token: jwt.sign({ userId: result[0].id }, process.env.TOKEN, {
-              expiresIn: '24h',
-            }),
+            token: jwt.sign(
+              { userId: result[0].id, permission: result[0].permission },
+              process.env.TOKEN,
+              {
+                expiresIn: '24h',
+              }
+            ),
           });
         });
       } else if (result.length <= 0) {

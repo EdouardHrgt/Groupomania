@@ -21,7 +21,7 @@
       <div class="members__grid">
         <div
           class="members__list"
-          v-for="member in membersList"
+          v-for="member in searchUser"
           :key="member.id"
         >
           <div class="member__card" v-if="member">
@@ -78,8 +78,7 @@ export default {
     },
     searchUser() {
       return this.membersList.filter((member) => {
-        // return member.username.toLowerCase().includes(this.searchBarValue.toLowerCase());
-        return member.username.includes(this.searchBarValue);
+        return member.username.toLowerCase().includes(this.searchBarValue.toLowerCase());
       });
     },
   },
