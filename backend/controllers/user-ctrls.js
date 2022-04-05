@@ -28,7 +28,7 @@ exports.signUp = (req, res, next) => {
     bcrypt.hash(password, 10).then((hash) => {
       password = hash;
       db.query(
-        `INSERT INTO user (username, email, password, uuid) VALUES ('${username}', '${email}', '${password}', ${uuid})`,
+        `INSERT INTO user (username, email, password, id) VALUES ('${username}', '${email}', '${password}', ${uuid})`,
         (err, result, fields) => {
           if (err) {
             console.log(err);
@@ -68,7 +68,6 @@ exports.logIn = (req, res, next) => {
             username: result[0].username,
             permission: result[0].permission,
             image: result[0].image,
-            uuid: result[0].uuid,
             token: jwt.sign(
               { userId: result[0].id, permission: result[0].permission },
               process.env.TOKEN,
@@ -86,6 +85,9 @@ exports.logIn = (req, res, next) => {
 };
 
 exports.updateUser = (req, res, next) => {
+  console.log('******************');
+  console.log(req.body);
+  console.log(req.params);
   const id = req.params.id;
   const username = req.body.username;
   let password = req.body.password;

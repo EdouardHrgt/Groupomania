@@ -21,7 +21,6 @@
             <h2 class="modo" v-else-if="user.permission == 'moderator'">
               {{ user.permission }}
             </h2>
-            <strong>User depuis vueX : {{ getUser }}</strong>
           </div>
           <i class="fa-solid fa-xmark" @click="closeProfile"></i>
         </div>
