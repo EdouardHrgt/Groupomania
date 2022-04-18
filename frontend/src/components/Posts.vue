@@ -158,7 +158,7 @@
                   By: <strong>{{ post.username }}</strong>
                 </p>
               </div>
-              <p class="date">{{ post.date }}</p>
+              <p class="date">{{ dateFormatter(post.date) }}</p>
             </div>
             <div class="content" @click="getComments(post.id, postIndex)">
               <img
@@ -233,7 +233,7 @@
                   :alt="'Profile picture of' + comment.username"
                 />
                 <p class="comment-username">{{ comment.username }}</p>
-                <p class="comment-date">{{ comment.date }}</p>
+                <p class="comment-date">{{ dateFormatter(comment.date) }}</p>
               </div>
               <div class="comment-content">
                 <p>{{ comment.content }}</p>
@@ -286,10 +286,6 @@ export default {
     };
   },
   computed: {
-    dateFormatter(timestamp) {
-      let date = new Date(timestamp);
-      return date.toLocaleDateString();
-    },
     getUser() {
       return this.$store.state.storedUser;
     },
@@ -298,6 +294,10 @@ export default {
     /*=====================================*/
     /* ALL ABOUT POSTS */
     /*=====================================*/
+    dateFormatter(t) {
+      let date = new Date(t);
+      return date.toLocaleDateString();
+    },
     getAllPosts() {
       axios
         .get(`${url}post`, {
@@ -308,10 +308,6 @@ export default {
         })
         .then((res) => {
           this.posts = res.data;
-          this.posts.forEach((post) => {
-            let date = new Date(post.date);
-            post.date = date.toLocaleString();
-          });
           this.loading = false;
         })
         .catch((err) => {
@@ -322,7 +318,6 @@ export default {
     newPost(event) {
       const userId = String(this.user.userId);
       let post = new FormData(event.target);
-      //for (let value of post.values()) {console.log(value);}
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
@@ -433,7 +428,7 @@ export default {
       console.log(pairs);
       }
       faire un replace sur content avec ' = &lsquo
-      */ 
+      */
       const comment = {
         content: this.comment,
         userId: this.user.userId,
@@ -467,10 +462,6 @@ export default {
         .then((res) => {
           this.comments = res.data;
           this.commentBlock = index;
-          this.comments.forEach((comment) => {
-            let date = new Date(comment.date);
-            comment.date = date.toLocaleString();
-          });
         })
         .catch((err) => {
           console.log(err);
@@ -509,10 +500,6 @@ export default {
         .get(`${url}post`, { headers })
         .then((res) => {
           this.posts = res.data;
-          this.posts.forEach((post) => {
-            let date = new Date(post.date);
-            post.date = date.toLocaleString();
-          });
           this.loading = false;
         })
         .catch((err) => {
@@ -750,17 +737,15 @@ header li span {
   background-color: var(--white);
   border-bottom: 1px solid var(--primary);
   color: var(--primary);
-  font-style: italic;
 }
 .author {
   display: flex;
   align-items: center;
 }
 .author .username strong {
-  color: transparent;
-  background: var(--gradient-2);
-  background-clip: text;
-  font-family: var(--font-2);
+  color: var(--secondary);
+  font-family: var(--font-3);
+  letter-spacing: 1px;
 }
 .infos img {
   width: 3rem;

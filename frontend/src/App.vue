@@ -7,9 +7,11 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Overpass:wght@300;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap');
 :root {
   --font-1: 'Overpass', sans-serif;
   --font-2: 'ubuntu', sans-serif;
+  --font-3: 'Cairo', sans-serif;
   --black: #0e0e0e;
   --white: #fdfdfd;
   --primary: #323277;

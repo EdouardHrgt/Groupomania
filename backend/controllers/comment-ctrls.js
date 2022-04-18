@@ -39,7 +39,6 @@ exports.getOneComment = (req, res, next) => {
 };
 
 exports.createComment = (req, res, next) => {
-  console.log(req.body);
   const content = req.body.content;
   const userId = req.body.userId;
   const postId = req.body.postId;

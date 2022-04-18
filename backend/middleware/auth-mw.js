@@ -7,6 +7,7 @@ module.exports = (req, res, next) => {
     const permission = decodedToken.permission;
     const userId = decodedToken.userId;
     const uuid = decodedToken.uuid;
+
     if (permission == 'admin' || permission == 'moderator') {
       console.log('Moderator / admin authentified ...');
       next();

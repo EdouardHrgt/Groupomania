@@ -15,13 +15,12 @@
           placeholder="Username..."
           @change="searchUser"
         />
-        {{ searchBarValue }}
       </div>
       <h2>Members :</h2>
       <div class="members__grid">
         <div
           class="members__list"
-          v-for="member in searchUser"
+          v-for="member in searchUser()"
           :key="member.id"
         >
           <div class="member__card" v-if="member">
