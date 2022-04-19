@@ -49,7 +49,6 @@ exports.createComment = (req, res, next) => {
         console.log(err);
         return res.status(400).json(err);
       }
-      console.log(result);
       return res.status(201).json({ message: 'Comment Created...' });
     }
   );

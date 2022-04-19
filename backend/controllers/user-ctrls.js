@@ -200,3 +200,37 @@ exports.deleteUser = (req, res, next) => {
     }
   });
 };
+
+exports.promoteUser = (req, res, next) => {
+  const userId = req.params.userId;
+  const perm = 'moderator';
+  db.query(
+    `UPDATE user SET permission=${perm} WHERE id=${userId}`,
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json(err);
+      } else {
+        console.log(result);
+        return res.status(201).json({ message: 'user promoted...' });
+      }
+    }
+  );
+};
+
+exports.demoteUser = (req, res, next) => {
+  const userId = req.params.userId;
+  const perm = 'member';
+  db.query(
+    `UPDATE user SET permission=${perm} WHERE id=${userId}`,
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json(err);
+      } else {
+        console.log(result);
+        return res.status(201).json({ message: 'user demoted...' });
+      }
+    }
+  );
+};

@@ -20,7 +20,7 @@
       <div class="members__grid">
         <div
           class="members__list"
-          v-for="member in searchUser()"
+          v-for="member in membersList"
           :key="member.id"
         >
           <div class="member__card" v-if="member">
@@ -41,13 +41,15 @@
               </p>
               <p class="user-id">userId: {{ member.id }}</p>
             </div>
-            <div class="actions">
-              <i class="fa-solid fa-arrow-up" @click="promoteMember"></i>
-              <i class="fa-solid fa-trash" @click="deleteMember"></i>
+            <div class="actions" v-if="member.permission != 'admin'">
+              <i class="fa-solid fa-arrow-up" @click="promote(member.id)"></i>
+              <i class="fa-solid fa-arrow-down" @click="demote(member.id)"></i>
+              <i class="fa-solid fa-trash" @click="deleteMember(member.id)"></i>
             </div>
           </div>
         </div>
       </div>
+      <div class="error" v-if="error">{{ error }}</div>
     </div>
   </div>
 </template>
@@ -63,21 +65,87 @@ export default {
       membersList: null,
       searchBarValue: '',
       member: '',
+      error: undefined,
     };
   },
   methods: {
     toPost() {
       this.$router.push('posts');
     },
-    deleteMember() {
-      alert('Member delete');
+    getAllUsers() {
+      this.user = JSON.parse(localStorage.getItem('user'));
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      axios
+        .get(`${url}user`, { headers })
+        .then((res) => {
+          this.membersList = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
-    promoteMember() {
-      alert('Member promoted');
+    deleteMember(id) {
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      const userId = id;
+      axios
+        .delete(`${url}user/delete/${userId}`, { headers })
+        .then((res) => {
+          console.log(res);
+          this.getAllUsers();
+        })
+        .catch((err) => {
+          console.log(err);
+          this.error = err;
+        });
+    },
+    promote(id) {
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+
+      const userId = id;
+      this.error = null;
+      axios
+        .put(`${url}user/promote/${userId}`, { headers })
+        .then((res) => {
+          console.log(res);
+          this.error = res;
+          this.getAllUsers();
+        })
+        .catch((err) => {
+          this.error = err;
+        });
+    },
+    demote(id) {
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      const userId = id;
+      this.error = null;
+      axios
+        .put(`${url}user/demote/${userId}`, { headers })
+        .then((res) => {
+          console.log(res);
+          alert('OK');
+          this.getAllUsers();
+        })
+        .catch((err) => {
+          this.error = err;
+        });
     },
     searchUser() {
       return this.membersList.filter((member) => {
-        return member.username.toLowerCase().includes(this.searchBarValue.toLowerCase());
+        return member.username
+          .toLowerCase()
+          .includes(this.searchBarValue.toLowerCase());
       });
     },
   },
@@ -233,14 +301,26 @@ h1 {
 .actions i {
   font-size: 1rem;
   margin: 0 0.5rem;
-  color: var(--primary);
+  color: var(--secondary);
   cursor: pointer;
 }
 .actions i:nth-child(2) {
   color: var(--red);
 }
+.actions i:nth-child(3) {
+  color: black;
+}
 .actions i:hover {
   opacity: 0.7;
+}
+.error {
+  width: 100%;
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0.3rem 1.5rem;
+  background-color: var(--red);
+  color: var(--white);
 }
 @media screen and (max-width: 1440px) {
   .panel-container {
