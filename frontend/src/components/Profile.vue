@@ -157,6 +157,10 @@ export default {
       }
     },
     closeProfile() {
+      this.error = false;
+      this.success = null;
+      this.updateProfileBox = false;
+      this.deleteProfileBox = false;
       this.$emit('profileCloser', this.bool);
     },
     deleteAccount() {
@@ -204,6 +208,9 @@ export default {
             localStorage.removeItem('user');
             localStorage.setItem('user', JSON.stringify(this.user));
             this.$store.commit('saveStoredUser', this.user);
+            setTimeout(() => {
+              this.closeProfile();
+            }, 2000);
           })
           .catch((err) => {
             console.log(err);

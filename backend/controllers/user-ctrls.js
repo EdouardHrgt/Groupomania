@@ -20,7 +20,7 @@ exports.getAllUsers = (req, res, next) => {
 exports.signUp = (req, res, next) => {
   const username = req.body.username;
   const email = req.body.email;
-  //generation d'une UUID
+  // UUID generation
   const rng = uuidv4();
   const uuid = JSON.stringify(rng);
   if (emailValidator.validate(email)) {
@@ -85,9 +85,6 @@ exports.logIn = (req, res, next) => {
 };
 
 exports.updateUser = (req, res, next) => {
-  console.log('******************');
-  console.log(req.body);
-  console.log(req.params);
   const id = req.params.id;
   const username = req.body.username;
   let password = req.body.password;
@@ -119,7 +116,7 @@ exports.updateUser = (req, res, next) => {
         req.file.filename
       }`;
       db.query(
-        `UPDATE user SET username='${username}', password='${password}', image='${imageUrl}' WHERE id=${id}`,
+        `UPDATE user SET username='${username}', password='${password}', image='${imageUrl}' WHERE id='${id}'`,
         (err, result, fields) => {
           if (err) {
             console.log(err);
@@ -134,7 +131,7 @@ exports.updateUser = (req, res, next) => {
       //Save changes without Picture
     } else if (!req.file) {
       db.query(
-        `UPDATE user SET username='${username}', password='${password}' WHERE id=${id}`,
+        `UPDATE user SET username='${username}', password='${password}' WHERE id='${id}'`,
         (err, result, fields) => {
           if (err) {
             console.log(err);
@@ -205,7 +202,7 @@ exports.promoteUser = (req, res, next) => {
   const userId = req.params.userId;
   const perm = 'moderator';
   db.query(
-    `UPDATE user SET permission=${perm} WHERE id=${userId}`,
+    `UPDATE user SET permission='${perm}' WHERE id='${userId}'`,
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -222,7 +219,7 @@ exports.demoteUser = (req, res, next) => {
   const userId = req.params.userId;
   const perm = 'member';
   db.query(
-    `UPDATE user SET permission=${perm} WHERE id=${userId}`,
+    `UPDATE user SET permission='${perm}' WHERE id='${userId}'`,
     (err, result, fields) => {
       if (err) {
         console.log(err);
