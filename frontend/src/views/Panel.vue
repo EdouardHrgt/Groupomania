@@ -56,9 +56,31 @@
       <div class="error" v-if="error">{{ error }}</div>
       <div class="searching" v-if="searchBarValue">
         <div class="profile__search" v-for="u in searchUser()" :key="u.id">
-          Name: {{ u.username }} <br />
-          Permission: {{ u.permission }} <br />
-          Id: {{ u.id }}
+          <div class="profile_infos">
+            <p class="username">{{ u.username }} :</p>
+            <button class="show-posts" @click="getUserPosts(u.id)">
+              Show posts
+            </button>
+          </div>
+          <div class="posts_container" v-if="posts">
+            <div class="posts_list" v-for="post in posts" :key="post.id">
+              <div class="post">
+                <p class="title">{{ post.title }}</p>
+                <p class="content">{{ post.content }}</p>
+                <img
+                  v-if="post.imageUrl != 'noImg'"
+                  :src="post.imageUrl"
+                  alt="#"
+                />
+                <button
+                  class="delete_post"
+                  @click="deleteUserPost(u.id, post.id)"
+                >
+                  delete
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -79,6 +101,7 @@ export default {
       error: undefined,
       sucess: undefined,
       selected: '',
+      posts: [],
     };
   },
   methods: {
@@ -124,7 +147,7 @@ export default {
     },
     rankUser(id) {
       const rank = this.selected;
-      const userId = String(id);
+      const userId = id;
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
@@ -148,6 +171,39 @@ export default {
             .includes(this.searchBarValue.toLowerCase());
         });
       }
+    },
+    getUserPosts(id) {
+      const userId = id;
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      axios
+        .get(`${url}post/${userId}`, { headers })
+        .then((res) => {
+          console.log(res);
+          this.posts = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    deleteUserPost(idUser, idPost) {
+      const userId = idUser;
+      const postId = idPost;
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      axios
+        .delete(`${url}post/delete/${postId}`, { headers })
+        .then((res) => {
+          console.log(res);
+          this.getUserPosts(userId);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
   },
   mounted() {
@@ -335,6 +391,61 @@ h1 {
 .sucess {
   background-color: var(--green);
 }
+.profile_infos {
+  background-color: var(--light-gray);
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: auto;
+  color: var(--black);
+  padding: 1rem;
+}
+.profile_infos .username {
+  font-family: var(--font-2);
+  font-size: 1.1rem;
+  font-weight: bolder;
+}
+.show-posts {
+  padding: 0.3rem;
+  cursor: pointer;
+  margin-left: 1rem;
+  background-color: var(--secondary);
+  color: white;
+}
+.show-posts:hover {
+  opacity: 0.7;
+}
+.posts_list {
+  background-color: var(--light-gray);
+  width: 50%;
+  margin: auto;
+}
+.post {
+  margin: 0.5rem 0;
+  background-color: var(--white);
+  color: var(--black);
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+.post img {
+  width: 12rem;
+  height: 10rem;
+  object-fit: cover;
+}
+.post .title {
+  font-weight: bolder;
+  font-size: 1.2rem;
+}
+.post .delete_post {
+  padding: 0.3rem;
+  background-color: var(--red);
+  color: var(--white);
+  width: 12rem;
+  margin: 0.3rem 0;
+  cursor: pointer;
+}
 @media screen and (max-width: 1440px) {
   .panel-container {
     width: 100%;
@@ -343,6 +454,10 @@ h1 {
 @media screen and (max-width: 1024px) {
   .members__grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .profile_infos,
+  .posts_list {
+    width: 100%;
   }
 }
 @media screen and (max-width: 800px) {

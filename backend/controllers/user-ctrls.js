@@ -116,7 +116,7 @@ exports.updateUser = (req, res, next) => {
         req.file.filename
       }`;
       db.query(
-        `UPDATE user SET username='${username}', password='${password}', image='${imageUrl}' WHERE id='${id}`,
+        `UPDATE user SET username='${username}', password='${password}', image='${imageUrl}' WHERE id='${id}'`,
         (err, result, fields) => {
           if (err) {
             console.log(err);

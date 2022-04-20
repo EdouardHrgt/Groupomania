@@ -15,19 +15,18 @@ exports.getAllPosts = (req, res, next) => {
   );
 };
 
-exports.getOnePost = (req, res, next) => {
+exports.getUserPosts = (req, res, next) => {
+  const userId = req.params.id;
   db.query(
-    `SELECT * FROM posts WHERE id= ?`,
-    req.params.id,
+    `SELECT * FROM posts WHERE userId= ?`,
+    userId,
     (err, result, fields) => {
       if (err) {
         console.log(err);
         return res.status(400).json(err);
+      } else {
+        return res.status(200).json(result);
       }
-      if (result.length < 1) {
-        return res.status(404).json({ message: 'Post Not Found...' });
-      }
-      return res.status(200).json(result);
     }
   );
 };
@@ -120,7 +119,6 @@ exports.updatePost = (req, res, next) => {
 
 exports.deletePost = (req, res, next) => {
   const postId = req.params.id;
-  const userId = 1;
   // verif de l'id user
   db.query(`SELECT * FROM posts WHERE id= ?`, postId, (err, result, fields) => {
     if (err) {

@@ -146,7 +146,12 @@
             </div>
           </div>
           <!-- The post -->
-          <section class="unique__post" v-if="post">
+          <section
+            class="unique__post"
+            v-if="post"
+            :data-postId="post.id"
+            ref="post"
+          >
             <div class="infos" @click="getComments(post.id, postIndex)">
               <div class="author">
                 <img
@@ -427,7 +432,6 @@ export default {
       for (let pairs of comment.entries()) {
       console.log(pairs);
       }
-      faire un replace sur content avec ' = &lsquo
       */
       const comment = {
         content: this.comment,

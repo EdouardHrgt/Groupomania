@@ -192,7 +192,7 @@ export default {
         this.error = 'Password do not match !';
       } else {
         this.error = false;
-        const userId = String(this.user.userId);
+        const userId = this.user.userId;
         let User = new FormData(event.target);
         const headers = {
           'Content-type': 'application/json',
