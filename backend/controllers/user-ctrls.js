@@ -8,7 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config({ path: './.env' });
 
 exports.getAllUsers = (req, res, next) => {
-  db.query(`SELECT * FROM user ORDER BY id DESC`, (err, result, fields) => {
+  db.query(`SELECT * FROM user`, (err, result, fields) => {
     if (err) {
       console.log(err);
       return res.status(400).json(err);
@@ -116,7 +116,7 @@ exports.updateUser = (req, res, next) => {
         req.file.filename
       }`;
       db.query(
-        `UPDATE user SET username='${username}', password='${password}', image='${imageUrl}' WHERE id='${id}'`,
+        `UPDATE user SET username='${username}', password='${password}', image='${imageUrl}' WHERE id='${id}`,
         (err, result, fields) => {
           if (err) {
             console.log(err);
@@ -198,11 +198,12 @@ exports.deleteUser = (req, res, next) => {
   });
 };
 
-exports.promoteUser = (req, res, next) => {
-  const userId = req.params.userId;
-  const perm = 'moderator';
+exports.rankUser = (req, res, next) => {
+  console.log(req.body);
+  return res.status(201).json({ message: 'ça marche' });
+  /*
   db.query(
-    `UPDATE user SET permission='${perm}' WHERE id='${userId}'`,
+    `UPDATE user SET permission='${}' WHERE id='${userId}'`,
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -212,22 +213,5 @@ exports.promoteUser = (req, res, next) => {
         return res.status(201).json({ message: 'user promoted...' });
       }
     }
-  );
-};
-
-exports.demoteUser = (req, res, next) => {
-  const userId = req.params.userId;
-  const perm = 'member';
-  db.query(
-    `UPDATE user SET permission='${perm}' WHERE id='${userId}'`,
-    (err, result, fields) => {
-      if (err) {
-        console.log(err);
-        return res.status(400).json(err);
-      } else {
-        console.log(result);
-        return res.status(201).json({ message: 'user demoted...' });
-      }
-    }
-  );
+  );*/
 };

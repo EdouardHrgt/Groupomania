@@ -76,3 +76,6 @@ Request content : {"id":...}
 
 
 Permission stockée dans le token, et l'admin à la connexion arrive direct sur le panel.
+
+Ajout d'un compteur de commentaire sur les posts
+extention WCAG color contrast checker

@@ -11,6 +11,14 @@
         </div>
         <ul>
           <li>
+            <div class="panel-link" v-if="user.permission == 'admin'">
+              <router-link to="/panel">
+                <i class="fa-solid fa-lock"></i>
+                <span>Panel</span>
+              </router-link>
+            </div>
+          </li>
+          <li>
             <div @click="openProfile">
               <i class="fa-solid fa-user"></i><span>Profile</span>
             </div>
@@ -19,14 +27,6 @@
             <div @click="logOut">
               <i class="fa-solid fa-arrow-right-from-bracket"></i
               ><span>Log Out</span>
-            </div>
-          </li>
-          <li>
-            <div class="panel-link" v-if="user.permission == 'admin'">
-              <router-link to="/panel">
-                <i class="fa-solid fa-lock"></i>
-                <span>Panel</span>
-              </router-link>
             </div>
           </li>
         </ul>

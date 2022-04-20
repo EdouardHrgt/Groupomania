@@ -42,14 +42,25 @@
               <p class="user-id">userId: {{ member.id }}</p>
             </div>
             <div class="actions" v-if="member.permission != 'admin'">
-              <i class="fa-solid fa-arrow-up" @click="promote(member.id)"></i>
-              <i class="fa-solid fa-arrow-down" @click="demote(member.id)"></i>
+              <select v-model="selected" @change="rankUser(member.id)">
+                <option disabled value="">rank</option>
+                <option>member</option>
+                <option>moderator</option>
+              </select>
               <i class="fa-solid fa-trash" @click="deleteMember(member.id)"></i>
             </div>
           </div>
         </div>
       </div>
+      <div class="sucess" v-if="sucess">{{ sucess }}</div>
       <div class="error" v-if="error">{{ error }}</div>
+      <div class="searching" v-if="searchBarValue">
+        <div class="profile__search" v-for="u in searchUser()" :key="u.id">
+          Name: {{ u.username }} <br />
+          Permission: {{ u.permission }} <br />
+          Id: {{ u.id }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -66,6 +77,8 @@ export default {
       searchBarValue: '',
       member: '',
       error: undefined,
+      sucess: undefined,
+      selected: '',
     };
   },
   methods: {
@@ -97,56 +110,44 @@ export default {
         .delete(`${url}user/delete/${userId}`, { headers })
         .then((res) => {
           console.log(res);
+          this.sucess = 'User deleted...';
+          setTimeout(() => {
+            this.sucess = undefined;
+          }, 1500);
           this.getAllUsers();
+        })
+        .catch((err) => {
+          console.log(err);
+          this.sucess = undefined;
+          this.error = err;
+        });
+    },
+    rankUser(id) {
+      const rank = this.selected;
+      const userId = String(id);
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      this.error = null;
+      axios
+        .put(`${url}user/rank/${userId}`, rank, { headers })
+        .then((res) => {
+          console.log(res);
         })
         .catch((err) => {
           console.log(err);
           this.error = err;
         });
     },
-    promote(id) {
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
-
-      const userId = id;
-      this.error = null;
-      axios
-        .put(`${url}user/promote/${userId}`, { headers })
-        .then((res) => {
-          console.log(res);
-          this.error = res;
-          this.getAllUsers();
-        })
-        .catch((err) => {
-          this.error = err;
-        });
-    },
-    demote(id) {
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
-      const userId = id;
-      this.error = null;
-      axios
-        .put(`${url}user/demote/${userId}`, { headers })
-        .then((res) => {
-          console.log(res);
-          alert('OK');
-          this.getAllUsers();
-        })
-        .catch((err) => {
-          this.error = err;
-        });
-    },
     searchUser() {
-      return this.membersList.filter((member) => {
-        return member.username
-          .toLowerCase()
-          .includes(this.searchBarValue.toLowerCase());
-      });
+      if (this.membersList && this.searchBarValue) {
+        return this.membersList.filter((member) => {
+          return member.username
+            .toLowerCase()
+            .includes(this.searchBarValue.toLowerCase());
+        });
+      }
     },
   },
   mounted() {
@@ -172,6 +173,12 @@ export default {
 </script>
 
 <style scoped>
+.searching {
+  background-color: var(--primary);
+  color: white;
+  margin-top: 2rem;
+  padding: 1rem;
+}
 .panel-container {
   width: 90%;
   min-height: 100vh;
@@ -313,14 +320,20 @@ h1 {
 .actions i:hover {
   opacity: 0.7;
 }
-.error {
+.error,
+.sucess {
   width: 100%;
   margin: 1rem 0;
   display: flex;
   flex-direction: column;
   padding: 0.3rem 1.5rem;
-  background-color: var(--red);
   color: var(--white);
+}
+.error {
+  background-color: var(--red);
+}
+.sucess {
+  background-color: var(--green);
 }
 @media screen and (max-width: 1440px) {
   .panel-container {
