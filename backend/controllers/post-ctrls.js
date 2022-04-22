@@ -4,7 +4,7 @@ const { json } = require('express/lib/response');
 
 exports.getAllPosts = (req, res, next) => {
   db.query(
-    `SELECT title, content, imageUrl, userId, posts.id, username, permission, image, date  FROM posts JOIN user ON posts.userId = user.id ORDER BY posts.id DESC`,
+    `SELECT title, content, imageUrl, userId, posts.id, username, permission, image, date FROM posts JOIN user ON posts.userId = user.id ORDER BY posts.id DESC`,
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -145,4 +145,58 @@ exports.deletePost = (req, res, next) => {
     console.log('post Deleted');
     return res.status(200).json({ message: 'Post Deleted...' });
   });
+};
+
+exports.likePost = (req, res, next) => {
+  const postId = req.params.postId;
+  const userId = req.params.userId;
+  db.query(
+    `SELECT * FROM likes WHERE userId='${userId}' AND postId='${postId}'`,
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json(err);
+      } else if (result.length <= 0) {
+        db.query(
+          `INSERT INTO likes (postId, userId) VALUES ('${postId}', '${userId}')`,
+          (err, result, fields) => {
+            if (err) {
+              console.log(err);
+              return res.status(400).json(err);
+            }
+            console.log('Like saved...');
+            return res.status(201).json(result);
+          }
+        );
+      } else {
+        db.query(
+          `DELETE FROM likes WHERE userId='${userId}' AND postId='${postId}'`,
+          (err, result, fields) => {
+            if (err) {
+              console.log(err);
+              return res.status(400).json(err);
+            }
+            console.log('Like deleted...');
+            return res.status(201).json(result);
+          }
+        );
+      }
+    }
+  );
+};
+
+exports.getPostLikes = (req, res, next) => {
+  const postId = req.params.postId;
+  db.query(
+    `SELECT * FROM likes WHERE postId= ?`,
+    postId,
+    (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json(err);
+      } else {
+        return res.status(200).json(result);
+      }
+    }
+  );
 };

@@ -55,6 +55,7 @@
       <div class="sucess" v-if="sucess">{{ sucess }}</div>
       <div class="error" v-if="error">{{ error }}</div>
       <div class="searching" v-if="searchBarValue">
+        
         <div class="profile__search" v-for="u in searchUser()" :key="u.id">
           <div class="profile_infos">
             <p class="username">{{ u.username }} :</p>

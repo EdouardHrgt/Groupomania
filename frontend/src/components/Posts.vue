@@ -160,7 +160,8 @@
                   :alt="'picture of ' + post.username"
                 />
                 <p class="username">
-                  By: <strong>{{ post.username }}</strong>
+                  By:
+                  <strong>{{ post.username }}</strong>
                 </p>
               </div>
               <p class="date">{{ dateFormatter(post.date) }}</p>
@@ -193,9 +194,10 @@
                 class="fa-solid fa-paper-plane"
                 @click="showCommentForm(postIndex)"
               ></i>
+              <!-- LIKES -->
               <p class="likes">
-                <i class="fa-solid fa-heart"></i>
-                <span>100</span>
+                <i class="fa-solid fa-heart" @click="likePost(post.id, postIndex)"></i>
+                <span v-if="postLikes == postIndex">{{ likes }}</span>
               </p>
             </div>
           </section>
@@ -284,6 +286,8 @@ export default {
       isPostDelete: null,
       updatePostBox: -1,
       posts: [],
+      likes: null,
+      postLikes: null,
       comments: null,
       comment: '',
       commentForm: -1,
@@ -403,6 +407,42 @@ export default {
       }
     },
     /*=====================================*/
+    /* ALL ABOUT LIKES */
+    /*=====================================*/
+    likePost(idPost, index) {
+      const postId = String(idPost);
+      const userId = String(this.user.userId);
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      axios
+        .get(`${url}post/like/${postId}/${userId}`, { headers })
+        .then((res) => {
+          console.log(res);
+          this.getLikes(idPost, index);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    getLikes(idPost, index) {
+      const postId = String(idPost);
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      axios
+        .get(`${url}post/like/${postId}`, { headers })
+        .then((res) => {
+          this.likes = res.data.length;
+          this.postLikes = index;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    /*=====================================*/
     /* ALL ABOUT COMMENTS */
     /*=====================================*/
     showCommentForm(i) {
@@ -423,16 +463,6 @@ export default {
       });
     },
     newComment(idPost) {
-      /*
-      const comment = new FormData();
-      comment.append('content', this.comment);
-      comment.append('userId', this.user.userId);
-      comment.append('postId', idPost);
-
-      for (let pairs of comment.entries()) {
-      console.log(pairs);
-      }
-      */
       const comment = {
         content: this.comment,
         userId: this.user.userId,
@@ -801,9 +831,10 @@ header li span {
   color: var(--black);
 }
 .actions .fa-heart {
-  color: transparent;
-  background: var(--gradient-2);
-  background-clip: text;
+  /* color: transparent; */
+  /* background: var(--gradient-2); */
+  /* background-clip: text; */
+  color: orange;
 }
 
 .actions i:hover,
