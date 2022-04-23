@@ -18,9 +18,10 @@
       </div>
       <h2>Members :</h2>
       <div class="members__grid">
+        <!-- SINGLE MEMBER CARD -->
         <div
           class="members__list"
-          v-for="member in membersList"
+          v-for="(member, index) in membersList"
           :key="member.id"
         >
           <div class="member__card" v-if="member">
@@ -29,24 +30,19 @@
             </div>
             <div class="member__card__infos">
               <h3>{{ member.username }}</h3>
-              <p v-if="member.permission == 'member'">
+              <p>
                 Rank:
                 <span class="member">{{ member.permission }}</span>
               </p>
-              <p v-else-if="member.permission == 'moderator'">
-                Rank: <span class="modo">{{ member.permission }}</span>
-              </p>
-              <p v-else-if="member.permission == 'admin'">
-                Rank: <span class="admin">{{ member.permission }}</span>
-              </p>
-              <p class="user-id">userId: {{ member.id }}</p>
             </div>
+
             <div class="actions" v-if="member.permission != 'admin'">
-              <select v-model="selected" @change="rankUser(member.id)">
+              <select v-model="selected" @change="rankUser(member.id, index)">
                 <option disabled value="">rank</option>
                 <option>member</option>
                 <option>moderator</option>
               </select>
+
               <i class="fa-solid fa-trash" @click="deleteMember(member.id)"></i>
             </div>
           </div>
@@ -55,7 +51,6 @@
       <div class="sucess" v-if="sucess">{{ sucess }}</div>
       <div class="error" v-if="error">{{ error }}</div>
       <div class="searching" v-if="searchBarValue">
-        
         <div class="profile__search" v-for="u in searchUser()" :key="u.id">
           <div class="profile_infos">
             <p class="username">{{ u.username }} :</p>
@@ -99,6 +94,7 @@ export default {
       membersList: null,
       searchBarValue: '',
       member: '',
+      memberIndex: -1,
       error: undefined,
       sucess: undefined,
       selected: '',
@@ -146,18 +142,20 @@ export default {
           this.error = err;
         });
     },
-    rankUser(id) {
+    rankUser(userId, i) {
       const rank = this.selected;
-      const userId = id;
+      const id = userId;
+      console.info(i);
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
       };
-      this.error = null;
+      const datas = { rank, id };
       axios
-        .put(`${url}user/rank/${userId}`, rank, { headers })
+        .put(`${url}user/rank`, datas, { headers })
         .then((res) => {
           console.log(res);
+          this.getAllUsers();
         })
         .catch((err) => {
           console.log(err);

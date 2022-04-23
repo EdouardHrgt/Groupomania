@@ -200,19 +200,23 @@ exports.deleteUser = (req, res, next) => {
 
 exports.rankUser = (req, res, next) => {
   console.log(req.body);
-  return res.status(201).json({ message: 'ça marche' });
-  /*
-  db.query(
-    `UPDATE user SET permission='${}' WHERE id='${userId}'`,
-    (err, result, fields) => {
-      if (err) {
-        console.log(err);
-        return res.status(400).json(err);
-      } else {
-        console.log(result);
-        return res.status(201).json({ message: 'user promoted...' });
+  try {
+    const rank = req.body.rank;
+    const userId = req.body.id;
+    db.query(
+      `UPDATE user SET permission='${rank}' WHERE id='${userId}'`,
+      (err, result, fields) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).json(err);
+        } else {
+          console.log(result);
+          return res.status(201).json({ message: 'user promoted...' });
+        }
       }
-    }
-  );*/
+    );
+  } catch (error) {
+    console.log('error in catch');
+    return res.status(400).json(err);
+  }
 };
-
