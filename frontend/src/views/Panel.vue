@@ -21,7 +21,7 @@
         <!-- SINGLE MEMBER CARD -->
         <div
           class="members__list"
-          v-for="(member, index) in membersList"
+          v-for="member in membersList"
           :key="member.id"
         >
           <div class="member__card" v-if="member">
@@ -30,14 +30,20 @@
             </div>
             <div class="member__card__infos">
               <h3>{{ member.username }}</h3>
-              <p>
+              <p v-if="member.permission == 'member'">
                 Rank:
                 <span class="member">{{ member.permission }}</span>
+              </p>
+              <p v-else-if="member.permission == 'moderator'">
+                Rank: <span class="modo">{{ member.permission }}</span>
+              </p>
+              <p v-else-if="member.permission == 'admin'">
+                Rank: <span class="admin">{{ member.permission }}</span>
               </p>
             </div>
 
             <div class="actions" v-if="member.permission != 'admin'">
-              <select v-model="selected" @change="rankUser(member.id, index)">
+              <select @change="rankUser(member.id, $event)" ref="rankSelector">
                 <option disabled value="">rank</option>
                 <option>member</option>
                 <option>moderator</option>
@@ -142,10 +148,9 @@ export default {
           this.error = err;
         });
     },
-    rankUser(userId, i) {
-      const rank = this.selected;
+    rankUser(userId, $event) {
+      const rank = String($event.target.value);
       const id = userId;
-      console.info(i);
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
@@ -172,6 +177,7 @@ export default {
       }
     },
     getUserPosts(id) {
+      this.posts = [];
       const userId = id;
       const headers = {
         'Content-type': 'application/json',
