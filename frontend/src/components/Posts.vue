@@ -107,7 +107,7 @@
           </div>
           <!-- Update post Box -->
           <div class="box modify-post flex" v-if="updatePostBox == postIndex">
-            <div class="form-container">
+            <div class="form-container" id="update-post-form">
               <h2>Update your post</h2>
               <i
                 class="fa-solid fa-xmark"
@@ -172,9 +172,9 @@
                 :src="post.imageUrl"
                 alt="#"
               />
-              <h3>
+              <strong class="post-title">
                 {{ post.title }}
-              </h3>
+              </strong>
               <p>
                 {{ post.content }}
               </p>
@@ -197,7 +197,7 @@
               <!-- LIKES -->
               <p class="likes">
                 <i
-                  class="fa-solid fa-heart filled_heart"
+                  class="fa-solid fa-heart"
                   @click="debounce(post.id, postIndex)"
                 ></i>
                 <span v-if="postLikes == postIndex">{{ likes }}</span>
@@ -611,7 +611,9 @@ header li div {
   cursor: pointer;
 }
 header li div:hover {
-  color: var(--secondary);
+  color: transparent;
+  background: var(--gradient-2);
+  background-clip: text;
 }
 header li i {
   width: 1rem;
@@ -649,13 +651,20 @@ header li span {
 .form-container h1,
 .form-container h2 {
   font-family: var(--font-2);
-  color: var(--secondary);
+  color: transparent;
+  background: var(--gradient-2);
+  background-clip: text;
   text-align: center;
   padding-top: 0.5rem;
   font-size: 1.5rem;
 }
 .form-container h2 {
-  color: var(--black);
+  color: var(--white);
+}
+#update-post-form {
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
 }
 .comment-form-container {
   width: 100%;
@@ -702,7 +711,7 @@ header li span {
   padding: 0.6rem 0;
   cursor: pointer;
   color: var(--white);
-  background-color: var(--secondary);
+  background: linear-gradient(90deg, #ff9a8b 0%, #ff6a88 55%, #ff99ac 100%);
   font-size: 1.1rem;
   font-weight: 700;
   transition: 0.4s;
@@ -794,7 +803,9 @@ header li span {
   align-items: center;
 }
 .author .username strong {
-  color: var(--secondary);
+  color: transparent;
+  background: var(--gradient-2);
+  background-clip: text;
   font-family: var(--font-3);
   letter-spacing: 1px;
 }
@@ -809,7 +820,7 @@ header li span {
   padding: 0.5rem 1rem 0 1rem;
   background-color: var(--white);
 }
-.content h3 {
+.post-title {
   font-size: 1.1rem;
 }
 .content img {
@@ -847,7 +858,7 @@ header li span {
   font-size: 0.8rem;
   color: var(--black);
 }
-.actions .filled_heart {
+.actions .fa-heart {
   color: transparent;
   background: var(--gradient-2);
   background-clip: text;
