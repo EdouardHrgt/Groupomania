@@ -196,7 +196,10 @@
               ></i>
               <!-- LIKES -->
               <p class="likes">
-                <i class="fa-solid fa-heart" @click="likePost(post.id, postIndex)"></i>
+                <i
+                  class="fa-solid fa-heart filled_heart"
+                  @click="debounce(post.id, postIndex)"
+                ></i>
                 <span v-if="postLikes == postIndex">{{ likes }}</span>
               </p>
             </div>
@@ -268,6 +271,7 @@ import axios from 'axios';
 import Loader from '@/components/Loader.vue';
 import Profile from '@/components/Profile.vue';
 const url = 'http://localhost:3000/api/';
+
 export default {
   name: 'Posts',
   components: {
@@ -288,6 +292,8 @@ export default {
       posts: [],
       likes: null,
       postLikes: null,
+      isLiked: false,
+      timeout: null,
       comments: null,
       comment: '',
       commentForm: -1,
@@ -409,7 +415,15 @@ export default {
     /*=====================================*/
     /* ALL ABOUT LIKES */
     /*=====================================*/
+    debounce(id, i) {
+      if (this.timeout) clearTimeout(this.timeout);
+
+      this.timeout = setTimeout(() => {
+        this.likePost(id, i);
+      }, 800);
+    },
     likePost(idPost, index) {
+      console.log('likePost called');
       const postId = String(idPost);
       const userId = String(this.user.userId);
       const headers = {
@@ -419,7 +433,7 @@ export default {
       axios
         .get(`${url}post/like/${postId}/${userId}`, { headers })
         .then((res) => {
-          console.log(res);
+          this.isLiked = res;
           this.getLikes(idPost, index);
         })
         .catch((err) => {
@@ -607,7 +621,10 @@ header li span {
   margin-left: 1rem;
 }
 .panel-link a {
-  color: var(--red);
+  color: transparent;
+  background: var(--gradient-2);
+  background-clip: text;
+  font-weight: bolder;
 }
 /*ACTIVITIES*/
 .activities-container {
@@ -830,13 +847,11 @@ header li span {
   font-size: 0.8rem;
   color: var(--black);
 }
-.actions .fa-heart {
-  /* color: transparent; */
-  /* background: var(--gradient-2); */
-  /* background-clip: text; */
-  color: orange;
+.actions .filled_heart {
+  color: transparent;
+  background: var(--gradient-2);
+  background-clip: text;
 }
-
 .actions i:hover,
 .comment-actions i:hover {
   opacity: 0.7;
@@ -928,10 +943,8 @@ header li span {
     align-self: center;
     outline: none;
   }
-  header ul li {
-    flex-direction: row;
-    align-items: center;
-    padding-left: 1rem;
+  header ul {
+    display: flex;
   }
   header li div {
     margin: 0;

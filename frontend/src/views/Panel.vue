@@ -105,11 +105,19 @@ export default {
       sucess: undefined,
       selected: '',
       posts: [],
+      timeout: null,
     };
   },
   methods: {
     toPost() {
       this.$router.push('posts');
+    },
+    debouncer() {
+      if (this.timeout) clearTimeout(this.timeout);
+
+      this.timeout = setTimeout(() => {
+        console.log('lezgo');
+      }, 2000);
     },
     getAllUsers() {
       this.user = JSON.parse(localStorage.getItem('user'));
@@ -169,6 +177,7 @@ export default {
     },
     searchUser() {
       if (this.membersList && this.searchBarValue) {
+        console.log('ok');
         return this.membersList.filter((member) => {
           return member.username
             .toLowerCase()

@@ -4,7 +4,10 @@ const { json } = require('express/lib/response');
 
 exports.getAllPosts = (req, res, next) => {
   db.query(
-    `SELECT title, content, imageUrl, userId, posts.id, username, permission, image, date FROM posts JOIN user ON posts.userId = user.id ORDER BY posts.id DESC`,
+    `SELECT P.id, P.userId, P.title, P.content, P.date, P.imageUrl, U.username, U.permission, U.image 
+     FROM posts AS P
+     LEFT JOIN user AS U ON U.id = P.userId 
+     ORDER BY P.id DESC`,
     (err, result, fields) => {
       if (err) {
         console.log(err);
