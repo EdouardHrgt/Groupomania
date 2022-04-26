@@ -15,8 +15,9 @@ To launch the server use "nodemon server" (terminal)
 
 To connect to the databade : ....
 
-
-
-
 Ajout d'un compteur de commentaire sur les posts
 extention WCAG color contrast checker
+
+Récursivité
+Singleton
+Closure

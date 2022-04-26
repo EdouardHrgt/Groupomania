@@ -374,12 +374,13 @@ export default {
           this.deletePostBox = -1;
         } else if (this.isPostDelete == true) {
           const postId = post.id;
+          const userId = this.user.userId;
           const headers = {
             'Content-type': 'application/json',
             Authorization: 'Bearer ' + this.user.token,
           };
           axios
-            .delete(`${url}post/delete/${postId}`, { headers })
+            .delete(`${url}post/delete/${postId}/${userId}`, { headers })
             .then((res) => {
               console.log(res);
               this.isPostDelete = null;
@@ -420,7 +421,7 @@ export default {
 
       this.timeout = setTimeout(() => {
         this.likePost(id, i);
-      }, 800);
+      }, 300);
     },
     likePost(idPost, index) {
       console.log('likePost called');
@@ -548,6 +549,7 @@ export default {
         .get(`${url}post`, { headers })
         .then((res) => {
           this.posts = res.data;
+          console.log(this.posts);
           this.loading = false;
         })
         .catch((err) => {

@@ -4,9 +4,9 @@ const { json } = require('express/lib/response');
 
 exports.getAllPosts = (req, res, next) => {
   db.query(
-    `SELECT P.id, P.userId, P.title, P.content, P.date, P.imageUrl, U.username, U.permission, U.image 
+    `SELECT P.id, P.userId, P.title, P.content, P.date, P.imageUrl, U.username, U.permission, U.image
      FROM posts AS P
-     LEFT JOIN user AS U ON U.id = P.userId 
+     LEFT JOIN user AS U ON U.id = P.userId
      ORDER BY P.id DESC`,
     (err, result, fields) => {
       if (err) {
@@ -47,7 +47,7 @@ exports.createPost = (req, res, next) => {
     imageUrl = 'noImg';
   }
   db.query(
-    `INSERT INTO posts (title, content, imageUrl, userId) VALUES ('${title}', '${content}', '${imageUrl}', '${userId}')`,
+    `INSERT INTO posts (title, content, imageUrl, userId) VALUES ("${title}", "${content}", '${imageUrl}', '${userId}')`,
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -121,31 +121,44 @@ exports.updatePost = (req, res, next) => {
 };
 
 exports.deletePost = (req, res, next) => {
-  const postId = req.params.id;
-  db.query(`SELECT * FROM posts WHERE id= ?`, postId, (err, result, fields) => {
-    if (err) {
-      return res.status(400).json(err);
-    }
-    if (result[0].imageUrl == null || result[0].imageUrl == 'noImg') {
-      console.log('No image in this post...');
-    } else {
-      const filename = result[0].imageUrl.split('/images/')[1];
-      fs.unlink(`images/${filename}`, (err) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.params.userId;
+    db.query(
+      `SELECT * FROM posts WHERE id= ?`,
+      postId,
+      (err, result, fields) => {
+        console.log(result);
         if (err) {
-          console.log(err);
+          return res.status(400).json(err);
+        } else if (
+          result[0].imageUrl == null ||
+          result[0].imageUrl == 'noImg'
+        ) {
+          console.log('No image in this post...');
         } else {
-          console.log('image deleted...');
+          const filename = result[0].imageUrl.split('/images/')[1];
+          fs.unlink(`images/${filename}`, (err) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log('image deleted...');
+            }
+          });
         }
-      });
-    }
-  });
-  db.query(`DELETE FROM posts WHERE id= ?`, postId, (err, result, fields) => {
-    if (err) {
-      return res.status(400).json({ err });
-    }
-    console.log('post Deleted');
-    return res.status(200).json({ message: 'Post Deleted...' });
-  });
+      }
+    );
+    db.query(`DELETE FROM posts WHERE id= ?`, postId, (err, result, fields) => {
+      if (err) {
+        return res.status(400).json({ err });
+      }
+      console.log('post Deleted');
+      return res.status(200).json({ message: 'Post Deleted...' });
+    });
+  } catch (error) {
+    console.log('error in catch');
+    return res.status(400).json(err);
+  }
 };
 
 exports.likePost = (req, res, next) => {
