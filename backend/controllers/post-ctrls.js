@@ -157,7 +157,7 @@ exports.deletePost = (req, res, next) => {
     });
   } catch (error) {
     console.log('error in catch');
-    return res.status(400).json(err);
+    return res.status(400).json(error);
   }
 };
 

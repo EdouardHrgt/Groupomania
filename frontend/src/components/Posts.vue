@@ -170,7 +170,7 @@
               <img
                 v-if="post.imageUrl != 'noImg'"
                 :src="post.imageUrl"
-                alt="#"
+                :alt="post.title + 'from' + post.username"
               />
               <strong class="post-title">
                 {{ post.title }}
@@ -562,6 +562,13 @@ export default {
 </script>
 
 <style scoped>
+.test {
+  background: red;
+  width: 100%;
+  min-height: 10vh;
+  color: white;
+  text-align: center;
+}
 /*MAIN WRAPPER*/
 .page-container {
   width: 1440px;

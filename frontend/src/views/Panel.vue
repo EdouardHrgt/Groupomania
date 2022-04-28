@@ -210,7 +210,7 @@ export default {
         Authorization: 'Bearer ' + this.user.token,
       };
       axios
-        .delete(`${url}post/delete/${postId}`, { headers })
+        .delete(`${url}post/delete/${postId}/${userId}`, { headers })
         .then((res) => {
           console.log(res);
           this.getUserPosts(userId);
