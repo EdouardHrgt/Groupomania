@@ -21,3 +21,6 @@ extention WCAG color contrast checker
 Récursivité
 Singleton
 Closure
+
+SELECT COUNT(CASE WHEN postId = '63' THEN 1 ELSE NULL END) AS totalLikes FROM likes;
+SELECT LIKES.*, USER.username FROM LIKES JOIN USER ON LIKES.userId = USER.id WHERE postID = ${id}

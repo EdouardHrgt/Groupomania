@@ -4,10 +4,17 @@ const { json } = require('express/lib/response');
 
 exports.getAllPosts = (req, res, next) => {
   db.query(
-    `SELECT P.id, P.userId, P.title, P.content, P.date, P.imageUrl, U.username, U.permission, U.image
-     FROM posts AS P
-     LEFT JOIN user AS U ON U.id = P.userId
-     ORDER BY P.id DESC`,
+    `SELECT P.id, P.userId, P.title, P.content, P.date, P.imageUrl, 
+    U.username, U.permission, U.image,
+    COALESCE(L.totalLikes, 0) AS totalLikes
+    FROM posts AS P
+    INNER JOIN user AS U ON U.id = P.userId 
+    LEFT JOIN (
+      SELECT postId, COUNT(*) AS totalLikes
+      FROM likes 
+      GROUP BY postId
+    ) AS L ON L.postId = P.id
+    ORDER BY P.id DESC;`,
     (err, result, fields) => {
       if (err) {
         console.log(err);
@@ -32,6 +39,35 @@ exports.getUserPosts = (req, res, next) => {
       }
     }
   );
+};
+
+exports.getOnePost = (req, res, next) => {
+  try {
+    const postId = req.params.postId;
+    db.query(
+      `SELECT P.id, P.userId, P.title, P.content, P.date, P.imageUrl, 
+      U.username, U.permission, U.image,
+      COALESCE(L.totalLikes, 0) AS totalLikes
+      FROM posts AS P
+      INNER JOIN user AS U ON U.id = P.userId 
+      LEFT JOIN (
+        SELECT postId, COUNT(*) AS totalLikes
+        FROM likes 
+        GROUP BY postId
+      ) AS L ON L.postId = P.id
+      WHERE P.id =${postId};`,
+      (err, result, fields) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).json(err);
+        } else {
+          return res.status(200).json(result);
+        }
+      }
+    );
+  } catch (error) {
+    throw error;
+  }
 };
 
 exports.createPost = (req, res, next) => {

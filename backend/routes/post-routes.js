@@ -7,6 +7,7 @@ const rateLimit = require('../middleware/rate-limit-mw');
 
 router.get('/', auth, postCtrl.getAllPosts);
 router.get('/:id', auth, postCtrl.getUserPosts);
+router.get('/filteredPost/:postId', auth, postCtrl.getOnePost);
 router.post('/:id', auth, multer, postCtrl.createPost);
 router.get('/like/:postId/:userId', auth, rateLimit, postCtrl.likePost);
 router.get('/like/:postId', auth, postCtrl.getPostLikes);

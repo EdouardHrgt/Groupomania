@@ -149,8 +149,8 @@
           <section
             class="unique__post"
             v-if="post"
-            :data-postId="post.id"
             ref="post"
+            @click="toPost(post.id)"
           >
             <div class="infos" @click="getComments(post.id, postIndex)">
               <div class="author">
@@ -200,7 +200,7 @@
                   class="fa-solid fa-heart"
                   @click="debounce(post.id, postIndex)"
                 ></i>
-                <span v-if="postLikes == postIndex">{{ likes }}</span>
+                <span>{{ post.totalLikes }}</span>
               </p>
             </div>
           </section>
@@ -309,6 +309,10 @@ export default {
     /*=====================================*/
     /* ALL ABOUT POSTS */
     /*=====================================*/
+    toPost(idPost) {
+      const id = idPost;
+      this.$router.push(`SinglePost/${id}`);
+    },
     dateFormatter(t) {
       let date = new Date(t);
       return date.toLocaleDateString();
@@ -436,6 +440,7 @@ export default {
         .then((res) => {
           this.isLiked = res;
           this.getLikes(idPost, index);
+          this.getAllPosts();
         })
         .catch((err) => {
           console.log(err);
@@ -562,13 +567,6 @@ export default {
 </script>
 
 <style scoped>
-.test {
-  background: red;
-  width: 100%;
-  min-height: 10vh;
-  color: white;
-  text-align: center;
-}
 /*MAIN WRAPPER*/
 .page-container {
   width: 1440px;
@@ -826,7 +824,7 @@ header li span {
   object-fit: cover;
 }
 .content {
-  padding: 0.5rem 1rem 0 1rem;
+  padding: 2rem 1rem;
   background-color: var(--white);
 }
 .post-title {
@@ -834,14 +832,14 @@ header li span {
 }
 .content img {
   width: 100%;
-  height: 300px;
+  height: 400px;
   object-fit: contain;
 }
 .actions {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding: 0.3rem 1rem;
+  padding: 0.5rem 1rem;
   background-color: var(--white);
   border-bottom: 1px solid var(--primary);
   border-top: 1px solid var(--gray);
