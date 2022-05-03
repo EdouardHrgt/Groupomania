@@ -150,9 +150,8 @@
             class="unique__post"
             v-if="post"
             ref="post"
-            @click="toPost(post.id)"
           >
-            <div class="infos" @click="getComments(post.id, postIndex)">
+            <div class="infos">
               <div class="author">
                 <img
                   v-if="post.image"
@@ -166,7 +165,7 @@
               </div>
               <p class="date">{{ dateFormatter(post.date) }}</p>
             </div>
-            <div class="content" @click="getComments(post.id, postIndex)">
+            <div class="content" @click="toPost(post.id)">
               <img
                 v-if="post.imageUrl != 'noImg'"
                 :src="post.imageUrl"

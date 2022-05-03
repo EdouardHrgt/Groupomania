@@ -214,7 +214,6 @@ exports.likePost = (req, res, next) => {
               console.log(err);
               return res.status(400).json(err);
             }
-            console.log('Like saved...');
             return res.status(201).json(result);
           }
         );
@@ -226,7 +225,6 @@ exports.likePost = (req, res, next) => {
               console.log(err);
               return res.status(400).json(err);
             }
-            console.log('Like deleted...');
             return res.status(201).json(result);
           }
         );

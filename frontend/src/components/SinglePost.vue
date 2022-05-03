@@ -10,11 +10,12 @@
         alt="logo groupomania"
       />
     </div>
+    <infos v-if="infos" />
     <main class="post__wrapper" v-for="post in posts" :key="post.id">
       <!-- The post -->
       <section class="unique__post" v-if="post">
         <div class="infos">
-          <div class="author">
+          <div class="author" @click="showInfos">
             <img
               v-if="post.image"
               :src="post.image"
@@ -84,6 +85,7 @@
             </div>
           </div>
         </div>
+        <button class="more">See More</button>
         <!-- End comment -->
       </section>
     </main>
@@ -91,10 +93,14 @@
 </template>
 
 <script>
+import UserInfos from '@/components/UserInfos.vue';
 import axios from 'axios';
 const url = 'http://localhost:3000/api/';
 export default {
   name: 'SinglePost',
+  components: {
+    infos: UserInfos,
+  },
   data() {
     return {
       user: {},
@@ -102,9 +108,17 @@ export default {
       posts: [],
       comments: [],
       errorMsg: '',
+      infos: false,
     };
   },
   methods: {
+    showInfos() {
+      if (this.infos) {
+        this.infos = false;
+      } else {
+        this.infos = true;
+      }
+    },
     dateFormatter(t) {
       let date = new Date(t);
       return date.toLocaleDateString();
@@ -231,6 +245,7 @@ main {
   border-radius: 50%;
   margin-right: 0.5rem;
   object-fit: cover;
+  cursor: pointer;
 }
 .content {
   padding: 0.5rem 1rem 0 1rem;
@@ -349,5 +364,20 @@ main {
 }
 .comment-form-container label {
   visibility: hidden;
+}
+.more {
+  background-color: var(--transp2);
+  padding: 1rem 0;
+  margin-top: 0.5rem;
+  width: 100%;
+  color: white;
+  font-family: var(--font-2);
+  letter-spacing: 2px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.more:hover {
+  opacity: 0.6;
 }
 </style>
