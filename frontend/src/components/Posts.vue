@@ -435,7 +435,7 @@ export default {
         Authorization: 'Bearer ' + this.user.token,
       };
       axios
-        .get(`${url}post/like/${postId}/${userId}`, { headers })
+        .get(`${url}like/${postId}/${userId}`, { headers })
         .then((res) => {
           this.isLiked = res;
           this.getLikes(idPost, index);
@@ -452,7 +452,7 @@ export default {
         Authorization: 'Bearer ' + this.user.token,
       };
       axios
-        .get(`${url}post/like/${postId}`, { headers })
+        .get(`${url}like/${postId}`, { headers })
         .then((res) => {
           this.likes = res.data.length;
           this.postLikes = index;

@@ -41,7 +41,7 @@
             {{ post.content }}
           </p>
         </div>
-        <div class="actions">
+        <div class="actions" v-show="infos">
           <div class="owner-actions">
             <button class="delete_btn">DELETE</button>
             <button class="edit_btn">EDIT</button>
