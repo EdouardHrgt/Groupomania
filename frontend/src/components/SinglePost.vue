@@ -10,12 +10,12 @@
         alt="logo groupomania"
       />
     </div>
-    <infos v-if="infos" />
     <main class="post__wrapper" v-for="post in posts" :key="post.id">
       <!-- The post -->
       <section class="unique__post" v-if="post">
         <div class="infos">
-          <div class="author" @click="showInfos">
+          <userProfile v-show="profile" />
+          <div class="author" @click="showProfile">
             <img
               v-if="post.image"
               :src="post.image"
@@ -41,23 +41,78 @@
             {{ post.content }}
           </p>
         </div>
-        <div class="actions" v-show="infos">
+        <div class="actions">
           <div class="owner-actions">
-            <button class="delete_btn">DELETE</button>
-            <button class="edit_btn">EDIT</button>
+            <button class="delete_btn" @click="deletePost">DELETE</button>
+            <button class="edit_btn" @click="togglePostForm">EDIT</button>
           </div>
-          <i class="fa-solid fa-paper-plane"></i>
+          <i class="fa-solid fa-paper-plane" @click="toggleCommentForm"></i>
           <!-- LIKES -->
-          <p class="likes">
+          <p class="likes" @click="debounce()">
             <i class="fa-solid fa-heart"></i>
             <span>{{ post.totalLikes }}</span>
           </p>
         </div>
+        <!-- Update post Box -->
+        <div class="box modify-post flex" v-show="postForm">
+          <div class="form-container" id="update-post-form">
+            <h2>Update your post</h2>
+            <i class="fa-solid fa-xmark" @click="togglePostForm"></i>
+            <form @submit.prevent="updatePost">
+              <div class="form-group">
+                <label for="title">Title : </label>
+                <input
+                  type="text"
+                  name="title"
+                  id="title"
+                  :value="post.title"
+                  minLength="5"
+                  maxlength="70"
+                />
+              </div>
+              <div class="form-group">
+                <label for="content">Content : </label>
+                <input
+                  type="textarea"
+                  name="content"
+                  id="content"
+                  :value="post.content"
+                  maxlength="250"
+                />
+              </div>
+              <div class="form-group file-input">
+                <label for="update-post-image">image</label>
+                <input type="file" name="image" id="update-post-image" />
+              </div>
+              <div class="form-group">
+                <button type="submit">Update !</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- Comment form -->
+        <div class="comment-form-container" v-show="commentForm">
+          <form @submit.prevent="commentPost()">
+            <div class="form-group">
+              <label for="content">Comment :</label>
+              <input
+                type="textarea"
+                name="content"
+                id="content"
+                placeholder="Say something..."
+                required
+                maxlength="250"
+                v-model="comment"
+                minlength="5"
+              />
+            </div>
+            <div class="form-group">
+              <button type="submit">Comment !</button>
+            </div>
+          </form>
+        </div>
         <!-- 1 Comment -->
-        <div
-          class="comment-global-container"
-          v-if="comments && commentBlock == postIndex"
-        >
+        <div class="comment-global-container">
           <div
             class="comment-container"
             v-for="comment in comments"
@@ -99,32 +154,128 @@ const url = 'http://localhost:3000/api/';
 export default {
   name: 'SinglePost',
   components: {
-    infos: UserInfos,
+    userProfile: UserInfos,
   },
   data() {
     return {
       user: {},
+      profile: false,
       postId: this.$route.params.id,
       posts: [],
       comments: [],
+      comment: '',
       errorMsg: '',
       infos: false,
+      timeout: null,
+      postLiked: null,
+      postForm: false,
+      commentForm: false,
     };
   },
   methods: {
-    showInfos() {
-      if (this.infos) {
-        this.infos = false;
-      } else {
-        this.infos = true;
-      }
+    /*=====================================*/
+    /* ALL ABOUT POSTS */
+    /*=====================================*/
+    getPost() {
+      const postId = this.postId;
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      axios
+        .get(`${url}post/filteredPost/${postId}`, { headers })
+        .then((res) => {
+          this.posts = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+          this.errorMsg = err;
+        });
     },
-    dateFormatter(t) {
-      let date = new Date(t);
-      return date.toLocaleDateString();
+    deletePost() {
+      const postId = this.postId;
+      const userId = this.user.userId;
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      axios
+        .delete(`${url}post/delete/${postId}/${userId}`, { headers })
+        .then((res) => {
+          console.log(res);
+          this.toPosts();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
-    toPosts() {
-      this.$router.push('/posts');
+    updatePost() {
+      const postId = this.postId;
+      const updatedPost = new FormData(event.target);
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      axios
+        .put(`${url}post/update/${postId}`, updatedPost, { headers })
+        .then((res) => {
+          console.log(res);
+          this.togglePostForm();
+          this.getPost();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    /*=====================================*/
+    /* ALL ABOUT LIKES */
+    /*=====================================*/
+    debounce() {
+      if (this.timeout) clearTimeout(this.timeout);
+
+      this.timeout = setTimeout(() => {
+        this.likePost();
+      }, 300);
+    },
+    likePost() {
+      const postId = this.postId;
+      const userId = this.user.userId;
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      axios
+        .get(`${url}like/${postId}/${userId}`, { headers })
+        .then((res) => {
+          this.postLiked = res;
+          this.getPost();
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    /*=====================================*/
+    /* ALL ABOUT COMMENTS */
+    /*=====================================*/
+    commentPost() {
+      const comment = {
+        content: this.comment,
+        userId: this.user.userId,
+        postId: this.postId,
+      };
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+      axios
+        .post(`${url}comment`, comment, { headers })
+        .then((res) => {
+          console.log(res.data);
+          this.commentForm = false;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
     getComments(idPost) {
       const headers = {
@@ -140,6 +291,26 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+    },
+    /*=====================================*/
+    /* ALL ABOUT HELPERS */
+    /*=====================================*/
+    togglePostForm() {
+      this.postForm ? (this.postForm = false) : (this.postForm = true);
+    },
+    toggleCommentForm() {
+      this.commentForm ? (this.commentForm = false) : (this.commentForm = true);
+    },
+    showProfile() {
+      this.profile ? (this.profile = false) : (this.profile = true);
+    },
+
+    dateFormatter(t) {
+      let date = new Date(t);
+      return date.toLocaleDateString();
+    },
+    toPosts() {
+      this.$router.push('/posts');
     },
   },
   mounted() {
@@ -157,7 +328,6 @@ export default {
         .get(`${url}post/filteredPost/${postId}`, { headers })
         .then((res) => {
           this.posts = res.data;
-          console.log(this.posts);
         })
         .catch((err) => {
           console.log(err);
@@ -199,7 +369,6 @@ export default {
 .logo-wrapper i {
   font-size: 1.2rem;
   color: white;
-
   font-weight: bolder;
 }
 .logo-wrapper .circle:hover {
@@ -214,6 +383,7 @@ export default {
 main {
   width: 60%;
   margin: auto;
+  position: relative;
 }
 .confirmation {
   border: 5px solid var(--primary);
@@ -318,6 +488,93 @@ main {
   opacity: 0.7;
   transform: scale(1.3);
 }
+.form-container {
+  background-color: var(--transp2);
+  width: 65%;
+  margin: auto;
+  position: relative;
+}
+.form-container h1,
+.form-container h2 {
+  font-family: var(--font-2);
+  color: transparent;
+  background: var(--gradient-2);
+  background-clip: text;
+  text-align: center;
+  padding-top: 0.5rem;
+  font-size: 1.5rem;
+}
+.form-container h2 {
+  color: var(--white);
+}
+.comment-form-container {
+  width: 100%;
+  background-color: var(--transp2);
+}
+.form-group {
+  width: 90%;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0.3rem 1.5rem;
+}
+.form-group label {
+  font-family: var(--font-2);
+  font-size: 1.1rem;
+  color: var(--white);
+  width: 100%;
+  margin-bottom: 0.3rem;
+}
+.form-group input {
+  width: 100%;
+  padding: 0.6rem;
+  outline: 1px solid --black;
+}
+.form-group input::placeholder {
+  color: var(--primary);
+}
+
+.file-input label {
+  background-color: var(--white);
+  color: var(--primary);
+  width: 6rem;
+  text-align: center;
+  padding: 0.3rem;
+  cursor: pointer;
+  outline: var(--black) 1px solid;
+}
+.file-input input {
+  display: none;
+}
+.form-group button {
+  width: 7rem;
+  align-self: center;
+  padding: 0.6rem 0;
+  cursor: pointer;
+  color: var(--white);
+  background: linear-gradient(90deg, #ff9a8b 0%, #ff6a88 55%, #ff99ac 100%);
+  font-size: 1.1rem;
+  font-weight: 700;
+  transition: 0.4s;
+}
+.form-group button:hover {
+  border-radius: 20px;
+}
+.box {
+  position: absolute;
+  z-index: 10;
+  inset: 0;
+  background-color: var(--transp6);
+  backdrop-filter: blur(3px);
+  color: var(--black);
+}
+.modify-post i {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
 .comment-container {
   background-color: var(--gray);
   padding: 0.5rem 1rem;
@@ -379,5 +636,21 @@ main {
 }
 .more:hover {
   opacity: 0.6;
+}
+@media screen and (max-width: 1440px) {
+  main,
+  .logo-wrapper,
+  .form-container {
+    width: 75%;
+  }
+}
+@media screen and (max-width: 1024px) {
+  main,
+  .logo-wrapper {
+    width: 85%;
+  }
+  .form-container {
+    width: 90%;
+  }
 }
 </style>
