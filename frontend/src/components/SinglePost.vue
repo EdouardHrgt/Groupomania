@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="logo-wrapper">
-      <div class="circle flex" @click="toPosts">
+      <div class="circle flex" @click="toPosts()">
         <i class="fa-solid fa-arrow-left back"></i>
       </div>
       <img
@@ -42,7 +42,7 @@
           </p>
         </div>
         <div class="actions">
-          <div class="owner-actions">
+          <div class="owner-actions" v-if="user.userId == post.userId">
             <button class="delete_btn" @click="deletePost">DELETE</button>
             <button class="edit_btn" @click="togglePostForm">EDIT</button>
           </div>
@@ -140,7 +140,7 @@
             </div>
           </div>
         </div>
-        <button class="more">See More</button>
+        <button class="more">See More Comments</button>
         <!-- End comment -->
       </section>
     </main>
@@ -170,6 +170,7 @@ export default {
       postLiked: null,
       postForm: false,
       commentForm: false,
+      offset: 0,
     };
   },
   methods: {
@@ -272,20 +273,24 @@ export default {
         .then((res) => {
           console.log(res.data);
           this.commentForm = false;
+          this.getComments();
         })
         .catch((err) => {
           console.log(err);
         });
     },
-    getComments(idPost) {
+    getComments() {
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
       };
-      const postId = idPost;
+      this.offset++;
+      let offset = this.offset;
+      const postId = this.postId;
       axios
-        .get(`${url}comment/filter/${postId}`, { headers })
+        .get(`${url}comment/limited/${postId}/${offset}`, { headers })
         .then((res) => {
+          console.log(res.data);
           this.comments = res.data;
         })
         .catch((err) => {
@@ -323,6 +328,7 @@ export default {
         Authorization: 'Bearer ' + this.user.token,
       };
       const postId = this.$route.params.id;
+      const offset = 0;
       // GET POST
       axios
         .get(`${url}post/filteredPost/${postId}`, { headers })
@@ -334,8 +340,18 @@ export default {
           this.errorMsg = err;
         });
       // GET COMMENTS
-      axios
+      /*axios
         .get(`${url}comment/filter/${postId}`, { headers })
+        .then((res) => {
+          this.comments = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+          this.errorMsg = err;
+        });
+        */
+      axios
+        .get(`${url}comment/limited/${postId}/${offset}`, { headers })
         .then((res) => {
           this.comments = res.data;
         })
@@ -653,4 +669,27 @@ main {
     width: 90%;
   }
 }
+@media screen and (max-width: 768px) {
+  main,
+  .logo-wrapper {
+    width: 95%;
+  }
+  .form-container {
+    width: 100%;
+  }
+  .logo-wrapper {
+    width: 100%;
+    display: block;
+    text-align: center;
+  }
+  .logo-wrapper .circle {
+  width: 100%;
+  height: 2.2rem;
+  border-radius: 0;
+}
+.logo {
+  margin: 2.3rem 0 0 0;
+}
+}
+
 </style>

@@ -146,11 +146,7 @@
             </div>
           </div>
           <!-- The post -->
-          <section
-            class="unique__post"
-            v-if="post"
-            ref="post"
-          >
+          <section class="unique__post" v-if="post" ref="post">
             <div class="infos">
               <div class="author">
                 <img
@@ -205,7 +201,7 @@
           </section>
           <!-- Comment form -->
           <div class="comment-form-container" v-if="commentForm == postIndex">
-            <form @submit.prevent="newComment(post.id)">
+            <form @submit.prevent="newComment(post.id, postIndex)">
               <div class="form-group">
                 <label for="content">Comment :</label>
                 <input
@@ -279,24 +275,26 @@ export default {
   },
   data: function () {
     return {
+      //states
       profile: false,
-      profileModal: false,
       loading: false,
+      //Datas
       user: null,
-      fetchErr: null,
+      posts: [],
+      likes: null,
+      comments: [],
+      comment: '',
+      // Popups
       deletePostBox: -1,
       alertDeletePost: -1,
       isPostDelete: null,
       updatePostBox: -1,
-      posts: [],
-      likes: null,
       postLikes: null,
       isLiked: false,
       timeout: null,
-      comments: null,
-      comment: '',
       commentForm: -1,
       commentBlock: -1,
+      fetchErr: null,
     };
   },
   computed: {
@@ -427,7 +425,6 @@ export default {
       }, 300);
     },
     likePost(idPost, index) {
-      console.log('likePost called');
       const postId = String(idPost);
       const userId = String(this.user.userId);
       const headers = {
@@ -465,23 +462,15 @@ export default {
     /* ALL ABOUT COMMENTS */
     /*=====================================*/
     showCommentForm(i) {
+      this.comments = null;
+      this.commentBlock = -1;
       if (this.commentForm == i) {
         this.commentForm = -1;
       } else {
         this.commentForm = i;
       }
     },
-    showAllComments() {
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
-      axios.get(`${url}comment`, { headers }).then((res) => {
-        console.log(res);
-        alert('ok');
-      });
-    },
-    newComment(idPost) {
+    newComment(idPost, index) {
       const comment = {
         content: this.comment,
         userId: this.user.userId,
@@ -496,29 +485,33 @@ export default {
         .then((res) => {
           console.log(res.data);
           this.commentForm = -1;
+          this.displayComment(idPost, index);
         })
         .catch((err) => {
           console.log(err);
         });
     },
-    getComments(postId, index) {
+    displayComment(id, i) {
       if (this.comments && this.commentBlock != -1) {
         this.comments = null;
         this.commentBlock = -1;
+      } else {
+        const headers = {
+          'Content-type': 'application/json',
+          Authorization: 'Bearer ' + this.user.token,
+        };
+        const postId = id;
+        const userId = this.user.userId;
+        axios
+          .get(`${url}comment/${postId}/${userId}`, { headers })
+          .then((res) => {
+            this.commentBlock = i;
+            this.comments = res.data;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       }
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
-      axios
-        .get(`${url}comment/filter/${postId}`, { headers })
-        .then((res) => {
-          this.comments = res.data;
-          this.commentBlock = index;
-        })
-        .catch((err) => {
-          console.log(err);
-        });
     },
     /*=====================================*/
     /* ALL ABOUT USER */
@@ -557,8 +550,14 @@ export default {
           this.loading = false;
         })
         .catch((err) => {
-          this.fetchErr = err;
-          this.loading = false;
+          if (err.response.status == 401) {
+            localStorage.removeItem('user');
+            this.user = null;
+            this.$router.push('/');
+          } else {
+            this.fetchErr = err;
+            this.loading = false;
+          }
         });
     }
   },
