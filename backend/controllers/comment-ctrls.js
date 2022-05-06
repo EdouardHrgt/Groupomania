@@ -31,7 +31,6 @@ exports.getFilteredComments = (req, res, next) => {
 
 exports.getLimitedComments = (req, res, next) => {
   try {
-    console.log(req.params);
     const postId = req.params.postId;
     const offset = req.params.offset;
     db.query(
@@ -54,7 +53,6 @@ exports.getLimitedComments = (req, res, next) => {
 };
 
 exports.getOneComment = (req, res, next) => {
-  console.log(req.params);
   try {
     const postId = req.params.postId;
     const userId = req.params.userId;
@@ -65,7 +63,6 @@ exports.getOneComment = (req, res, next) => {
           console.log(err);
           return res.status(400).json(err);
         }
-        console.log(result);
         if (result.length < 1) {
           return res.status(404).json({ message: 'Comment Not Found...' });
         }

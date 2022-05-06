@@ -140,8 +140,8 @@
             </div>
           </div>
         </div>
-        <button class="more">See More Comments</button>
         <!-- End comment -->
+        <button class="more">See More Comments</button>
       </section>
     </main>
   </div>
@@ -260,7 +260,7 @@ export default {
     /*=====================================*/
     commentPost() {
       const comment = {
-        content: this.comment,
+        content: this.linkFormatter(this.comment),
         userId: this.user.userId,
         postId: this.postId,
       };
@@ -284,11 +284,9 @@ export default {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
       };
-      this.offset++;
-      let offset = this.offset;
       const postId = this.postId;
       axios
-        .get(`${url}comment/limited/${postId}/${offset}`, { headers })
+        .get(`${url}comment/filter/${postId}`, { headers })
         .then((res) => {
           console.log(res.data);
           this.comments = res.data;
@@ -310,9 +308,15 @@ export default {
       this.profile ? (this.profile = false) : (this.profile = true);
     },
 
-    dateFormatter(t) {
-      let date = new Date(t);
+    dateFormatter(time) {
+      let date = new Date(time);
       return date.toLocaleDateString();
+    },
+    linkFormatter(text) {
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlRegex, (url) => {
+        return `<a href="${url}">${url}</a>`;
+      });
     },
     toPosts() {
       this.$router.push('/posts');
@@ -328,7 +332,7 @@ export default {
         Authorization: 'Bearer ' + this.user.token,
       };
       const postId = this.$route.params.id;
-      const offset = 0;
+      //const offset = 0;
       // GET POST
       axios
         .get(`${url}post/filteredPost/${postId}`, { headers })
@@ -337,27 +341,15 @@ export default {
         })
         .catch((err) => {
           console.log(err);
-          this.errorMsg = err;
         });
       // GET COMMENTS
-      /*axios
+      axios
         .get(`${url}comment/filter/${postId}`, { headers })
         .then((res) => {
           this.comments = res.data;
         })
         .catch((err) => {
           console.log(err);
-          this.errorMsg = err;
-        });
-        */
-      axios
-        .get(`${url}comment/limited/${postId}/${offset}`, { headers })
-        .then((res) => {
-          this.comments = res.data;
-        })
-        .catch((err) => {
-          console.log(err);
-          this.errorMsg = err;
         });
     }
   },
@@ -683,13 +675,12 @@ main {
     text-align: center;
   }
   .logo-wrapper .circle {
-  width: 100%;
-  height: 2.2rem;
-  border-radius: 0;
+    width: 100%;
+    height: 2.2rem;
+    border-radius: 0;
+  }
+  .logo {
+    margin: 2.3rem 0 0 0;
+  }
 }
-.logo {
-  margin: 2.3rem 0 0 0;
-}
-}
-
 </style>
