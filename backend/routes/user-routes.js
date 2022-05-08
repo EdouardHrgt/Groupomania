@@ -7,6 +7,7 @@ const multer = require('../middleware/multer-mw');
 const rateLimit = require('../middleware/rate-limit-mw');
 
 router.get('/', auth, userCtrl.getAllUsers);
+router.get('/:username', auth, userCtrl.getOneUser);
 router.post('/signup', password, rateLimit, userCtrl.signUp);
 router.post('/login', rateLimit, userCtrl.logIn);
 router.put('/update/:id', auth, multer, userCtrl.updateUser);

@@ -38,7 +38,7 @@ exports.getLimitedComments = (req, res, next) => {
         FROM comments 
         JOIN user 
         ON comments.userId = user.id WHERE postId= ${postId}
-        LIMIT ${offset}, 1`,
+        LIMIT ${offset}, 2`,
       (err, result, fields) => {
         if (err) {
           console.log(err);

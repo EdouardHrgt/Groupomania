@@ -22,6 +22,21 @@ exports.getAllUsers = (req, res, next) => {
   }
 };
 
+exports.getOneUser = (req, res, next) => {
+  try {
+    const name = req.params.username;
+    db.query(models.selectUserInfos, name, (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json(err);
+      }
+      return res.status(200).json(result);
+    });
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+};
+
 exports.signUp = (req, res, next) => {
   try {
     const username = req.body.username;

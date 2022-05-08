@@ -12,6 +12,7 @@ export default new Vuex.Store({
       token: '',
       image: '',
     },
+    Profile: '',
   },
   getters: {
     //Effectuer des calculs
@@ -23,6 +24,9 @@ export default new Vuex.Store({
     //MAJ les datas
     saveStoredUser(state, updateState) {
       state.storedUser = updateState;
+    },
+    saveProfile(state, updateState) {
+      state.Profile = updateState
     },
   },
   actions: {},

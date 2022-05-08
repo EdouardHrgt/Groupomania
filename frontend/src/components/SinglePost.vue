@@ -15,7 +15,7 @@
       <section class="unique__post" v-if="post">
         <div class="infos">
           <userProfile v-show="profile" />
-          <div class="author" @click="showProfile">
+          <div class="author" @click="showProfile(post.username)">
             <img
               v-if="post.image"
               :src="post.image"
@@ -141,7 +141,7 @@
           </div>
         </div>
         <!-- End comment -->
-        <button class="more">See More Comments</button>
+        <button class="more" @click="getComments()">See More Comments</button>
       </section>
     </main>
   </div>
@@ -285,6 +285,18 @@ export default {
         Authorization: 'Bearer ' + this.user.token,
       };
       const postId = this.postId;
+      let offset = 0;
+      offset++;
+      console.log(offset);
+      axios
+        .get(`${url}comment/limited/${postId}/${offset}`, { headers })
+        .then((res) => {
+          this.comments = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      /*
       axios
         .get(`${url}comment/filter/${postId}`, { headers })
         .then((res) => {
@@ -294,6 +306,7 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+        */
     },
     /*=====================================*/
     /* ALL ABOUT HELPERS */
@@ -332,17 +345,28 @@ export default {
         Authorization: 'Bearer ' + this.user.token,
       };
       const postId = this.$route.params.id;
-      //const offset = 0;
+      const offset = 0;
       // GET POST
       axios
         .get(`${url}post/filteredPost/${postId}`, { headers })
         .then((res) => {
           this.posts = res.data;
+          this.$store.commit('saveProfile', this.posts[0].username);
         })
         .catch((err) => {
           console.log(err);
         });
       // GET COMMENTS
+      axios
+        .get(`${url}comment/limited/${postId}/${offset}`, { headers })
+        .then((res) => {
+          this.comments = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+      /*
       axios
         .get(`${url}comment/filter/${postId}`, { headers })
         .then((res) => {
@@ -351,6 +375,7 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+        */
     }
   },
 };
