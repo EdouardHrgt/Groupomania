@@ -14,8 +14,8 @@
       <!-- The post -->
       <section class="unique__post" v-if="post">
         <div class="infos">
-          <userProfile v-show="profile" />
-          <div class="author" @click="showProfile(post.username)">
+          <!-- <userProfile v-show="profile" /> -->
+          <div class="author" @click="showProfile()">
             <img
               v-if="post.image"
               :src="post.image"
@@ -32,7 +32,7 @@
           <img
             v-if="post.imageUrl != 'noImg'"
             :src="post.imageUrl"
-            :alt="post.title + 'from' + post.username"
+            :alt="post.title + 'from ' + post.username"
           />
           <strong class="post-title">
             {{ post.title }}
@@ -112,7 +112,7 @@
           </form>
         </div>
         <!-- 1 Comment -->
-        <div class="comment-global-container">
+        <div class="comment-global-container" v-if="comments">
           <div
             class="comment-container"
             v-for="comment in comments"
@@ -122,7 +122,7 @@
               <img
                 v-if="comment.image"
                 :src="comment.image"
-                :alt="'Profile picture of' + comment.username"
+                :alt="'Profile picture of ' + comment.username"
               />
               <p class="comment-username">{{ comment.username }}</p>
               <p class="comment-date">{{ dateFormatter(comment.date) }}</p>
@@ -141,6 +141,7 @@
           </div>
         </div>
         <!-- End comment -->
+        <p class="err-msg" v-show="errorMsg">{{ errorMsg }}</p>
         <button class="more" @click="getComments()">See More Comments</button>
       </section>
     </main>
@@ -148,14 +149,15 @@
 </template>
 
 <script>
-import UserInfos from '@/components/UserInfos.vue';
+//import UserInfos from '@/components/UserInfos.vue';
 import axios from 'axios';
 const url = 'http://localhost:3000/api/';
 export default {
   name: 'SinglePost',
-  components: {
+  /*components: {
     userProfile: UserInfos,
   },
+  */
   data() {
     return {
       user: {},
@@ -190,7 +192,6 @@ export default {
         })
         .catch((err) => {
           console.log(err);
-          this.errorMsg = err;
         });
     },
     deletePost() {
@@ -285,28 +286,23 @@ export default {
         Authorization: 'Bearer ' + this.user.token,
       };
       const postId = this.postId;
-      let offset = 0;
-      offset++;
-      console.log(offset);
+      this.offset += 3;
+      const offset = this.offset;
       axios
         .get(`${url}comment/limited/${postId}/${offset}`, { headers })
         .then((res) => {
-          this.comments = res.data;
+          if (res.status == 204) {
+            this.errorMsg = 'No comments to display';
+            setTimeout(() => {
+              this.errorMsg = '';
+            }, 750);
+          } else {
+            res.data.map((n) => this.comments.push(n));
+          }
         })
         .catch((err) => {
           console.log(err);
         });
-      /*
-      axios
-        .get(`${url}comment/filter/${postId}`, { headers })
-        .then((res) => {
-          console.log(res.data);
-          this.comments = res.data;
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-        */
     },
     /*=====================================*/
     /* ALL ABOUT HELPERS */
@@ -365,17 +361,6 @@ export default {
         .catch((err) => {
           console.log(err);
         });
-
-      /*
-      axios
-        .get(`${url}comment/filter/${postId}`, { headers })
-        .then((res) => {
-          this.comments = res.data;
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-        */
     }
   },
 };
@@ -520,6 +505,12 @@ main {
 .comment-actions i:hover {
   opacity: 0.7;
   transform: scale(1.3);
+}
+.err-msg {
+  background-color: var(--red);
+  text-align: center;
+  color: white;
+  font-size: 0.9rem;
 }
 .form-container {
   background-color: var(--transp2);

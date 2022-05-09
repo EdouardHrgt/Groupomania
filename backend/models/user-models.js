@@ -8,6 +8,9 @@ const selectOneUsername = `SELECT * FROM user WHERE username= ?`;
 const signIn = `INSERT INTO user (username, email, password, id) VALUES (?,?,?,?)`;
 const logIn = `SELECT * FROM user WHERE username= ?`;
 const deleteUser = `DELETE FROM user WHERE id= ?`;
+const updateUserImg = `UPDATE user SET username=?, password=?, image=? WHERE id=?`;
+const updateUser = `UPDATE user SET username=?, password=? WHERE id=?`;
+const rankUser = `UPDATE user SET permission=? WHERE id=?`;
 
 module.exports = {
   selectUsers,
@@ -17,4 +20,7 @@ module.exports = {
   selectOneUsername,
   selectUserInfos,
   deleteUser,
+  updateUser,
+  updateUserImg,
+  rankUser,
 };

@@ -138,7 +138,8 @@ exports.updateUser = (req, res, next) => {
           req.file.filename
         }`;
         db.query(
-          `UPDATE user SET username='${username}', password='${password}', image='${imageUrl}' WHERE id='${id}'`,
+          models.updateUserImg,
+          [username, password, imageUrl, id],
           (err, result, fields) => {
             if (err) {
               console.log(err);
@@ -153,7 +154,8 @@ exports.updateUser = (req, res, next) => {
         //Save changes without Picture
       } else if (!req.file) {
         db.query(
-          `UPDATE user SET username='${username}', password='${password}' WHERE id='${id}'`,
+          models.updateUser,
+          [username, password, id],
           (err, result, fields) => {
             if (err) {
               console.log(err);
@@ -223,17 +225,14 @@ exports.rankUser = (req, res, next) => {
   try {
     const rank = req.body.rank;
     const userId = req.body.id;
-    db.query(
-      `UPDATE user SET permission='${rank}' WHERE id='${userId}'`,
-      (err, result, fields) => {
-        if (err) {
-          console.log(err);
-          return res.status(400).json(err);
-        } else {
-          return res.status(201).json({ message: 'user promoted...' });
-        }
+    db.query(models.rankUser, [rank, userId], (err, result, fields) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json(err);
+      } else {
+        return res.status(201).json({ message: 'user promoted...' });
       }
-    );
+    });
   } catch (error) {
     return res.status(400).json(err);
   }

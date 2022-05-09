@@ -38,13 +38,18 @@ exports.getLimitedComments = (req, res, next) => {
         FROM comments 
         JOIN user 
         ON comments.userId = user.id WHERE postId= ${postId}
-        LIMIT ${offset}, 2`,
+        ORDER BY comments.id DESC
+        LIMIT ${offset}, 3`,
       (err, result, fields) => {
         if (err) {
           console.log(err);
           return res.status(400).json(err);
         }
-        return res.status(200).json(result);
+        if (result.length <= 0) {
+          return res.status(204).json({ message: 'No comments...' });
+        } else {
+          return res.status(200).json(result);
+        }
       }
     );
   } catch (error) {

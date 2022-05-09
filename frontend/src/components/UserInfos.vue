@@ -36,6 +36,7 @@ export default {
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
       const username = this.$store.state.Profile;
+      console.log(username);
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
@@ -44,7 +45,6 @@ export default {
         .get(`${url}${username}`, { headers })
         .then((res) => {
           this.profile = res.data;
-          console.log(this.profile);
         })
         .catch((err) => {
           console.log(err);

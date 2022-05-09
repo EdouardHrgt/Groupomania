@@ -476,6 +476,7 @@ export default {
         userId: this.user.userId,
         postId: idPost,
       };
+      console.log(index); //A DELETE
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
@@ -485,7 +486,8 @@ export default {
         .then((res) => {
           console.log(res.data);
           this.commentForm = -1;
-          this.displayComment(idPost, index);
+          // this.displayComment(idPost, index);
+          this.toPost(idPost);
         })
         .catch((err) => {
           console.log(err);
@@ -507,6 +509,7 @@ export default {
           .then((res) => {
             this.commentBlock = i;
             this.comments = res.data;
+            console.log(this.comments);
           })
           .catch((err) => {
             console.log(err);

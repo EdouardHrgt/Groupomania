@@ -99,7 +99,8 @@ exports.updatePost = (req, res, next) => {
       }`;
 
       db.query(
-        `UPDATE posts SET title='${title}', content='${content}', imageUrl='${imageUrl}' WHERE id='${id}'`,
+        models.updatePostImg,
+        [title, content, imageUrl, id],
         (err, result, fields) => {
           if (err) {
             console.log(err);
@@ -118,7 +119,8 @@ exports.updatePost = (req, res, next) => {
 
     if (!req.file) {
       db.query(
-        `UPDATE posts SET title='${title}', content='${content}' WHERE id='${id}'`,
+        models.updatePost,
+        [title, content, id],
         (err, result, fields) => {
           if (err) {
             console.log(err);
@@ -169,4 +171,3 @@ exports.deletePost = (req, res, next) => {
     return res.status(500).json(error);
   }
 };
-
