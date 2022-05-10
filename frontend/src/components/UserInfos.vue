@@ -25,7 +25,7 @@ export default {
   data() {
     return {
       user: {},
-      profile: {},
+      profile: { username: '' },
       bool: false,
     };
   },
@@ -36,7 +36,6 @@ export default {
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
       const username = this.$store.state.Profile;
-      console.log(username);
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,

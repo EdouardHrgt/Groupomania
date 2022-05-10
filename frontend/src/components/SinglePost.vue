@@ -14,7 +14,7 @@
       <!-- The post -->
       <section class="unique__post" v-if="post">
         <div class="infos">
-          <!-- <userProfile v-show="profile" /> -->
+          <userProfile v-show="profile" />
           <div class="author" @click="showProfile()">
             <img
               v-if="post.image"
@@ -149,15 +149,14 @@
 </template>
 
 <script>
-//import UserInfos from '@/components/UserInfos.vue';
+import UserInfos from '@/components/UserInfos.vue';
 import axios from 'axios';
 const url = 'http://localhost:3000/api/';
 export default {
   name: 'SinglePost',
-  /*components: {
+  components: {
     userProfile: UserInfos,
   },
-  */
   data() {
     return {
       user: {},
@@ -293,10 +292,13 @@ export default {
         .then((res) => {
           if (res.status == 204) {
             this.errorMsg = 'No comments to display';
+
             setTimeout(() => {
               this.errorMsg = '';
             }, 750);
+
           } else {
+            // Utiliser le spread operator
             res.data.map((n) => this.comments.push(n));
           }
         })
@@ -321,6 +323,7 @@ export default {
       let date = new Date(time);
       return date.toLocaleDateString();
     },
+
     linkFormatter(text) {
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       return text.replace(urlRegex, (url) => {

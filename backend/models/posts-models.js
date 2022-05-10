@@ -30,7 +30,6 @@ const createPost = `INSERT INTO posts (title, content, imageUrl, userId) VALUES 
 
 const selectWhere = `SELECT * FROM posts WHERE id= ?`;
 const deleteWhere = `DELETE FROM posts WHERE id= ?`;
-const selectLikes = `SELECT * FROM likes WHERE postId= ?`;
 const updatePost = `UPDATE posts SET title=?, content=? WHERE id=?`;
 const updatePostImg = `UPDATE posts SET title=?, content=?, imageUrl=? WHERE id=?`;
 
@@ -40,7 +39,6 @@ module.exports = {
   getOnePost,
   createPost,
   selectWhere,
-  selectLikes,
   deleteWhere,
   updatePost,
   updatePostImg,
