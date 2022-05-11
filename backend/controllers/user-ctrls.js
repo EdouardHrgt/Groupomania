@@ -110,7 +110,7 @@ exports.updateUser = (req, res, next) => {
     const id = req.params.id;
     const username = req.body.username;
     let password = req.body.password;
-
+    const bio = req.body.bio;
     bcrypt.hash(password, 10).then((hash) => {
       password = hash;
       if (req.file) {
@@ -139,7 +139,7 @@ exports.updateUser = (req, res, next) => {
         }`;
         db.query(
           models.updateUserImg,
-          [username, password, imageUrl, id],
+          [username, bio, password, imageUrl, id],
           (err, result, fields) => {
             if (err) {
               console.log(err);
@@ -155,7 +155,7 @@ exports.updateUser = (req, res, next) => {
       } else if (!req.file) {
         db.query(
           models.updateUser,
-          [username, password, id],
+          [username, bio, password, id],
           (err, result, fields) => {
             if (err) {
               console.log(err);
@@ -188,52 +188,77 @@ exports.updateUser = (req, res, next) => {
 };
 
 exports.deleteUser = (req, res, next) => {
-  const userId = req.params.id;
-  const defaultPicture = 'http://localhost:3000/images/default_user.jpg';
-  db.query(models.selectOneUser, userId, (err, result, fields) => {
-    if (err) {
-      return res.status(400).json(err);
-    } else if (userId != result[0].id) {
-      console.log('userId is not matching...');
-      return res.status(404).json({ message: 'Lack of permission...' });
-    } else if (result[0].image == defaultPicture) {
-      console.log('No custom picture for this user...');
-    } else {
-      const filename = result[0].image.split('/images/')[1];
-      fs.unlink(`images/${filename}`, (err) => {
-        if (err) {
-          console.log(err);
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = jwt.verify(token, process.env.TOKEN);
+    const userId = req.params.id;
+    const defaultPicture = 'http://localhost:3000/images/default_user.jpg';
+
+    db.query(models.selectOneUser, userId, (err, result, fields) => {
+      if (err) {
+        return res.status(400).json(err);
+      } else if (result[0].id != decodedToken.userId) {
+        if (decodedToken.permission == 'admin') {
+          if (result[0].image != defaultPicture) {
+            const filename = result[0].image.split('/images/')[1];
+            fs.unlink(`images/${filename}`, (err) => {
+              if (err) {
+                console.log(err);
+              } else {
+                console.log('image deleted...');
+              }
+            });
+          }
         } else {
-          console.log('image deleted...');
+          return res.status(401).json(err);
         }
-      });
-    }
-  });
-  db.query(models.deleteUser, userId, (err, result, fields) => {
-    if (err) {
-      console.log(err);
-      return res.status(400).json(err);
-    } else if (result.affectedRows == 0) {
-      return res.status(404).json({ message: 'User not found...' });
-    } else {
-      return res.status(201).json({ message: 'User Deleted...' });
-    }
-  });
+      } else if (result[0].image == defaultPicture) {
+        console.log('No custom picture for this user...');
+      } else {
+        const filename = result[0].image.split('/images/')[1];
+        fs.unlink(`images/${filename}`, (err) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log('image deleted...');
+          }
+        });
+      }
+    });
+    db.query(models.deleteUser, userId, (err, result, fields) => {
+      if (err) {
+        return res.status(400).json(err);
+      } else if (result.affectedRows == 0) {
+        return res.status(404).json({ message: 'User not found...' });
+      } else {
+        return res.status(201).json({ message: 'User Deleted...' });
+      }
+    });
+  } catch (error) {
+    return res.status(500).json(err);
+  }
 };
 
 exports.rankUser = (req, res, next) => {
   try {
-    const rank = req.body.rank;
-    const userId = req.body.id;
-    db.query(models.rankUser, [rank, userId], (err, result, fields) => {
-      if (err) {
-        console.log(err);
-        return res.status(400).json(err);
-      } else {
-        return res.status(201).json({ message: 'user promoted...' });
-      }
-    });
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = jwt.verify(token, process.env.TOKEN);
+    const permission = decodedToken.permission;
+    if (permission == 'admin') {
+      const rank = req.body.rank;
+      const userId = req.body.id;
+      db.query(models.rankUser, [rank, userId], (err, result, fields) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).json(err);
+        } else {
+          return res.status(201).json({ message: 'user promoted...' });
+        }
+      });
+    } else {
+      return res.status(400).json(err);
+    }
   } catch (error) {
-    return res.status(400).json(err);
+    return res.status(500).json(err);
   }
 };

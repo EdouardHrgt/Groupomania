@@ -144,7 +144,6 @@ exports.deletePost = (req, res, next) => {
     const postId = req.params.postId;
     const userId = req.params.userId;
     db.query(models.selectWhere, postId, (err, result, fields) => {
-      console.log(result);
       if (err) {
         return res.status(400).json(err);
       } else if (result[0].imageUrl == null || result[0].imageUrl == 'noImg') {

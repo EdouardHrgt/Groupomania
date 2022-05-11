@@ -14,7 +14,7 @@
       <!-- The post -->
       <section class="unique__post" v-if="post">
         <div class="infos">
-          <userProfile v-show="profile" />
+          <userProfile v-show="profile" @userInfosCloser="closeUserInfos" />
           <div class="author" @click="showProfile()">
             <img
               v-if="post.image"
@@ -47,6 +47,10 @@
             <button class="edit_btn" @click="togglePostForm">EDIT</button>
           </div>
           <i class="fa-solid fa-paper-plane" @click="toggleCommentForm"></i>
+          <p class="comms" @click="getComments()">
+            <i class="fa-solid fa-envelope"></i>
+            <span>{{ post.totalComms }}</span>
+          </p>
           <!-- LIKES -->
           <p class="likes" @click="debounce()">
             <i class="fa-solid fa-heart"></i>
@@ -296,9 +300,7 @@ export default {
             setTimeout(() => {
               this.errorMsg = '';
             }, 750);
-
           } else {
-            // Utiliser le spread operator
             res.data.map((n) => this.comments.push(n));
           }
         })
@@ -318,17 +320,18 @@ export default {
     showProfile() {
       this.profile ? (this.profile = false) : (this.profile = true);
     },
-
     dateFormatter(time) {
       let date = new Date(time);
       return date.toLocaleDateString();
     },
-
     linkFormatter(text) {
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       return text.replace(urlRegex, (url) => {
         return `<a href="${url}">${url}</a>`;
       });
+    },
+    closeUserInfos(bool) {
+      this.profile = bool;
     },
     toPosts() {
       this.$router.push('/posts');
@@ -441,6 +444,7 @@ main {
 .content {
   padding: 0.5rem 1rem 0 1rem;
   background-color: var(--white);
+  min-height: 15rem;
 }
 .post-title {
   font-size: 1.1rem;
@@ -492,10 +496,12 @@ main {
 .actions .fa-trash {
   color: var(--red);
 }
-.likes {
+.likes,
+.comms {
   display: flex;
 }
-.likes span {
+.likes span,
+.comms span {
   font-size: 0.8rem;
   color: var(--black);
 }
@@ -579,7 +585,7 @@ main {
   padding: 0.6rem 0;
   cursor: pointer;
   color: var(--white);
-  background: linear-gradient(90deg, #ff9a8b 0%, #ff6a88 55%, #ff99ac 100%);
+  background-color: var(--secondary);
   font-size: 1.1rem;
   font-weight: 700;
   transition: 0.4s;

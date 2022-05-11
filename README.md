@@ -24,6 +24,6 @@ Assets and Svgs from : `[https://www.svgbackgrounds.com/, https://www.pexels.com
 
 #### DataBase (MySQL Workbench) :
 To Enjoy all ADMIN features on the app Feel free to update your account with this command directly on DB: 
-`UPDATE user SET permission='admin' WHERE username='REPLACE BY YOUR USERNAME'`;
-(For security purposes ranking an admin is not able on the app...)
+`UPDATE user SET permission='admin' WHERE username='REPLACE BY YOUR USERNAME';`
+(For security purposes ranking an admin is not able directly on the app...)
 

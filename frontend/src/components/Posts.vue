@@ -176,19 +176,22 @@
             </div>
             <div class="actions">
               <div class="owner-actions" v-if="user.userId == post.userId">
-                <i
-                  class="fa-solid fa-trash"
-                  @click="openDeletePost(postIndex)"
-                ></i>
-                <i
-                  class="fa-solid fa-pen"
-                  @click="toggleUpdatePost(postIndex)"
-                ></i>
+                <button class="delete_btn" @click="openDeletePost(postIndex)">
+                  DELETE
+                </button>
+                <button class="edit_btn" @click="toggleUpdatePost(postIndex)">
+                  EDIT
+                </button>
               </div>
               <i
                 class="fa-solid fa-paper-plane"
                 @click="showCommentForm(postIndex)"
               ></i>
+              <p class="comms" @click="toPost(post.id)">
+                <i class="fa-solid fa-envelope"></i>
+                <span>{{ post.totalComms }}</span>
+              </p>
+
               <!-- LIKES -->
               <p class="likes">
                 <i
@@ -547,7 +550,6 @@ export default {
         .get(`${url}post`, { headers })
         .then((res) => {
           this.posts = res.data;
-          console.log(this.posts);
           this.loading = false;
         })
         .catch((err) => {
@@ -617,9 +619,7 @@ header li div {
   cursor: pointer;
 }
 header li div:hover {
-  color: transparent;
-  background: var(--gradient-2);
-  background-clip: text;
+  color: var(--secondary);
 }
 header li i {
   width: 1rem;
@@ -629,9 +629,7 @@ header li span {
   margin-left: 1rem;
 }
 .panel-link a {
-  color: transparent;
-  background: var(--gradient-2);
-  background-clip: text;
+  color: var(--secondary);
   font-weight: bolder;
 }
 /*ACTIVITIES*/
@@ -657,9 +655,7 @@ header li span {
 .form-container h1,
 .form-container h2 {
   font-family: var(--font-2);
-  color: transparent;
-  background: var(--gradient-2);
-  background-clip: text;
+  color: var(--secondary);
   text-align: center;
   padding-top: 0.5rem;
   font-size: 1.5rem;
@@ -717,7 +713,7 @@ header li span {
   padding: 0.6rem 0;
   cursor: pointer;
   color: var(--white);
-  background: linear-gradient(90deg, #ff9a8b 0%, #ff6a88 55%, #ff99ac 100%);
+  background-color: var(--secondary);
   font-size: 1.1rem;
   font-weight: 700;
   transition: 0.4s;
@@ -848,6 +844,25 @@ header li span {
   position: absolute;
   left: 1rem;
 }
+.owner-actions button {
+  background-color: var(--gray);
+  font-family: var(--font-3);
+  letter-spacing: 1.5px;
+  width: 4.5rem;
+  margin-right: 0.3rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.owner-actions button:hover {
+  opacity: 0.6;
+  transform: scale(1.03);
+}
+.owner-actions .delete_btn {
+  color: var(--red);
+}
+.owner-actions .edit_btn {
+  color: var(--green);
+}
 .actions i {
   color: var(--primary);
   margin: 0 0.5rem;
@@ -857,10 +872,17 @@ header li span {
 .actions .fa-trash {
   color: var(--red);
 }
-.likes {
+.likes,
+.comms {
   display: flex;
 }
-.likes span {
+
+.comms .fa-envelope {
+  opacity: 0.3;
+}
+
+.likes span,
+.comms span {
   font-size: 0.8rem;
   color: var(--black);
 }
@@ -873,6 +895,11 @@ header li span {
 .comment-actions i:hover {
   opacity: 0.7;
   transform: scale(1.3);
+}
+
+.actions .total_comms {
+  color: red;
+  font-size: 0.8rem;
 }
 .comment-container {
   background-color: var(--gray);
