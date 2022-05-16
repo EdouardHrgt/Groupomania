@@ -138,14 +138,6 @@ export default {
       errDeleteMsg: '',
     };
   },
-  computed: {
-    getUser() {
-      return this.$store.state.storedUser;
-    },
-    saveUser() {
-      return this.$store.commit('saveStoredUser', this.user);
-    },
-  },
   methods: {
     toggleUpdateProfile() {
       if (this.updateProfileBox) {
@@ -216,7 +208,6 @@ export default {
             this.success = 'Your profile is updated';
             localStorage.removeItem('user');
             localStorage.setItem('user', JSON.stringify(this.user));
-            this.$store.commit('saveStoredUser', this.user);
             setTimeout(() => {
               this.closeProfile();
             }, 2000);

@@ -301,9 +301,6 @@ export default {
     };
   },
   computed: {
-    getUser() {
-      return this.$store.state.storedUser;
-    },
   },
   methods: {
     /*=====================================*/
