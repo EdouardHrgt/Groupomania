@@ -288,9 +288,11 @@ export default {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
       };
+      
       const postId = this.postId;
       this.offset += 3;
       const offset = this.offset;
+
       axios
         .get(`${url}comment/limited/${postId}/${offset}`, { headers })
         .then((res) => {
