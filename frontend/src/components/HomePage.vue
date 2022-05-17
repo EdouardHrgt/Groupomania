@@ -1,7 +1,10 @@
 <template>
   <div class="homepage">
     <div class="container">
-      <img src="../assets/groupo-logo-white.png" alt="Logo de groupomania" />
+      <img
+        src="../assets/groupo-logo-white.png"
+        alt="Logo de groupomania"
+      />
       <ul>
         <li>
           <button><router-link to="/signup">Sign Up</router-link></button>

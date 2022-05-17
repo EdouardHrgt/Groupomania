@@ -48,6 +48,16 @@
               />
             </div>
             <div class="form-group">
+              <label for="bio">Bio : </label>
+              <input
+                type="text"
+                name="bio"
+                id="bio"
+                placeholder="Add a bio"
+                maxlength="300"
+              />
+            </div>
+            <div class="form-group">
               <label for="password">Password : </label>
               <input
                 type="password"
@@ -128,15 +138,6 @@ export default {
       errDeleteMsg: '',
     };
   },
-  computed: {
-    getUser() {
-      return this.$store.state.storedUser;
-    },
-    saveUser() {
-      //fonction commit prends 2 arguments : fonction mutation + data à prendre
-      return this.$store.commit('saveStoredUser', this.user);
-    },
-  },
   methods: {
     toggleUpdateProfile() {
       if (this.updateProfileBox) {
@@ -207,7 +208,6 @@ export default {
             this.success = 'Your profile is updated';
             localStorage.removeItem('user');
             localStorage.setItem('user', JSON.stringify(this.user));
-            this.$store.commit('saveStoredUser', this.user);
             setTimeout(() => {
               this.closeProfile();
             }, 2000);

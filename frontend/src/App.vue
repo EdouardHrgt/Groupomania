@@ -13,9 +13,9 @@
   --font-2: 'ubuntu', sans-serif;
   --font-3: 'Cairo', sans-serif;
   --black: #0e0e0e;
-  --white: #fdfdfd;
+  --white: #ffffff;
   --primary: #323277;
-  --secondary: #3cb371;
+  --secondary: #37ae5f;
   --ternary: #262a5a;
   --gray: #e9e9e9;
   --red: #dd4124;
@@ -66,5 +66,11 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.custom_gradient {
+  color: transparent;
+  background: var(--gradient-2);
+  background-clip: text;
 }
 </style>

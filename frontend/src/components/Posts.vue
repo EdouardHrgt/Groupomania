@@ -107,7 +107,7 @@
           </div>
           <!-- Update post Box -->
           <div class="box modify-post flex" v-if="updatePostBox == postIndex">
-            <div class="form-container">
+            <div class="form-container" id="update-post-form">
               <h2>Update your post</h2>
               <i
                 class="fa-solid fa-xmark"
@@ -146,13 +146,8 @@
             </div>
           </div>
           <!-- The post -->
-          <section
-            class="unique__post"
-            v-if="post"
-            :data-postId="post.id"
-            ref="post"
-          >
-            <div class="infos" @click="getComments(post.id, postIndex)">
+          <section class="unique__post" v-if="post" ref="post">
+            <div class="infos">
               <div class="author">
                 <img
                   v-if="post.image"
@@ -166,44 +161,50 @@
               </div>
               <p class="date">{{ dateFormatter(post.date) }}</p>
             </div>
-            <div class="content" @click="getComments(post.id, postIndex)">
+            <div class="content" @click="toPost(post.id)">
               <img
                 v-if="post.imageUrl != 'noImg'"
                 :src="post.imageUrl"
-                alt="#"
+                :alt="post.title + 'from' + post.username"
               />
-              <h3>
+              <strong class="post-title">
                 {{ post.title }}
-              </h3>
+              </strong>
               <p>
                 {{ post.content }}
               </p>
             </div>
             <div class="actions">
               <div class="owner-actions" v-if="user.userId == post.userId">
-                <i
-                  class="fa-solid fa-trash"
-                  @click="openDeletePost(postIndex)"
-                ></i>
-                <i
-                  class="fa-solid fa-pen"
-                  @click="toggleUpdatePost(postIndex)"
-                ></i>
+                <button class="delete_btn" @click="openDeletePost(postIndex)">
+                  DELETE
+                </button>
+                <button class="edit_btn" @click="toggleUpdatePost(postIndex)">
+                  EDIT
+                </button>
               </div>
               <i
                 class="fa-solid fa-paper-plane"
                 @click="showCommentForm(postIndex)"
               ></i>
+              <p class="comms" @click="toPost(post.id)">
+                <i class="fa-solid fa-envelope"></i>
+                <span>{{ post.totalComms }}</span>
+              </p>
+
               <!-- LIKES -->
               <p class="likes">
-                <i class="fa-solid fa-heart" @click="likePost(post.id, postIndex)"></i>
-                <span v-if="postLikes == postIndex">{{ likes }}</span>
+                <i
+                  class="fa-solid fa-heart"
+                  @click="debounce(post.id, postIndex)"
+                ></i>
+                <span>{{ post.totalLikes }}</span>
               </p>
             </div>
           </section>
           <!-- Comment form -->
           <div class="comment-form-container" v-if="commentForm == postIndex">
-            <form @submit.prevent="newComment(post.id)">
+            <form @submit.prevent="newComment(post.id, postIndex)">
               <div class="form-group">
                 <label for="content">Comment :</label>
                 <input
@@ -268,6 +269,7 @@ import axios from 'axios';
 import Loader from '@/components/Loader.vue';
 import Profile from '@/components/Profile.vue';
 const url = 'http://localhost:3000/api/';
+
 export default {
   name: 'Posts',
   components: {
@@ -276,33 +278,36 @@ export default {
   },
   data: function () {
     return {
+      //states
       profile: false,
-      profileModal: false,
       loading: false,
+      //Datas
       user: null,
-      fetchErr: null,
+      posts: [],
+      likes: null,
+      comments: [],
+      comment: '',
+      // Popups
       deletePostBox: -1,
       alertDeletePost: -1,
       isPostDelete: null,
       updatePostBox: -1,
-      posts: [],
-      likes: null,
       postLikes: null,
-      comments: null,
-      comment: '',
+      isLiked: false,
+      timeout: null,
       commentForm: -1,
       commentBlock: -1,
+      fetchErr: null,
     };
-  },
-  computed: {
-    getUser() {
-      return this.$store.state.storedUser;
-    },
   },
   methods: {
     /*=====================================*/
     /* ALL ABOUT POSTS */
     /*=====================================*/
+    toPost(idPost) {
+      const id = idPost;
+      this.$router.push(`SinglePost/${id}`);
+    },
     dateFormatter(t) {
       let date = new Date(t);
       return date.toLocaleDateString();
@@ -368,12 +373,13 @@ export default {
           this.deletePostBox = -1;
         } else if (this.isPostDelete == true) {
           const postId = post.id;
+          const userId = this.user.userId;
           const headers = {
             'Content-type': 'application/json',
             Authorization: 'Bearer ' + this.user.token,
           };
           axios
-            .delete(`${url}post/delete/${postId}`, { headers })
+            .delete(`${url}post/delete/${postId}/${userId}`, { headers })
             .then((res) => {
               console.log(res);
               this.isPostDelete = null;
@@ -409,6 +415,13 @@ export default {
     /*=====================================*/
     /* ALL ABOUT LIKES */
     /*=====================================*/
+    debounce(id, i) {
+      if (this.timeout) clearTimeout(this.timeout);
+
+      this.timeout = setTimeout(() => {
+        this.likePost(id, i);
+      }, 300);
+    },
     likePost(idPost, index) {
       const postId = String(idPost);
       const userId = String(this.user.userId);
@@ -417,10 +430,11 @@ export default {
         Authorization: 'Bearer ' + this.user.token,
       };
       axios
-        .get(`${url}post/like/${postId}/${userId}`, { headers })
+        .get(`${url}like/${postId}/${userId}`, { headers })
         .then((res) => {
-          console.log(res);
+          this.isLiked = res;
           this.getLikes(idPost, index);
+          this.getAllPosts();
         })
         .catch((err) => {
           console.log(err);
@@ -433,7 +447,7 @@ export default {
         Authorization: 'Bearer ' + this.user.token,
       };
       axios
-        .get(`${url}post/like/${postId}`, { headers })
+        .get(`${url}like/${postId}`, { headers })
         .then((res) => {
           this.likes = res.data.length;
           this.postLikes = index;
@@ -446,21 +460,13 @@ export default {
     /* ALL ABOUT COMMENTS */
     /*=====================================*/
     showCommentForm(i) {
+      this.comments = null;
+      this.commentBlock = -1;
       if (this.commentForm == i) {
         this.commentForm = -1;
       } else {
         this.commentForm = i;
       }
-    },
-    showAllComments() {
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
-      axios.get(`${url}comment`, { headers }).then((res) => {
-        console.log(res);
-        alert('ok');
-      });
     },
     newComment(idPost) {
       const comment = {
@@ -477,29 +483,34 @@ export default {
         .then((res) => {
           console.log(res.data);
           this.commentForm = -1;
+          this.toPost(idPost);
         })
         .catch((err) => {
           console.log(err);
         });
     },
-    getComments(postId, index) {
+    displayComment(id, i) {
       if (this.comments && this.commentBlock != -1) {
         this.comments = null;
         this.commentBlock = -1;
+      } else {
+        const headers = {
+          'Content-type': 'application/json',
+          Authorization: 'Bearer ' + this.user.token,
+        };
+        const postId = id;
+        const userId = this.user.userId;
+        axios
+          .get(`${url}comment/${postId}/${userId}`, { headers })
+          .then((res) => {
+            this.commentBlock = i;
+            this.comments = res.data;
+            console.log(this.comments);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       }
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
-      axios
-        .get(`${url}comment/filter/${postId}`, { headers })
-        .then((res) => {
-          this.comments = res.data;
-          this.commentBlock = index;
-        })
-        .catch((err) => {
-          console.log(err);
-        });
     },
     /*=====================================*/
     /* ALL ABOUT USER */
@@ -537,8 +548,14 @@ export default {
           this.loading = false;
         })
         .catch((err) => {
-          this.fetchErr = err;
-          this.loading = false;
+          if (err.response.status == 401) {
+            localStorage.removeItem('user');
+            this.user = null;
+            this.$router.push('/');
+          } else {
+            this.fetchErr = err;
+            this.loading = false;
+          }
         });
     }
   },
@@ -607,7 +624,8 @@ header li span {
   margin-left: 1rem;
 }
 .panel-link a {
-  color: var(--red);
+  color: var(--secondary);
+  font-weight: bolder;
 }
 /*ACTIVITIES*/
 .activities-container {
@@ -638,7 +656,12 @@ header li span {
   font-size: 1.5rem;
 }
 .form-container h2 {
-  color: var(--black);
+  color: var(--white);
+}
+#update-post-form {
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
 }
 .comment-form-container {
   width: 100%;
@@ -777,7 +800,9 @@ header li span {
   align-items: center;
 }
 .author .username strong {
-  color: var(--secondary);
+  color: transparent;
+  background: var(--gradient-2);
+  background-clip: text;
   font-family: var(--font-3);
   letter-spacing: 1px;
 }
@@ -789,22 +814,22 @@ header li span {
   object-fit: cover;
 }
 .content {
-  padding: 0.5rem 1rem 0 1rem;
+  padding: 2rem 1rem;
   background-color: var(--white);
 }
-.content h3 {
+.post-title {
   font-size: 1.1rem;
 }
 .content img {
   width: 100%;
-  height: 300px;
+  height: 400px;
   object-fit: contain;
 }
 .actions {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding: 0.3rem 1rem;
+  padding: 0.5rem 1rem;
   background-color: var(--white);
   border-bottom: 1px solid var(--primary);
   border-top: 1px solid var(--gray);
@@ -813,6 +838,25 @@ header li span {
 .actions .owner-actions {
   position: absolute;
   left: 1rem;
+}
+.owner-actions button {
+  background-color: var(--gray);
+  font-family: var(--font-3);
+  letter-spacing: 1.5px;
+  width: 4.5rem;
+  margin-right: 0.3rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.owner-actions button:hover {
+  opacity: 0.6;
+  transform: scale(1.03);
+}
+.owner-actions .delete_btn {
+  color: var(--red);
+}
+.owner-actions .edit_btn {
+  color: var(--green);
 }
 .actions i {
   color: var(--primary);
@@ -823,24 +867,34 @@ header li span {
 .actions .fa-trash {
   color: var(--red);
 }
-.likes {
+.likes,
+.comms {
   display: flex;
 }
-.likes span {
+
+.comms .fa-envelope {
+  opacity: 0.3;
+}
+
+.likes span,
+.comms span {
   font-size: 0.8rem;
   color: var(--black);
 }
 .actions .fa-heart {
-  /* color: transparent; */
-  /* background: var(--gradient-2); */
-  /* background-clip: text; */
-  color: orange;
+  color: transparent;
+  background: var(--gradient-2);
+  background-clip: text;
 }
-
 .actions i:hover,
 .comment-actions i:hover {
   opacity: 0.7;
   transform: scale(1.3);
+}
+
+.actions .total_comms {
+  color: red;
+  font-size: 0.8rem;
 }
 .comment-container {
   background-color: var(--gray);
@@ -928,10 +982,8 @@ header li span {
     align-self: center;
     outline: none;
   }
-  header ul li {
-    flex-direction: row;
-    align-items: center;
-    padding-left: 1rem;
+  header ul {
+    display: flex;
   }
   header li div {
     margin: 0;

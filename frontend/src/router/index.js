@@ -34,6 +34,12 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "panel" */ '../views/Panel.vue'),
   },
+  {
+    path: '/singlePost/:id',
+    name: 'SinglePost',
+    component: () =>
+      import(/* webpackChunkName: "singlepost" */ '../views/SinglePost.vue'),
+  },
 ];
 
 const router = new VueRouter({

@@ -18,6 +18,7 @@
       </div>
       <h2>Members :</h2>
       <div class="members__grid">
+        <!-- SINGLE MEMBER CARD -->
         <div
           class="members__list"
           v-for="member in membersList"
@@ -39,14 +40,15 @@
               <p v-else-if="member.permission == 'admin'">
                 Rank: <span class="admin">{{ member.permission }}</span>
               </p>
-              <p class="user-id">userId: {{ member.id }}</p>
             </div>
+
             <div class="actions" v-if="member.permission != 'admin'">
-              <select v-model="selected" @change="rankUser(member.id)">
+              <select @change="rankUser(member.id, $event)" ref="rankSelector">
                 <option disabled value="">rank</option>
                 <option>member</option>
                 <option>moderator</option>
               </select>
+
               <i class="fa-solid fa-trash" @click="deleteMember(member.id)"></i>
             </div>
           </div>
@@ -55,7 +57,6 @@
       <div class="sucess" v-if="sucess">{{ sucess }}</div>
       <div class="error" v-if="error">{{ error }}</div>
       <div class="searching" v-if="searchBarValue">
-        
         <div class="profile__search" v-for="u in searchUser()" :key="u.id">
           <div class="profile_infos">
             <p class="username">{{ u.username }} :</p>
@@ -99,15 +100,24 @@ export default {
       membersList: null,
       searchBarValue: '',
       member: '',
+      memberIndex: -1,
       error: undefined,
       sucess: undefined,
       selected: '',
       posts: [],
+      timeout: null,
     };
   },
   methods: {
     toPost() {
       this.$router.push('posts');
+    },
+    debouncer() {
+      if (this.timeout) clearTimeout(this.timeout);
+
+      this.timeout = setTimeout(() => {
+        console.log('lezgo');
+      }, 2000);
     },
     getAllUsers() {
       this.user = JSON.parse(localStorage.getItem('user'));
@@ -146,18 +156,19 @@ export default {
           this.error = err;
         });
     },
-    rankUser(id) {
-      const rank = this.selected;
-      const userId = id;
+    rankUser(userId, $event) {
+      const rank = String($event.target.value);
+      const id = userId;
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
       };
-      this.error = null;
+      const datas = { rank, id };
       axios
-        .put(`${url}user/rank/${userId}`, rank, { headers })
+        .put(`${url}user/rank`, datas, { headers })
         .then((res) => {
           console.log(res);
+          this.getAllUsers();
         })
         .catch((err) => {
           console.log(err);
@@ -166,6 +177,7 @@ export default {
     },
     searchUser() {
       if (this.membersList && this.searchBarValue) {
+        console.log('ok');
         return this.membersList.filter((member) => {
           return member.username
             .toLowerCase()
@@ -174,6 +186,7 @@ export default {
       }
     },
     getUserPosts(id) {
+      this.posts = [];
       const userId = id;
       const headers = {
         'Content-type': 'application/json',
@@ -197,7 +210,7 @@ export default {
         Authorization: 'Bearer ' + this.user.token,
       };
       axios
-        .delete(`${url}post/delete/${postId}`, { headers })
+        .delete(`${url}post/delete/${postId}/${userId}`, { headers })
         .then((res) => {
           console.log(res);
           this.getUserPosts(userId);

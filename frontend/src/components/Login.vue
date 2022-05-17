@@ -85,7 +85,6 @@ export default {
         .then((res) => {
           this.user = res.data;
           localStorage.setItem('user', JSON.stringify(this.user));
-          this.$store.commit('saveStoredUser', this.user);
           this.valid = 'User logged successfully';
           this.error = false;
           this.loading = false;

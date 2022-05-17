@@ -1,81 +1,29 @@
-# Back-End Groupomania
+# Groupomania
+
+By Edouard Herrengt, Student at OpenClassrooms (October 2021 - June 2022).
+Project n°7 : build an intern social network for 'Groupomania Inc'.
+
+Technologies used :
+Backend : `[NodeJs, Express, MySQL Workbench ]`
+Fontend : `[Vue-cli.2, Axios, Vuex, vue-router, HTML5, CSS3 ]`
+Assets and Svgs from : `[https://www.svgbackgrounds.com/, https://www.pexels.com/]`
 
 ## Installation :
 
+### Backend : 
 1. Clone this repo.
 2. Install NodeJS + Npm.
-3. npm init (terminal)
-4. install all dependencies specified in "package.json" (terminal)
+3. Initialise project with : `npm init` (terminal)
+4. install all dependencies with : `npm install` (terminal) 
+5. run server with command : `nodemon server`
 
-### Launch server :
+### Frontend : 
+1. Clone this repo.
+2. install all dependencies with `npm install` (terminal)
+3. run server with command : `npm run serve`
 
-To launch the server use "nodemon server" (terminal)
+#### DataBase (MySQL Workbench) :
+To Enjoy all ADMIN features on the app Feel free to update your account with this command directly on DB: 
+`UPDATE user SET permission='admin' WHERE username='REPLACE BY YOUR USERNAME';`
+(For security purposes ranking an admin is not able directly on the app...)
 
-#### DataBase (SQL) :
-
-To connect to the databade : ....
-
-##### Securisation elements :
-
-Helmet --> securise requests headers.
-Email-validator --> force users to create strong passwords
-password-validator --> verify if Emails are valids
-Bcrypt --> crypt password in DataBase
-
-###### API URI
-
-** USER **
-http://localhost:3000/api/user/
-
-/signup -> (post)
-Request content : { "username":..., "email":..., "password":...}
-
-/login -> (post)
-Request content : {"username":..., "email":..., "password":...}
-
-/update/:id -> (put)
-Request content : {"username":..., "email":..., "password":...}
-
-/delete:userId -> (delete)
-
-** POSTS **
-http://localhost:3000/api/post/
-
-/ -> (get)
-Return all posts in order of date time.
-
-/:id -> (get)
-Return one particular post
-
-/ -> (post)
-Request content : {"title":..., "content":..., "image":..., "userId":...}
-
-/update/:id -> (put)
-Request content : {"title":..., "content":..., "image":...}
-
-/delete -> (delete)
-Request content : {"id":...}
-
-** COMMENTS **
-http://localhost:3000/api/comment/
-
-/ -> (get)
-Return all posts in order of date time.
-
-/:id -> (get)
-Return one particular post
-
-/ -> (post)
-Request content : {"content":..., "image":..., "userId":..., "postId":...}
-
-/update/:id -> (put)
-Request content : {"content":...}
-
-/delete -> (delete)
-Request content : {"id":...}
-
-
-Permission stockée dans le token, et l'admin à la connexion arrive direct sur le panel.
-
-Ajout d'un compteur de commentaire sur les posts
-extention WCAG color contrast checker
