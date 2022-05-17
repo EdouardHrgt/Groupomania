@@ -197,6 +197,7 @@ exports.deleteUser = (req, res, next) => {
     db.query(models.selectOneUser, userId, (err, result, fields) => {
       if (err) {
         return res.status(400).json(err);
+
       } else if (result[0].id != decodedToken.userId) {
         if (decodedToken.permission == 'admin') {
           if (result[0].image != defaultPicture) {
@@ -209,11 +210,14 @@ exports.deleteUser = (req, res, next) => {
               }
             });
           }
+
         } else {
           return res.status(401).json(err);
         }
+
       } else if (result[0].image == defaultPicture) {
         console.log('No custom picture for this user...');
+
       } else {
         const filename = result[0].image.split('/images/')[1];
         fs.unlink(`images/${filename}`, (err) => {
@@ -225,6 +229,7 @@ exports.deleteUser = (req, res, next) => {
         });
       }
     });
+    
     db.query(models.deleteUser, userId, (err, result, fields) => {
       if (err) {
         return res.status(400).json(err);

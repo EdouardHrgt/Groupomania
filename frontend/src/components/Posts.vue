@@ -300,8 +300,6 @@ export default {
       fetchErr: null,
     };
   },
-  computed: {
-  },
   methods: {
     /*=====================================*/
     /* ALL ABOUT POSTS */
