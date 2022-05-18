@@ -175,7 +175,8 @@ export default {
       postLiked: null,
       postForm: false,
       commentForm: false,
-      offset: 0,
+      integer: null,
+      trash: null,
     };
   },
   methods: {
@@ -197,6 +198,7 @@ export default {
           console.log(err);
         });
     },
+
     deletePost() {
       const postId = this.postId;
       const userId = this.user.userId;
@@ -214,6 +216,7 @@ export default {
           console.log(err);
         });
     },
+
     updatePost() {
       const postId = this.postId;
       const updatedPost = new FormData(event.target);
@@ -232,6 +235,7 @@ export default {
           console.log(err);
         });
     },
+
     /*=====================================*/
     /* ALL ABOUT LIKES */
     /*=====================================*/
@@ -242,6 +246,7 @@ export default {
         this.likePost();
       }, 300);
     },
+
     likePost() {
       const postId = this.postId;
       const userId = this.user.userId;
@@ -259,12 +264,13 @@ export default {
           console.log(err);
         });
     },
+
     /*=====================================*/
     /* ALL ABOUT COMMENTS */
     /*=====================================*/
     commentPost() {
       const comment = {
-        content: this.linkFormatter(this.comment),
+        content: this.comment,
         userId: this.user.userId,
         postId: this.postId,
       };
@@ -275,34 +281,34 @@ export default {
       axios
         .post(`${url}comment`, comment, { headers })
         .then((res) => {
-          console.log(res.data);
+          this.trash = res;
           this.commentForm = false;
           this.getComments();
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     },
+
     getComments() {
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
       };
-      
-      const postId = this.postId;
-      this.offset += 3;
-      const offset = this.offset;
 
+      const postId = this.postId;
+      const offset = this.integer;
+      console.info('offset = ' + offset);
       axios
         .get(`${url}comment/limited/${postId}/${offset}`, { headers })
         .then((res) => {
           if (res.status == 204) {
             this.errorMsg = 'No comments to display';
-
             setTimeout(() => {
               this.errorMsg = '';
             }, 750);
           } else {
+            this.integer += 3;
             res.data.map((n) => this.comments.push(n));
           }
         })
@@ -310,35 +316,36 @@ export default {
           console.log(err);
         });
     },
+
     /*=====================================*/
     /* ALL ABOUT HELPERS */
     /*=====================================*/
     togglePostForm() {
       this.postForm ? (this.postForm = false) : (this.postForm = true);
     },
+
     toggleCommentForm() {
       this.commentForm ? (this.commentForm = false) : (this.commentForm = true);
     },
+
     showProfile() {
       this.profile ? (this.profile = false) : (this.profile = true);
     },
+
     dateFormatter(time) {
       let date = new Date(time);
       return date.toLocaleDateString();
     },
-    linkFormatter(text) {
-      const urlRegex = /(https?:\/\/[^\s]+)/g;
-      return text.replace(urlRegex, (url) => {
-        return `<a href="${url}">${url}</a>`;
-      });
-    },
+
     closeUserInfos(bool) {
       this.profile = bool;
     },
+
     toPosts() {
       this.$router.push('/posts');
     },
   },
+
   mounted() {
     if (!localStorage.getItem('user')) {
       this.$router.push('/');
@@ -348,9 +355,9 @@ export default {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
       };
+
+      // GET THE POST
       const postId = this.$route.params.id;
-      const offset = 0;
-      // GET POST
       axios
         .get(`${url}post/filteredPost/${postId}`, { headers })
         .then((res) => {
@@ -358,16 +365,20 @@ export default {
           this.$store.commit('saveProfile', this.posts[0].username);
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
+
       // GET COMMENTS
+      const offset = 0;
       axios
         .get(`${url}comment/limited/${postId}/${offset}`, { headers })
         .then((res) => {
           this.comments = res.data;
+          console.warn('comments length: ' + this.comments.length)
+          this.integer = this.comments.length;
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     }
   },
@@ -428,6 +439,7 @@ main {
   display: flex;
   align-items: center;
 }
+
 .author .username strong {
   color: transparent;
   background: var(--gradient-2);
@@ -442,6 +454,11 @@ main {
   margin-right: 0.5rem;
   object-fit: cover;
   cursor: pointer;
+  transition: 0.5s ease-in-out;
+}
+.infos img:hover {
+  outline: 1px solid var(--primary);
+  transform: rotate(360deg);
 }
 .content {
   padding: 0.5rem 1rem 0 1rem;
@@ -670,7 +687,7 @@ main {
   transition: 0.3s;
 }
 .more:hover {
-  opacity: 0.6;
+  background-color: var(--secondary);
 }
 @media screen and (max-width: 1440px) {
   main,

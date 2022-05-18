@@ -13,7 +13,7 @@ exports.getLimitedComments = (req, res, next) => {
           console.log(err);
           return res.status(400).json(err);
         }
-        if (result.length <= 0) {
+        if (result.length == 0) {
           return res.status(204).json({ message: 'No comments...' });
         } else {
           return res.status(200).json(result);

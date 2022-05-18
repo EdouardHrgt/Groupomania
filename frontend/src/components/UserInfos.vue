@@ -58,6 +58,7 @@ export default {
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
       const username = this.$store.state.Profile;
+      console.log('username = ' + username);
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
@@ -65,8 +66,8 @@ export default {
       axios
         .get(`${url}${username}`, { headers })
         .then((res) => {
+          console.warn(res.data[0]);
           this.profile = res.data[0];
-          console.log(this.profile);
         })
         .catch((err) => {
           console.log(err);
