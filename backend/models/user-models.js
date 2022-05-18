@@ -2,23 +2,11 @@ const db = require('../config/db-config');
 const selectUsers = `SELECT * FROM user`;
 const selectOneUser = `SELECT * FROM user WHERE id=?`;
 
-const selectUserInfos = `SELECT U.username, U.permission, U.image, U.bio, U.createDate,
-COALESCE(P.totalPosts, 0) AS totalPosts,
-COALESCE(C.totalComms, 0) AS totalComms,
-COALESCE(L.totalLikes, 0) AS totalLikes
-FROM user AS U 
-LEFT JOIN(
-	SELECT userId, COUNT(*) AS totalPosts
-    FROM posts
-) AS P ON P.userId = u.id
-LEFT JOIN(
-	SELECT userId, COUNT(*) AS totalComms
-    FROM comments
-) AS C ON C.userId = u.id
-LEFT JOIN(
-	SELECT userId, COUNT(*) AS totalLikes
-    FROM likes
-) AS L ON L.userId = u.id
+const selectUserInfos = `SELECT u.username, u.permission, u.image, u.bio, u.createDate,
+(SELECT COUNT(*) FROM posts p WHERE p.userId = u.id) AS totalPosts,
+(SELECT COUNT(*) FROM comments c WHERE c.userId = u.id) AS totalComms,
+(SELECT COUNT(*) FROM likes l WHERE l.userId = u.id) AS totalLikes
+FROM user AS u
 WHERE u.username =?`;
 
 const selectOneUsername = `SELECT * FROM user WHERE username= ?`;

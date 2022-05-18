@@ -284,6 +284,8 @@ export default {
           this.trash = res;
           this.commentForm = false;
           this.getComments();
+          // pas faire getComments() mais récup le commentaire et le push au début du tableau (unshift)
+          // Faut donc que le back renvoie le commentaire
         })
         .catch((err) => {
           console.error(err);
