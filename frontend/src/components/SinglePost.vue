@@ -46,9 +46,7 @@
             <button class="delete_btn" @click="toggleDeletePost">DELETE</button>
             <button class="edit_btn" @click="togglePostForm">EDIT</button>
           </div>
-
           <i class="fa-solid fa-paper-plane" @click="toggleCommentForm"></i>
-
           <p class="comms" @click="getComments()">
             <i class="fa-solid fa-envelope"></i>
             <span>{{ post.totalComms }}</span>
@@ -290,7 +288,7 @@ export default {
       const comment = {
         content: this.comment,
         userId: this.user.userId,
-        postId: this.postId,
+        postId: this.$route.params.id,
       };
 
       axios
@@ -298,13 +296,8 @@ export default {
         .then((res) => {
           this.commentForm = false;
           const newComment = res.data[0];
-          let arr = [];
-          if (this.comments.length === 0) {
-            arr.unshift(newComment);
-            this.comments = arr;
-          } else {
-            this.comments.unshift(newComment);
-          }
+          this.comments = [];
+          this.comments.unshift(newComment);
         })
         .catch((err) => {
           console.error(err);
@@ -318,11 +311,11 @@ export default {
       axios
         .get(`${url}comment/limited/${postId}/${offset}`, { headers })
         .then((res) => {
-          
           if (res.status == 204) {
             this.errorMsg = 'No comments to display';
-            setTimeout(() => {this.errorMsg = '';}, 750);
-
+            setTimeout(() => {
+              this.errorMsg = '';
+            }, 750);
           } else {
             this.integer += 3;
             res.data.map((n) => this.comments.push(n));
@@ -502,7 +495,8 @@ main {
   left: 1rem;
 }
 .owner-actions button {
-  background-color: var(--gray);
+  background-color: transparent;
+  border: 1px solid var(--light-gray);
   font-family: var(--font-3);
   letter-spacing: 1.5px;
   width: 4.5rem;
@@ -529,9 +523,13 @@ main {
 .actions .fa-trash {
   color: var(--red);
 }
+.actions .fa-paper-plane {
+  margin-right: 1rem;
+}
 .likes,
 .comms {
   display: flex;
+  margin: 0 0.5rem;
 }
 .likes span,
 .comms span {
