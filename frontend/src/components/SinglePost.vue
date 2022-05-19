@@ -189,6 +189,7 @@ export default {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
       };
+      
       axios
         .get(`${url}post/filteredPost/${postId}`, { headers })
         .then((res) => {
@@ -206,14 +207,15 @@ export default {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
       };
+
       axios
         .delete(`${url}post/delete/${postId}/${userId}`, { headers })
         .then((res) => {
-          console.log(res);
+          this.trash = res;
           this.toPosts();
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     },
 
@@ -224,10 +226,11 @@ export default {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
       };
+
       axios
         .put(`${url}post/update/${postId}`, updatedPost, { headers })
         .then((res) => {
-          console.log(res);
+          this.trash = res;
           this.togglePostForm();
           this.getPost();
         })
@@ -278,14 +281,14 @@ export default {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
       };
+
       axios
         .post(`${url}comment`, comment, { headers })
         .then((res) => {
           this.trash = res;
           this.commentForm = false;
-          this.getComments();
-          // pas faire getComments() mais récup le commentaire et le push au début du tableau (unshift)
-          // Faut donc que le back renvoie le commentaire
+          const newComment = res.data[0];
+          this.comments.unshift(newComment);
         })
         .catch((err) => {
           console.error(err);
@@ -300,7 +303,7 @@ export default {
 
       const postId = this.postId;
       const offset = this.integer;
-      console.info('offset = ' + offset);
+
       axios
         .get(`${url}comment/limited/${postId}/${offset}`, { headers })
         .then((res) => {
@@ -315,7 +318,7 @@ export default {
           }
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     },
 
@@ -376,7 +379,6 @@ export default {
         .get(`${url}comment/limited/${postId}/${offset}`, { headers })
         .then((res) => {
           this.comments = res.data;
-          console.warn('comments length: ' + this.comments.length)
           this.integer = this.comments.length;
         })
         .catch((err) => {
@@ -661,7 +663,10 @@ main {
   background-color: var(--white);
   font-style: italic;
   padding: 0.3rem;
+  display: flex;
+  overflow: hidden;
 }
+
 .comment-actions {
   display: flex;
   background-color: var(--white);

@@ -22,7 +22,7 @@
           <p>
             Total comments : <span>{{ profile.totalComms }}</span>
           </p>
-          <p>
+          <p @click="clicked('coucou')">
             Total Likes : <span>{{ profile.totalLikes }}</span>
           </p>
         </div>
@@ -33,9 +33,11 @@
 
 <script>
 import axios from 'axios';
+import userMixins from '../mixins/userMixins.js'
 const url = 'http://localhost:3000/api/user/';
 export default {
   name: 'UserInfos',
+  mixins: [userMixins],
   data() {
     return {
       user: {},
@@ -58,7 +60,6 @@ export default {
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
       const username = this.$store.state.Profile;
-      console.log('username = ' + username);
       const headers = {
         'Content-type': 'application/json',
         Authorization: 'Bearer ' + this.user.token,
@@ -66,11 +67,10 @@ export default {
       axios
         .get(`${url}${username}`, { headers })
         .then((res) => {
-          console.warn(res.data[0]);
           this.profile = res.data[0];
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     }
   },

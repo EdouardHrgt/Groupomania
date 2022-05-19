@@ -7,7 +7,10 @@ FROM comments
 JOIN user 
 ON comments.userId = user.id WHERE postId= ?`;
 
-const selectOneComm = `SELECT * FROM comments WHERE id= ?`;
+const selectOneComm = `SELECT comments.id, content, date, userId, postId, username, image, permission 
+FROM comments 
+JOIN user 
+ON comments.userId = user.id WHERE comments.id= ?`;
 
 const selectLimitedComms = `SELECT comments.id, content, date, userId, postId, username, image, permission 
 FROM comments 

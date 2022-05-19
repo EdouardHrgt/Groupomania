@@ -36,7 +36,17 @@ exports.createComment = (req, res, next) => {
         console.log(err);
         return res.status(400).json(err);
       }
-      return res.status(201).json({ message: 'Comment Created...' });
+
+      const commentId = result.insertId;
+      
+      db.query(models.selectOneComm, commentId, (err, result, fields) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).json(err);
+        } else {
+          return res.status(201).json(result);
+        }
+      });
     });
   } catch (error) {
     return res.status(500).json(error);
