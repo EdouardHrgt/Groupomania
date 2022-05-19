@@ -15,7 +15,7 @@
       <section class="unique__post" v-if="post">
         <div class="infos">
           <userProfile v-show="profile" @userInfosCloser="closeUserInfos" />
-          <div class="author" @click="showProfile()">
+          <div class="author" @click="toggleProfile()">
             <img
               v-if="post.image"
               :src="post.image"
@@ -33,6 +33,7 @@
             v-if="post.imageUrl != 'noImg'"
             :src="post.imageUrl"
             :alt="post.title + 'from ' + post.username"
+            @click="toggleFocusImg"
           />
           <strong class="post-title">
             {{ post.title }}
@@ -56,6 +57,18 @@
             <i class="fa-solid fa-heart"></i>
             <span>{{ post.totalLikes }}</span>
           </p>
+        </div>
+        <!-- Focused image box -->
+        <div class="focus-img flex" v-show="imgFocus">
+          <button @click="toggleFocusImg">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+
+          <img
+            v-if="post.imageUrl != 'noImg'"
+            :src="post.imageUrl"
+            :alt="post.title + 'from ' + post.username"
+          />
         </div>
         <!-- Delete Post box -->
         <div class="box confirmation flex" v-if="deletePostBox">
@@ -204,6 +217,7 @@ export default {
       postForm: false,
       commentForm: false,
       deletePostBox: false,
+      imgFocus: false,
     };
   },
   methods: {
@@ -296,7 +310,9 @@ export default {
         .then((res) => {
           this.commentForm = false;
           const newComment = res.data[0];
-          this.comments = [];
+
+          if (this.comments.length <= 0) this.comments = [];
+
           this.comments.unshift(newComment);
         })
         .catch((err) => {
@@ -327,13 +343,14 @@ export default {
     },
 
     /*=====================================*/
-    /* ALL ABOUT HELPERS */
+    /* ALL ABOUT HELPERS ( mainly modal togglers ) */
     /*=====================================*/
     toggleDeletePost() {
       this.deletePostBox
         ? (this.deletePostBox = false)
         : (this.deletePostBox = true);
     },
+
     togglePostForm() {
       this.postForm ? (this.postForm = false) : (this.postForm = true);
     },
@@ -342,12 +359,16 @@ export default {
       this.commentForm ? (this.commentForm = false) : (this.commentForm = true);
     },
 
-    showProfile() {
+    toggleProfile() {
       this.profile ? (this.profile = false) : (this.profile = true);
     },
 
     closeUserInfos(bool) {
       this.profile = bool;
+    },
+
+    toggleFocusImg() {
+      this.imgFocus ? (this.imgFocus = false) : (this.imgFocus = true);
     },
 
     toPosts() {
@@ -445,8 +466,11 @@ main {
 .author {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
-
+.author .username {
+  position: relative;
+}
 .author .username strong {
   color: transparent;
   background: var(--gradient-2);
@@ -455,30 +479,29 @@ main {
   letter-spacing: 1px;
 }
 .infos img {
-  width: 3rem;
-  height: 3rem;
+  width: 3.5rem;
+  height: 3.5rem;
   border-radius: 50%;
   margin-right: 0.5rem;
   object-fit: cover;
-  cursor: pointer;
   transition: 0.5s ease-in-out;
 }
 .infos img:hover {
   outline: 1px solid var(--primary);
-  transform: rotate(360deg);
 }
 .content {
   padding: 0.5rem 1rem 0 1rem;
   background-color: var(--white);
-  min-height: 15rem;
+  min-height: 20rem;
 }
 .post-title {
   font-size: 1.1rem;
 }
 .content img {
   width: 100%;
-  height: 300px;
+  height: 550px;
   object-fit: contain;
+  cursor: pointer;
 }
 .actions {
   display: flex;
@@ -496,7 +519,6 @@ main {
 }
 .owner-actions button {
   background-color: transparent;
-  border: 1px solid var(--light-gray);
   font-family: var(--font-3);
   letter-spacing: 1.5px;
   width: 4.5rem;
@@ -551,6 +573,27 @@ main {
   text-align: center;
   color: white;
   font-size: 0.9rem;
+}
+.focus-img {
+  background-color: var(--transp7);
+  backdrop-filter: blur(1px);
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+}
+.focus-img i {
+  color: white;
+  position: absolute;
+  top: 1rem;
+  right: 2rem;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+.focus-img img {
+  object-fit: contain;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
 }
 .form-container {
   background-color: var(--transp2);
@@ -696,7 +739,6 @@ main {
   display: flex;
   overflow: hidden;
 }
-
 .comment-actions {
   display: flex;
   background-color: var(--white);

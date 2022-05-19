@@ -1,4 +1,6 @@
+import axios from 'axios';
 export default {
+
   data() {
     return {
       token: '',
@@ -23,9 +25,8 @@ export default {
       };
       return headers;
     },
-
-    toggleModal(bool) {
-      bool ? (bool = false) : (bool = true);
+    postRequest(url, data, config) {
+      axios.post(url, data, { config });
     },
   },
 };

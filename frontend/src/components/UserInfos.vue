@@ -18,13 +18,16 @@
         <div class="stats">
           <h2>Stats</h2>
           <p>
+            <i class="fa-solid fa-comment"></i>
             Total posts : <span>{{ profile.totalPosts }}</span>
           </p>
           <p>
-            Total comments : <span>{{ profile.totalComms }}</span>
-          </p>
-          <p @click="clicked('coucou')">
+            <i class="fa-solid fa-heart"></i>
             Total Likes : <span>{{ profile.totalLikes }}</span>
+          </p>
+          <p>
+            <i class="fa-solid fa-envelope"></i>
+            Total comments : <span>{{ profile.totalComms }}</span>
           </p>
         </div>
       </div>
@@ -156,7 +159,11 @@ img {
   font-weight: bolder;
   color: var(--ternary);
 }
-
+.stats p i {
+  color: transparent;
+  background: var(--gradient-2);
+  background-clip: text;
+}
 @media screen and (max-width: 1024px) {
   .infos_card {
     grid-template-columns: 1fr;

@@ -117,23 +117,19 @@
               </p>
             </div>
             <div class="actions">
-              <i
-                class="fa-solid fa-paper-plane"
-                @click="showCommentForm(postIndex)"
-              ></i>
-              <p class="comms" @click="toPost(post.id)">
+              <button @click="showCommentForm(postIndex)">
+                Comment
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+              <button @click="debounce(post.id, postIndex)">
+                Like <i class="fa-solid fa-heart"></i>
+                <span>{{ post.totalLikes }}</span>
+              </button>
+              <button @click="toPost(post.id)">
+                See More
                 <i class="fa-solid fa-envelope"></i>
                 <span>{{ post.totalComms }}</span>
-              </p>
-
-              <!-- LIKES -->
-              <p class="likes">
-                <i
-                  class="fa-solid fa-heart"
-                  @click="debounce(post.id, postIndex)"
-                ></i>
-                <span>{{ post.totalLikes }}</span>
-              </p>
+              </button>
             </div>
           </section>
 
@@ -204,7 +200,7 @@ export default {
       posts: [],
       likes: null,
       comment: '',
-      response:'',
+      response: '',
 
       // Popups
       postLikes: null,
@@ -244,7 +240,7 @@ export default {
       axios
         .post(`${url}post/${userId}`, post, { headers })
         .then((res) => {
-          this.response = res
+          this.response = res;
           this.commentForm = -1;
           this.fetchErr = null;
           this.getAllPosts();
@@ -313,7 +309,7 @@ export default {
       axios
         .post(`${url}comment`, comment, { headers })
         .then((res) => {
-          this.response = res
+          this.response = res;
           this.commentForm = -1;
           this.toPost(idPost);
         })
@@ -632,12 +628,12 @@ header li span {
 }
 .content img {
   width: 100%;
-  height: 400px;
+  max-height: 550px;
   object-fit: contain;
 }
 .actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   padding: 0.5rem 1rem;
   background-color: var(--white);
@@ -645,66 +641,37 @@ header li span {
   border-top: 1px solid var(--gray);
   position: relative;
 }
-.actions .owner-actions {
-  position: absolute;
-  left: 1rem;
-}
-.owner-actions button {
-  background-color: var(--gray);
+.actions button {
+  background-color: transparent;
+  border: 1px solid var(--gray);
   font-family: var(--font-3);
   letter-spacing: 1.5px;
-  width: 4.5rem;
-  margin-right: 0.3rem;
+  width: 8.5rem;
+  margin: 0 0.5rem;
   cursor: pointer;
   transition: 0.3s;
-}
-.owner-actions button:hover {
-  opacity: 0.6;
-  transform: scale(1.03);
-}
-.owner-actions .delete_btn {
-  color: var(--red);
-}
-.owner-actions .edit_btn {
-  color: var(--green);
-}
-.actions i {
-  color: var(--primary);
-  margin: 0 0.5rem;
-  transition: 0.4s;
-  cursor: pointer;
-}
-.actions .fa-trash {
-  color: var(--red);
-}
-.likes,
-.comms {
   display: flex;
+  align-items: baseline;
+  justify-content: center;
 }
-
-.comms .fa-envelope {
-  opacity: 0.3;
+.actions button:hover {
+  background: var(--secondary);
+  opacity: 0.8;
+  color: white;
 }
-
-.likes span,
-.comms span {
+.actions button i {
+  margin-left: 1rem;
+  color: var(--primary);
+}
+.actions button span {
   font-size: 0.8rem;
-  color: var(--black);
+  opacity: 0.8;
+  margin-left: 0.2rem;
 }
 .actions .fa-heart {
   color: transparent;
   background: var(--gradient-2);
   background-clip: text;
-}
-.actions i:hover,
-.comment-actions i:hover {
-  opacity: 0.7;
-  transform: scale(1.3);
-}
-
-.actions .total_comms {
-  color: red;
-  font-size: 0.8rem;
 }
 .comment-container {
   background-color: var(--gray);
