@@ -146,7 +146,7 @@
         </div>
         <!-- End comment -->
         <p class="err-msg" v-show="errorMsg">{{ errorMsg }}</p>
-        <button class="more" @click="getComments()">See More Comments</button>
+        <button class="more">See More Comments</button>
       </section>
     </main>
   </div>
@@ -154,10 +154,18 @@
 
 <script>
 import UserInfos from '@/components/UserInfos.vue';
+import Mixins from '../mixins/Mixins.js';
 import axios from 'axios';
+
+const ls = JSON.parse(localStorage.getItem('user'));
+const headers = {
+  'Content-type': 'application/json',
+  Authorization: 'Bearer ' + ls.token,
+};
 const url = 'http://localhost:3000/api/';
 export default {
   name: 'SinglePost',
+  mixins: [Mixins],
   components: {
     userProfile: UserInfos,
   },
@@ -185,11 +193,7 @@ export default {
     /*=====================================*/
     getPost() {
       const postId = this.postId;
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
-      
+
       axios
         .get(`${url}post/filteredPost/${postId}`, { headers })
         .then((res) => {
@@ -203,10 +207,6 @@ export default {
     deletePost() {
       const postId = this.postId;
       const userId = this.user.userId;
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
 
       axios
         .delete(`${url}post/delete/${postId}/${userId}`, { headers })
@@ -222,10 +222,6 @@ export default {
     updatePost() {
       const postId = this.postId;
       const updatedPost = new FormData(event.target);
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
 
       axios
         .put(`${url}post/update/${postId}`, updatedPost, { headers })
@@ -253,10 +249,7 @@ export default {
     likePost() {
       const postId = this.postId;
       const userId = this.user.userId;
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       axios
         .get(`${url}like/${postId}/${userId}`, { headers })
         .then((res) => {
@@ -277,10 +270,6 @@ export default {
         userId: this.user.userId,
         postId: this.postId,
       };
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
 
       axios
         .post(`${url}comment`, comment, { headers })
@@ -296,11 +285,6 @@ export default {
     },
 
     getComments() {
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
-
       const postId = this.postId;
       const offset = this.integer;
 
@@ -337,11 +321,6 @@ export default {
       this.profile ? (this.profile = false) : (this.profile = true);
     },
 
-    dateFormatter(time) {
-      let date = new Date(time);
-      return date.toLocaleDateString();
-    },
-
     closeUserInfos(bool) {
       this.profile = bool;
     },
@@ -356,10 +335,6 @@ export default {
       this.$router.push('/');
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
 
       // GET THE POST
       const postId = this.$route.params.id;

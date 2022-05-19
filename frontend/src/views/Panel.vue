@@ -91,7 +91,13 @@
 
 <script>
 import axios from 'axios';
+
 const url = 'http://localhost:3000/api/';
+const ls = JSON.parse(localStorage.getItem('user'));
+const headers = {
+  'Content-type': 'application/json',
+  Authorization: 'Bearer ' + ls.token,
+};
 export default {
   name: 'Panel',
   data() {
@@ -121,10 +127,7 @@ export default {
     },
     getAllUsers() {
       this.user = JSON.parse(localStorage.getItem('user'));
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       axios
         .get(`${url}user`, { headers })
         .then((res) => {
@@ -135,10 +138,7 @@ export default {
         });
     },
     deleteMember(id) {
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       const userId = id;
       axios
         .delete(`${url}user/delete/${userId}`, { headers })
@@ -159,10 +159,7 @@ export default {
     rankUser(userId, $event) {
       const rank = String($event.target.value);
       const id = userId;
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       const datas = { rank, id };
       axios
         .put(`${url}user/rank`, datas, { headers })
@@ -188,10 +185,7 @@ export default {
     getUserPosts(id) {
       this.posts = [];
       const userId = id;
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       axios
         .get(`${url}post/${userId}`, { headers })
         .then((res) => {
@@ -205,10 +199,7 @@ export default {
     deleteUserPost(idUser, idPost) {
       const userId = idUser;
       const postId = idPost;
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       axios
         .delete(`${url}post/delete/${postId}/${userId}`, { headers })
         .then((res) => {
@@ -225,10 +216,7 @@ export default {
       this.$router.push('/');
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       axios
         .get(`${url}user`, { headers })
         .then((res) => {

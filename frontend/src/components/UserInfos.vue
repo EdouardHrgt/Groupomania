@@ -8,7 +8,8 @@
       <div class="user-activities">
         <h1>{{ profile.username }}</h1>
         <p class="date">
-          {{ profile.permission }} since :
+          <span>{{ profile.permission }} -</span>
+          since :
           {{ dateFormatter(profile.createDate) }}.
         </p>
         <p class="bio" v-if="profile.bio">
@@ -33,11 +34,17 @@
 
 <script>
 import axios from 'axios';
-import userMixins from '../mixins/userMixins.js'
+import Mixins from '../mixins/Mixins.js';
+const ls = JSON.parse(localStorage.getItem('user'));
+const headers = {
+  'Content-type': 'application/json',
+  Authorization: 'Bearer ' + ls.token,
+};
 const url = 'http://localhost:3000/api/user/';
+
 export default {
   name: 'UserInfos',
-  mixins: [userMixins],
+  mixins: [Mixins],
   data() {
     return {
       user: {},
@@ -46,10 +53,6 @@ export default {
     };
   },
   methods: {
-    dateFormatter(t) {
-      let date = new Date(t);
-      return date.toLocaleDateString();
-    },
     closeModal() {
       this.$emit('userInfosCloser', this.bool);
     },
@@ -60,10 +63,6 @@ export default {
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
       const username = this.$store.state.Profile;
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
       axios
         .get(`${url}${username}`, { headers })
         .then((res) => {
@@ -125,6 +124,11 @@ h1 {
   color: var(--black);
   font-weight: bolder;
   margin: 0.5rem 0 1rem;
+}
+.date span {
+  color: var(--primary);
+  text-transform: uppercase;
+  font-family: var(--font-1);
 }
 .bio {
   font-size: 0.9rem;

@@ -120,7 +120,14 @@
 
 <script>
 import axios from 'axios';
+
 const url = 'http://localhost:3000/api/user/';
+const ls = JSON.parse(localStorage.getItem('user'));
+const headers = {
+  'Content-type': 'application/json',
+  Authorization: 'Bearer ' + ls.token,
+};
+
 export default {
   name: 'Profile',
   props: ['toggleprofile', 'USER'],
@@ -166,10 +173,7 @@ export default {
     },
     deleteAccount() {
       const userId = this.user.userId;
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       axios
         .delete(`${url}delete/${userId}`, { headers })
         .then((res) => {
@@ -195,10 +199,7 @@ export default {
         this.error = false;
         const userId = this.user.userId;
         let User = new FormData(event.target);
-        const headers = {
-          'Content-type': 'application/json',
-          Authorization: 'Bearer ' + this.user.token,
-        };
+
         axios
           .put(`${url}update/${userId}`, User, { headers })
           .then((res) => {
