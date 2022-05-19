@@ -91,7 +91,7 @@ exports.logIn = (req, res, next) => {
               { userId: result[0].id, permission: result[0].permission },
               process.env.TOKEN,
               {
-                expiresIn: '24h',
+                expiresIn: '1h',
               }
             ),
           });

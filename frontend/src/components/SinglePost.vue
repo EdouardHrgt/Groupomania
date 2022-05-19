@@ -43,10 +43,12 @@
         </div>
         <div class="actions">
           <div class="owner-actions" v-if="user.userId == post.userId">
-            <button class="delete_btn" @click="deletePost">DELETE</button>
+            <button class="delete_btn" @click="toggleDeletePost">DELETE</button>
             <button class="edit_btn" @click="togglePostForm">EDIT</button>
           </div>
+
           <i class="fa-solid fa-paper-plane" @click="toggleCommentForm"></i>
+
           <p class="comms" @click="getComments()">
             <i class="fa-solid fa-envelope"></i>
             <span>{{ post.totalComms }}</span>
@@ -56,6 +58,16 @@
             <i class="fa-solid fa-heart"></i>
             <span>{{ post.totalLikes }}</span>
           </p>
+        </div>
+        <!-- Delete Post box -->
+        <div class="box confirmation flex" v-if="deletePostBox">
+          <div class="confirmation-wrapper">
+            <p>Do you want to delete this post ?</p>
+            <div class="icons">
+              <i class="fa-solid fa-check" @click="deletePost"></i>
+              <i class="fa-solid fa-xmark" @click="toggleDeletePost"></i>
+            </div>
+          </div>
         </div>
         <!-- Update post Box -->
         <div class="box modify-post flex" v-show="postForm">
@@ -146,7 +158,7 @@
         </div>
         <!-- End comment -->
         <p class="err-msg" v-show="errorMsg">{{ errorMsg }}</p>
-        <button class="more">See More Comments</button>
+        <button class="more" @click="getComments">See More Comments</button>
       </section>
     </main>
   </div>
@@ -171,20 +183,29 @@ export default {
   },
   data() {
     return {
+      /*datas*/
       user: {},
-      profile: false,
       postId: this.$route.params.id,
       posts: [],
       comments: [],
       comment: '',
+
+      /*Errors handler*/
       errorMsg: '',
-      infos: false,
+
+      /*Unused responses*/
+      trash: null,
+
+      /*Functions handlers*/
       timeout: null,
       postLiked: null,
+      integer: null,
+
+      /*Modals toggle*/
+      profile: false,
       postForm: false,
       commentForm: false,
-      integer: null,
-      trash: null,
+      deletePostBox: false,
     };
   },
   methods: {
@@ -200,7 +221,7 @@ export default {
           this.posts = res.data;
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     },
 
@@ -212,6 +233,7 @@ export default {
         .delete(`${url}post/delete/${postId}/${userId}`, { headers })
         .then((res) => {
           this.trash = res;
+          this.toggleDeletePost();
           this.toPosts();
         })
         .catch((err) => {
@@ -231,7 +253,7 @@ export default {
           this.getPost();
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     },
 
@@ -257,7 +279,7 @@ export default {
           this.getPost();
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     },
 
@@ -274,10 +296,15 @@ export default {
       axios
         .post(`${url}comment`, comment, { headers })
         .then((res) => {
-          this.trash = res;
           this.commentForm = false;
           const newComment = res.data[0];
-          this.comments.unshift(newComment);
+          let arr = [];
+          if (this.comments.length === 0) {
+            arr.unshift(newComment);
+            this.comments = arr;
+          } else {
+            this.comments.unshift(newComment);
+          }
         })
         .catch((err) => {
           console.error(err);
@@ -291,11 +318,11 @@ export default {
       axios
         .get(`${url}comment/limited/${postId}/${offset}`, { headers })
         .then((res) => {
+          
           if (res.status == 204) {
             this.errorMsg = 'No comments to display';
-            setTimeout(() => {
-              this.errorMsg = '';
-            }, 750);
+            setTimeout(() => {this.errorMsg = '';}, 750);
+
           } else {
             this.integer += 3;
             res.data.map((n) => this.comments.push(n));
@@ -309,6 +336,11 @@ export default {
     /*=====================================*/
     /* ALL ABOUT HELPERS */
     /*=====================================*/
+    toggleDeletePost() {
+      this.deletePostBox
+        ? (this.deletePostBox = false)
+        : (this.deletePostBox = true);
+    },
     togglePostForm() {
       this.postForm ? (this.postForm = false) : (this.postForm = true);
     },
@@ -346,6 +378,12 @@ export default {
         })
         .catch((err) => {
           console.error(err);
+
+          if (err.response.status == 401) {
+            localStorage.removeItem('user');
+            this.user = null;
+            this.$router.push('/');
+          }
         });
 
       // GET COMMENTS
@@ -401,10 +439,7 @@ main {
   margin: auto;
   position: relative;
 }
-.confirmation {
-  border: 5px solid var(--primary);
-  flex-direction: column;
-}
+
 .infos {
   display: flex;
   align-items: center;
@@ -598,6 +633,28 @@ main {
   background-color: var(--transp6);
   backdrop-filter: blur(3px);
   color: var(--black);
+}
+.confirmation-wrapper {
+  text-align: center;
+  background-color: var(--gray);
+  padding: 1rem;
+  border-radius: 5px;
+}
+.confirmation i {
+  margin: 0 0.5rem;
+  font-size: 1.7rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.confirmation i:first-child {
+  color: var(--green);
+}
+.confirmation i:last-child {
+  color: var(--red);
+}
+.confirmation i:hover {
+  opacity: 0.8;
+  transform: scale(1.2);
 }
 .modify-post i {
   position: absolute;

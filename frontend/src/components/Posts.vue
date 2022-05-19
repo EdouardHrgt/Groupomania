@@ -78,7 +78,8 @@
       <div class="error-msg" v-if="fetchErr">
         <p>{{ fetchErr }}</p>
       </div>
-      <!-- ###### POSTS ###### -->
+
+      <!-- ###### ALL POSTS ###### -->
       <section class="all-posts-container">
         <!-- 1 post -->
         <div
@@ -86,65 +87,6 @@
           v-for="(post, postIndex) in posts"
           :key="post.id"
         >
-          <!-- Delete Post box -->
-          <div class="box alert flex" v-if="alertDeletePost == postIndex">
-            <p>An error occured, please try again later !</p>
-          </div>
-          <div class="box confirmation flex" v-if="deletePostBox == postIndex">
-            <div class="confirmation-wrapper">
-              <p>Do you want to delete this post ?</p>
-              <div class="icons">
-                <i
-                  class="fa-solid fa-check"
-                  @click="deletePost(post, true, postIndex)"
-                ></i>
-                <i
-                  class="fa-solid fa-xmark"
-                  @click="deletePost(post, false, postIndex)"
-                ></i>
-              </div>
-            </div>
-          </div>
-          <!-- Update post Box -->
-          <div class="box modify-post flex" v-if="updatePostBox == postIndex">
-            <div class="form-container" id="update-post-form">
-              <h2>Update your post</h2>
-              <i
-                class="fa-solid fa-xmark"
-                @click="toggleUpdatePost(postIndex)"
-              ></i>
-              <form @submit.prevent="updatePost($event, post.id)">
-                <div class="form-group">
-                  <label for="title">Title : </label>
-                  <input
-                    type="text"
-                    name="title"
-                    id="title"
-                    :value="post.title"
-                    minLength="5"
-                    maxlength="70"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="content">Content : </label>
-                  <input
-                    type="textarea"
-                    name="content"
-                    id="content"
-                    :value="post.content"
-                    maxlength="250"
-                  />
-                </div>
-                <div class="form-group file-input">
-                  <label for="update-post-image">image</label>
-                  <input type="file" name="image" id="update-post-image" />
-                </div>
-                <div class="form-group">
-                  <button type="submit">Update !</button>
-                </div>
-              </form>
-            </div>
-          </div>
           <!-- The post -->
           <section class="unique__post" v-if="post" ref="post">
             <div class="infos">
@@ -175,14 +117,6 @@
               </p>
             </div>
             <div class="actions">
-              <div class="owner-actions" v-if="user.userId == post.userId">
-                <button class="delete_btn" @click="openDeletePost(postIndex)">
-                  DELETE
-                </button>
-                <button class="edit_btn" @click="toggleUpdatePost(postIndex)">
-                  EDIT
-                </button>
-              </div>
               <i
                 class="fa-solid fa-paper-plane"
                 @click="showCommentForm(postIndex)"
@@ -202,6 +136,7 @@
               </p>
             </div>
           </section>
+
           <!-- Comment form -->
           <div class="comment-form-container" v-if="commentForm == postIndex">
             <form @submit.prevent="newComment(post.id, postIndex)">
@@ -223,43 +158,14 @@
               </div>
             </form>
           </div>
+
           <!-- End comment form-->
-          <!-- 1 Comment -->
-          <div
-            class="comment-global-container"
-            v-if="comments && commentBlock == postIndex"
-          >
-            <div
-              class="comment-container"
-              v-for="comment in comments"
-              :key="comment.id"
-            >
-              <div class="comment-infos">
-                <img
-                  v-if="comment.image"
-                  :src="comment.image"
-                  :alt="'Profile picture of' + comment.username"
-                />
-                <p class="comment-username">{{ comment.username }}</p>
-                <p class="comment-date">{{ dateFormatter(comment.date) }}</p>
-              </div>
-              <div class="comment-content">
-                <p>{{ comment.content }}</p>
-              </div>
-              <div class="comment-actions">
-                <div
-                  class="comment-owner-actions"
-                  v-if="user.id == comment.userId"
-                >
-                  <i class="fa-solid fa-trash"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- End comment -->
         </div>
+
         <!-- End post -->
       </section>
+
+      <!-- End all posts -->
     </main>
   </div>
 </template>
@@ -268,6 +174,8 @@
 import axios from 'axios';
 import Loader from '@/components/Loader.vue';
 import Profile from '@/components/Profile.vue';
+import Mixins from '../mixins/Mixins.js';
+
 const url = 'http://localhost:3000/api/';
 const ls = JSON.parse(localStorage.getItem('user'));
 const headers = {
@@ -277,26 +185,28 @@ const headers = {
 
 export default {
   name: 'Posts',
+
+  mixins: [Mixins],
+
   components: {
     loader: Loader,
     profile: Profile,
   },
+
   data: function () {
     return {
       //states
       profile: false,
       loading: false,
+
       //Datas
       user: null,
       posts: [],
       likes: null,
-      comments: [],
       comment: '',
+      response:'',
+
       // Popups
-      deletePostBox: -1,
-      alertDeletePost: -1,
-      isPostDelete: null,
-      updatePostBox: -1,
       postLikes: null,
       isLiked: false,
       timeout: null,
@@ -313,10 +223,7 @@ export default {
       const id = idPost;
       this.$router.push(`SinglePost/${id}`);
     },
-    dateFormatter(t) {
-      let date = new Date(t);
-      return date.toLocaleDateString();
-    },
+
     getAllPosts() {
       axios
         .get(`${url}post`, { headers })
@@ -329,6 +236,7 @@ export default {
           this.loading = false;
         });
     },
+
     newPost(event) {
       const userId = String(this.user.userId);
       let post = new FormData(event.target);
@@ -336,7 +244,7 @@ export default {
       axios
         .post(`${url}post/${userId}`, post, { headers })
         .then((res) => {
-          console.log(res);
+          this.response = res
           this.commentForm = -1;
           this.fetchErr = null;
           this.getAllPosts();
@@ -345,64 +253,7 @@ export default {
           this.fetchErr = err;
         });
     },
-    updatePost($event, id) {
-      const postId = String(id);
-      const updatedPost = new FormData($event.target);
 
-      axios
-        .put(`${url}post/update/${postId}`, updatedPost, { headers })
-        .then((res) => {
-          console.log(res);
-          this.toggleUpdatePost();
-          this.getAllPosts();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    },
-    deletePost(post, bool, index) {
-      if (post.userId == this.user.userId) {
-        this.isPostDelete = bool;
-        if (this.isPostDelete == false) {
-          this.deletePostBox = -1;
-        } else if (this.isPostDelete == true) {
-          const postId = post.id;
-          const userId = this.user.userId;
-
-          axios
-            .delete(`${url}post/delete/${postId}/${userId}`, { headers })
-            .then((res) => {
-              console.log(res);
-              this.isPostDelete = null;
-              this.deletePostBox = -1;
-              this.getAllPosts();
-            })
-            .catch((err) => {
-              console.log(err);
-              this.alertDeletePost = index;
-              this.isPostDelete = null;
-              setTimeout(() => {
-                this.alertDeletePost = -1;
-              }, 2000);
-            });
-        }
-      } else {
-        this.alertDeletePost = index;
-        setTimeout(() => {
-          this.alertDeletePost = -1;
-        }, 2000);
-      }
-    },
-    openDeletePost(index) {
-      this.deletePostBox = index;
-    },
-    toggleUpdatePost(index) {
-      if (this.updatePostBox == index) {
-        this.updatePostBox = -1;
-      } else {
-        this.updatePostBox = index;
-      }
-    },
     /*=====================================*/
     /* ALL ABOUT LIKES */
     /*=====================================*/
@@ -413,6 +264,7 @@ export default {
         this.likePost(id, i);
       }, 300);
     },
+
     likePost(idPost, index) {
       const postId = String(idPost);
       const userId = String(this.user.userId);
@@ -425,9 +277,10 @@ export default {
           this.getAllPosts();
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     },
+
     getLikes(idPost, index) {
       const postId = String(idPost);
 
@@ -438,21 +291,18 @@ export default {
           this.postLikes = index;
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     },
+
     /*=====================================*/
     /* ALL ABOUT COMMENTS */
     /*=====================================*/
     showCommentForm(i) {
-      this.comments = null;
       this.commentBlock = -1;
-      if (this.commentForm == i) {
-        this.commentForm = -1;
-      } else {
-        this.commentForm = i;
-      }
+      this.commentForm == i ? (this.commentForm = -1) : (this.commentForm = i);
     },
+
     newComment(idPost) {
       const comment = {
         content: this.comment,
@@ -463,34 +313,15 @@ export default {
       axios
         .post(`${url}comment`, comment, { headers })
         .then((res) => {
-          console.log(res.data);
+          this.response = res
           this.commentForm = -1;
           this.toPost(idPost);
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     },
-    displayComment(id, i) {
-      if (this.comments && this.commentBlock != -1) {
-        this.comments = null;
-        this.commentBlock = -1;
-      } else {
 
-        const postId = id;
-        const userId = this.user.userId;
-        axios
-          .get(`${url}comment/${postId}/${userId}`, { headers })
-          .then((res) => {
-            this.commentBlock = i;
-            this.comments = res.data;
-            console.log(this.comments);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
-    },
     /*=====================================*/
     /* ALL ABOUT USER */
     /*=====================================*/
@@ -499,14 +330,17 @@ export default {
       this.user = null;
       this.$router.push('/');
     },
+
     openProfile() {
       this.profile = true;
     },
+
     closeProfile(bool) {
       this.profile = bool;
       this.user = JSON.parse(localStorage.getItem('user'));
     },
   },
+
   /*=====================================*/
   /* MAIN FETCH */
   /*=====================================*/
