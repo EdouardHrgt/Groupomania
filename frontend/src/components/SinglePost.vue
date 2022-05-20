@@ -15,7 +15,8 @@
       <section class="unique__post" v-if="post">
         <div class="infos">
           <userProfile v-show="profile" @userInfosCloser="closeUserInfos" />
-          <div class="author" @click="toggleProfile()">
+
+          <div class="author" @click="profile = !profile">
             <img
               v-if="post.image"
               :src="post.image"
@@ -33,7 +34,7 @@
             v-if="post.imageUrl != 'noImg'"
             :src="post.imageUrl"
             :alt="post.title + 'from ' + post.username"
-            @click="toggleFocusImg"
+            @click="imgFocus = !imgFocus"
           />
           <strong class="post-title">
             {{ post.title }}
@@ -55,120 +56,132 @@
           <!-- LIKES -->
           <p class="likes" @click="debounce()">
             <i class="fa-solid fa-heart"></i>
-            <span>{{ post.totalLikes }}</span>
+            <span v-show="post.totalLikes > 0">{{ post.totalLikes }}</span>
           </p>
         </div>
         <!-- Focused image box -->
-        <div class="focus-img flex" v-show="imgFocus">
-          <button @click="toggleFocusImg">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+        <transition name="fade">
+          <div class="focus-img flex" v-show="imgFocus">
+            <button @click="imgFocus = !imgFocus">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
 
-          <img
-            v-if="post.imageUrl != 'noImg'"
-            :src="post.imageUrl"
-            :alt="post.title + 'from ' + post.username"
-          />
-        </div>
+            <img
+              v-if="post.imageUrl != 'noImg'"
+              :src="post.imageUrl"
+              :alt="post.title + 'from ' + post.username"
+            />
+          </div>
+        </transition>
         <!-- Delete Post box -->
-        <div class="box confirmation flex" v-if="deletePostBox">
-          <div class="confirmation-wrapper">
-            <p>Do you want to delete this post ?</p>
-            <div class="icons">
-              <i class="fa-solid fa-check" @click="deletePost"></i>
-              <i class="fa-solid fa-xmark" @click="toggleDeletePost"></i>
+        <transition name="fade">
+          <div class="box confirmation flex" v-if="deletePostBox">
+            <div class="confirmation-wrapper">
+              <p>Do you want to delete this post ?</p>
+              <div class="icons">
+                <i class="fa-solid fa-check" @click="deletePost"></i>
+                <i class="fa-solid fa-xmark" @click="toggleDeletePost"></i>
+              </div>
             </div>
           </div>
-        </div>
+        </transition>
         <!-- Update post Box -->
-        <div class="box modify-post flex" v-show="postForm">
-          <div class="form-container" id="update-post-form">
-            <h2>Update your post</h2>
-            <i class="fa-solid fa-xmark" @click="togglePostForm"></i>
-            <form @submit.prevent="updatePost">
+        <transition name="fade">
+          <div class="box modify-post flex" v-show="postForm">
+            <div class="form-container" id="update-post-form">
+              <h2>Update your post</h2>
+              <i class="fa-solid fa-xmark" @click="togglePostForm"></i>
+              <form @submit.prevent="updatePost">
+                <div class="form-group">
+                  <label for="title">Title : </label>
+                  <input
+                    type="text"
+                    name="title"
+                    id="title"
+                    :value="post.title"
+                    minLength="5"
+                    maxlength="70"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="content">Content : </label>
+                  <input
+                    type="textarea"
+                    name="content"
+                    id="content"
+                    :value="post.content"
+                    maxlength="250"
+                  />
+                </div>
+                <div class="form-group file-input">
+                  <label for="update-post-image">image</label>
+                  <input type="file" name="image" id="update-post-image" />
+                </div>
+                <div class="form-group">
+                  <button type="submit">Update !</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </transition>
+        <!-- Comment form -->
+        <transition name="fade">
+          <div class="comment-form-container" v-show="commentForm">
+            <form @submit.prevent="commentPost()">
               <div class="form-group">
-                <label for="title">Title : </label>
-                <input
-                  type="text"
-                  name="title"
-                  id="title"
-                  :value="post.title"
-                  minLength="5"
-                  maxlength="70"
-                />
-              </div>
-              <div class="form-group">
-                <label for="content">Content : </label>
+                <label for="content">Comment :</label>
                 <input
                   type="textarea"
                   name="content"
                   id="content"
-                  :value="post.content"
+                  placeholder="Say something..."
+                  required
                   maxlength="250"
+                  v-model="comment"
+                  minlength="5"
                 />
               </div>
-              <div class="form-group file-input">
-                <label for="update-post-image">image</label>
-                <input type="file" name="image" id="update-post-image" />
-              </div>
               <div class="form-group">
-                <button type="submit">Update !</button>
+                <button type="submit">Comment !</button>
               </div>
             </form>
           </div>
-        </div>
-        <!-- Comment form -->
-        <div class="comment-form-container" v-show="commentForm">
-          <form @submit.prevent="commentPost()">
-            <div class="form-group">
-              <label for="content">Comment :</label>
-              <input
-                type="textarea"
-                name="content"
-                id="content"
-                placeholder="Say something..."
-                required
-                maxlength="250"
-                v-model="comment"
-                minlength="5"
-              />
-            </div>
-            <div class="form-group">
-              <button type="submit">Comment !</button>
-            </div>
-          </form>
-        </div>
+        </transition>
         <!-- 1 Comment -->
         <div class="comment-global-container" v-if="comments">
-          <div
-            class="comment-container"
-            v-for="comment in comments"
-            :key="comment.id"
-          >
-            <div class="comment-infos">
-              <img
-                v-if="comment.image"
-                :src="comment.image"
-                :alt="'Profile picture of ' + comment.username"
-              />
-              <p class="comment-username">{{ comment.username }}</p>
-              <p class="comment-date">{{ dateFormatter(comment.date) }}</p>
-            </div>
-            <div class="comment-content">
-              <p>{{ comment.content }}</p>
-            </div>
-            <div class="comment-actions">
-              <div
-                class="comment-owner-actions"
-                v-if="user.id == comment.userId"
-              >
-                <i class="fa-solid fa-trash"></i>
+          <transition-group name="fade" tag="div">
+            <div
+              class="comment-container"
+              v-for="comment in comments"
+              :key="comment.id"
+            >
+              <div class="comment-infos">
+                <img
+                  v-if="comment.image"
+                  :src="comment.image"
+                  :alt="'Profile picture of ' + comment.username"
+                />
+                <p class="comment-username">{{ comment.username }}</p>
+                <p class="comment-date">{{ dateFormatter(comment.date) }}</p>
+              </div>
+              <div class="comment-content">
+                <p>{{ comment.content }}</p>
+              </div>
+              <div class="comment-actions">
+                <div
+                  class="comment-owner-actions"
+                  v-if="user.id == comment.userId"
+                >
+                  <i class="fa-solid fa-trash"></i>
+                </div>
               </div>
             </div>
-          </div>
+          </transition-group>
         </div>
         <!-- End comment -->
-        <p class="err-msg" v-show="errorMsg">{{ errorMsg }}</p>
+        <transition name="fade">
+          <p class="err-msg" v-show="errorMsg">{{ errorMsg }}</p>
+        </transition>
         <button class="more" @click="getComments">See More Comments</button>
       </section>
     </main>
@@ -311,9 +324,15 @@ export default {
           this.commentForm = false;
           const newComment = res.data[0];
 
-          if (this.comments.length <= 0) this.comments = [];
+          if (this.comments.length <= 0) {
+            this.comments = [];
+          }
 
           this.comments.unshift(newComment);
+
+          setTimeout(() => {
+            this.comments.shift();
+          }, 2000);
         })
         .catch((err) => {
           console.error(err);
@@ -354,21 +373,13 @@ export default {
     togglePostForm() {
       this.postForm ? (this.postForm = false) : (this.postForm = true);
     },
-
+    
     toggleCommentForm() {
       this.commentForm ? (this.commentForm = false) : (this.commentForm = true);
     },
 
-    toggleProfile() {
-      this.profile ? (this.profile = false) : (this.profile = true);
-    },
-
     closeUserInfos(bool) {
       this.profile = bool;
-    },
-
-    toggleFocusImg() {
-      this.imgFocus ? (this.imgFocus = false) : (this.imgFocus = true);
     },
 
     toPosts() {
@@ -453,7 +464,9 @@ main {
   margin: auto;
   position: relative;
 }
-
+.unique__post {
+  overflow: hidden;
+}
 .infos {
   display: flex;
   align-items: center;
@@ -782,6 +795,11 @@ main {
   }
   .form-container {
     width: 90%;
+  }
+  .focus-img {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
   }
 }
 @media screen and (max-width: 768px) {

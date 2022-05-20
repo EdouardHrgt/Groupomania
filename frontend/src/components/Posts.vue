@@ -1,6 +1,8 @@
 <template>
   <div class="page-container">
-    <profile v-show="profile" @profileCloser="closeProfile" />
+    <transition name="fade">
+      <profile v-show="profile" @profileCloser="closeProfile" />
+    </transition>
     <div class="loader" v-if="loading">
       <loader />
     </div>
@@ -123,7 +125,7 @@
               </button>
               <button @click="debounce(post.id, postIndex)">
                 Like <i class="fa-solid fa-heart"></i>
-                <span>{{ post.totalLikes }}</span>
+                <span v-show="post.totalLikes > 0">{{ post.totalLikes }}</span>
               </button>
               <button @click="toPost(post.id)">
                 See More
@@ -334,6 +336,7 @@ export default {
     closeProfile(bool) {
       this.profile = bool;
       this.user = JSON.parse(localStorage.getItem('user'));
+      this.getAllPosts();
     },
   },
 

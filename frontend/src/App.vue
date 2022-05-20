@@ -1,6 +1,12 @@
 <template>
   <div id="app">
-    <router-view />
+    <transition
+      name="router-anim"
+      enter-active-class="animate__animated animate__fadeIn"
+      leave-active-class="animate__animated animate__fadeOut animate__faster"
+    >
+      <router-view />
+    </transition>
   </div>
 </template>
 
@@ -8,6 +14,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Overpass:wght@300;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+
 :root {
   --font-1: 'Overpass', sans-serif;
   --font-2: 'ubuntu', sans-serif;
@@ -74,5 +82,23 @@ input {
   color: transparent;
   background: var(--gradient-2);
   background-clip: text;
+}
+
+/*TRANSITIONS*/
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.6s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+.bounce-enter-active,
+.bounce-leave-active {
+  transition: all 0.6s;
+}
+.bounce-enter,
+.bounce-leave-to {
+  transform: scale(0);
 }
 </style>

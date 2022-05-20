@@ -1,5 +1,3 @@
-const db = require('../config/db-config');
-
 const createDB = (name) => {
   return `CREATE DATABASE IF NOT EXISTS ${name};`;
 };
@@ -44,7 +42,7 @@ const commentsTable = `CREATE TABLE IF NOT EXISTS comments (
     CONSTRAINT commentUserId FOREIGN KEY (userId) REFERENCES user (id) ON DELETE CASCADE ON UPDATE CASCADE
   ) ENGINE=InnoDB AUTO_INCREMENT=130 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`;
 
-const likesTable = `CREATE TABLE likes (
+const likesTable = `CREATE TABLE IF NOT EXISTS likes (
     id int NOT NULL AUTO_INCREMENT,
     userId varchar(250) NOT NULL,
     postId int NOT NULL,
@@ -56,10 +54,15 @@ const likesTable = `CREATE TABLE likes (
     CONSTRAINT likesUserId FOREIGN KEY (userId) REFERENCES user (id) ON DELETE CASCADE ON UPDATE CASCADE
   ) ENGINE=InnoDB AUTO_INCREMENT=181 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`;
 
+const insertAdmin = `SELECT * FROM newdb.user;
+INSERT INTO user (username, email, password, id, permission) 
+VALUES (?,?,?,?,?);`;
+
 module.exports = {
   createDB,
   userTable,
   postsTable,
   commentsTable,
   likesTable,
+  insertAdmin,
 };
