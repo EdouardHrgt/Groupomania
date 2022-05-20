@@ -139,16 +139,19 @@ export default {
   props: ['toggleprofile', 'USER'],
   data: function () {
     return {
+      //datas
       user: null,
-      updateProfileBox: false,
-      deleteProfileBox: false,
       password: '',
       confirmation: '',
+      deleteMsg: '',
+      errDeleteMsg: '',
+
+      //toggle booleans
       error: false,
       success: false,
       bool: false,
-      deleteMsg: '',
-      errDeleteMsg: '',
+      updateProfileBox: false,
+      deleteProfileBox: false,
     };
   },
   methods: {

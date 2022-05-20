@@ -185,6 +185,7 @@
         <button class="more" @click="getComments">See More Comments</button>
       </section>
     </main>
+    <animation-elmt v-show="isAnimate" />
   </div>
 </template>
 
@@ -192,7 +193,7 @@
 import UserInfos from '@/components/UserInfos.vue';
 import Mixins from '../mixins/Mixins.js';
 import axios from 'axios';
-
+import AnimationElmt from '../components/AnimationElmt.vue';
 const ls = JSON.parse(localStorage.getItem('user'));
 const headers = {
   'Content-type': 'application/json',
@@ -204,33 +205,36 @@ export default {
   mixins: [Mixins],
   components: {
     userProfile: UserInfos,
+    animationElmt: AnimationElmt,
   },
   data() {
     return {
-      /*datas*/
+      //datas
       user: {},
       postId: this.$route.params.id,
       posts: [],
       comments: [],
       comment: '',
 
-      /*Errors handler*/
+      //Errors handler
       errorMsg: '',
 
-      /*Unused responses*/
+      //Unused responses
       trash: null,
 
-      /*Functions handlers*/
+      //Functions handlers
       timeout: null,
       postLiked: null,
       integer: null,
 
-      /*Modals toggle*/
+      //Modals toggle
       profile: false,
       postForm: false,
       commentForm: false,
       deletePostBox: false,
       imgFocus: false,
+      // Animations
+      isAnimate: false,
     };
   },
   methods: {
@@ -373,7 +377,7 @@ export default {
     togglePostForm() {
       this.postForm ? (this.postForm = false) : (this.postForm = true);
     },
-    
+
     toggleCommentForm() {
       this.commentForm ? (this.commentForm = false) : (this.commentForm = true);
     },
@@ -384,6 +388,9 @@ export default {
 
     toPosts() {
       this.$router.push('/posts');
+    },
+    sayHi() {
+      alert('coucou');
     },
   },
 
@@ -418,6 +425,7 @@ export default {
         .then((res) => {
           this.comments = res.data;
           this.integer = this.comments.length;
+          this.isAnimate = true;
         })
         .catch((err) => {
           console.error(err);

@@ -101,4 +101,37 @@ input {
 .bounce-leave-to {
   transform: scale(0);
 }
+.swapper-enter-active,
+.swapper-leave-active {
+  animation: translation 1.5s ease-in-out 0.3s forwards;
+}
+.list-move, 
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+@keyframes translation {
+  0% {
+    width: 0;
+  }
+  25% {
+    width: 100%;
+  }
+  50% {
+    width: 100%;
+    right: 0;
+    left: unset;
+  }
+  75% {
+    width: 0%;
+  }
+  100% {
+    visibility: hidden;
+  }
+}
 </style>

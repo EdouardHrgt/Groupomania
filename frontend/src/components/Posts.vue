@@ -83,7 +83,9 @@
 
       <!-- ###### ALL POSTS ###### -->
       <section class="all-posts-container">
+
         <!-- 1 post -->
+        <transition-group name="list" tag="div">
         <div
           class="post-container"
           v-for="(post, postIndex) in posts"
@@ -159,12 +161,15 @@
 
           <!-- End comment form-->
         </div>
+        </transition-group>
 
         <!-- End post -->
+
       </section>
 
       <!-- End all posts -->
     </main>
+    <animation-elmt v-show="isAnimate" />
   </div>
 </template>
 
@@ -173,7 +178,7 @@ import axios from 'axios';
 import Loader from '@/components/Loader.vue';
 import Profile from '@/components/Profile.vue';
 import Mixins from '../mixins/Mixins.js';
-
+import AnimationElmt from '../components/AnimationElmt.vue';
 const url = 'http://localhost:3000/api/';
 const ls = JSON.parse(localStorage.getItem('user'));
 const headers = {
@@ -189,6 +194,7 @@ export default {
   components: {
     loader: Loader,
     profile: Profile,
+    animationElmt: AnimationElmt,
   },
 
   data: function () {
@@ -211,6 +217,8 @@ export default {
       commentForm: -1,
       commentBlock: -1,
       fetchErr: null,
+      // Animations
+      isAnimate: false,
     };
   },
   methods: {
@@ -355,6 +363,7 @@ export default {
         .then((res) => {
           this.posts = res.data;
           this.loading = false;
+          this.isAnimate = true;
         })
         .catch((err) => {
           if (err.response.status == 401) {
@@ -652,14 +661,14 @@ header li span {
   width: 8.5rem;
   margin: 0 0.5rem;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.4s;
   display: flex;
   align-items: baseline;
   justify-content: center;
 }
 .actions button:hover {
-  background: var(--secondary);
-  opacity: 0.8;
+  background-color: var(--transp1);
+  opacity: 0.7;
   color: white;
 }
 .actions button i {
