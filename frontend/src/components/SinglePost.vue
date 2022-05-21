@@ -324,12 +324,11 @@ export default {
         .then((res) => {
           this.commentForm = false;
           const newComment = res.data[0];
-          this.excludeList.push(newComment.id);
-          console.log(this.excludeList);
           if (this.comments.length <= 0) {
             this.comments = [];
           }
           this.comments.unshift(newComment);
+          this.excludeList.push(newComment);
         })
         .catch((err) => {
           console.error(err);
@@ -339,9 +338,12 @@ export default {
     getComments() {
       const postId = this.postId;
       const offset = this.integer;
-
+      const exclude = this.excludeList;
+      console.log(exclude)
       axios
-        .get(`${url}comment/limited/${postId}/${offset}`, { headers })
+        .get(`${url}comment/limited/${postId}/${offset}`, {
+          headers,
+        })
         .then((res) => {
           if (res.status == 204) {
             this.errorMsg = 'No comments to display';

@@ -38,7 +38,7 @@ exports.createComment = (req, res, next) => {
       }
 
       const commentId = result.insertId;
-      
+
       db.query(models.selectOneComm, commentId, (err, result, fields) => {
         if (err) {
           console.log(err);
