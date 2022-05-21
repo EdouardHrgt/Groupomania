@@ -125,28 +125,28 @@
           </div>
         </transition>
         <!-- Comment form -->
-        <transition name="fade">
-          <div class="comment-form-container" v-show="commentForm">
-            <form @submit.prevent="commentPost()">
-              <div class="form-group">
-                <label for="content">Comment :</label>
-                <input
-                  type="textarea"
-                  name="content"
-                  id="content"
-                  placeholder="Say something..."
-                  required
-                  maxlength="250"
-                  v-model="comment"
-                  minlength="5"
-                />
-              </div>
-              <div class="form-group">
-                <button type="submit">Comment !</button>
-              </div>
-            </form>
-          </div>
-        </transition>
+
+        <div class="comment-form-container" v-show="commentForm">
+          <form @submit.prevent="commentPost()">
+            <div class="form-group">
+              <label for="content">Comment :</label>
+              <input
+                type="textarea"
+                name="content"
+                id="content"
+                placeholder="Say something..."
+                required
+                maxlength="250"
+                v-model="comment"
+                minlength="5"
+              />
+            </div>
+            <div class="form-group">
+              <button type="submit">Comment !</button>
+            </div>
+          </form>
+        </div>
+
         <!-- 1 Comment -->
         <div class="comment-global-container" v-if="comments">
           <transition-group name="fade" tag="div">
@@ -185,7 +185,6 @@
         <button class="more" @click="getComments">See More Comments</button>
       </section>
     </main>
-    <animation-elmt v-show="isAnimate" />
   </div>
 </template>
 
@@ -193,7 +192,7 @@
 import UserInfos from '@/components/UserInfos.vue';
 import Mixins from '../mixins/Mixins.js';
 import axios from 'axios';
-import AnimationElmt from '../components/AnimationElmt.vue';
+
 const ls = JSON.parse(localStorage.getItem('user'));
 const headers = {
   'Content-type': 'application/json',
@@ -205,7 +204,6 @@ export default {
   mixins: [Mixins],
   components: {
     userProfile: UserInfos,
-    animationElmt: AnimationElmt,
   },
   data() {
     return {
@@ -215,6 +213,7 @@ export default {
       posts: [],
       comments: [],
       comment: '',
+      excludeList: [],
 
       //Errors handler
       errorMsg: '',
@@ -233,8 +232,6 @@ export default {
       commentForm: false,
       deletePostBox: false,
       imgFocus: false,
-      // Animations
-      isAnimate: false,
     };
   },
   methods: {
@@ -327,16 +324,12 @@ export default {
         .then((res) => {
           this.commentForm = false;
           const newComment = res.data[0];
-
+          this.excludeList.push(newComment.id);
+          console.log(this.excludeList);
           if (this.comments.length <= 0) {
             this.comments = [];
           }
-
           this.comments.unshift(newComment);
-
-          setTimeout(() => {
-            this.comments.shift();
-          }, 2000);
         })
         .catch((err) => {
           console.error(err);
@@ -354,7 +347,7 @@ export default {
             this.errorMsg = 'No comments to display';
             setTimeout(() => {
               this.errorMsg = '';
-            }, 750);
+            }, 1000);
           } else {
             this.integer += 3;
             res.data.map((n) => this.comments.push(n));
@@ -425,7 +418,6 @@ export default {
         .then((res) => {
           this.comments = res.data;
           this.integer = this.comments.length;
-          this.isAnimate = true;
         })
         .catch((err) => {
           console.error(err);

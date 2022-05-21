@@ -169,7 +169,6 @@
 
       <!-- End all posts -->
     </main>
-    <animation-elmt v-show="isAnimate" />
   </div>
 </template>
 
@@ -178,7 +177,7 @@ import axios from 'axios';
 import Loader from '@/components/Loader.vue';
 import Profile from '@/components/Profile.vue';
 import Mixins from '../mixins/Mixins.js';
-import AnimationElmt from '../components/AnimationElmt.vue';
+
 const url = 'http://localhost:3000/api/';
 const ls = JSON.parse(localStorage.getItem('user'));
 const headers = {
@@ -194,7 +193,6 @@ export default {
   components: {
     loader: Loader,
     profile: Profile,
-    animationElmt: AnimationElmt,
   },
 
   data: function () {
@@ -217,8 +215,6 @@ export default {
       commentForm: -1,
       commentBlock: -1,
       fetchErr: null,
-      // Animations
-      isAnimate: false,
     };
   },
   methods: {
@@ -363,7 +359,6 @@ export default {
         .then((res) => {
           this.posts = res.data;
           this.loading = false;
-          this.isAnimate = true;
         })
         .catch((err) => {
           if (err.response.status == 401) {

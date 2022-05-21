@@ -115,23 +115,5 @@ input {
   opacity: 0;
   transform: translateX(30px);
 }
-@keyframes translation {
-  0% {
-    width: 0;
-  }
-  25% {
-    width: 100%;
-  }
-  50% {
-    width: 100%;
-    right: 0;
-    left: unset;
-  }
-  75% {
-    width: 0%;
-  }
-  100% {
-    visibility: hidden;
-  }
-}
+
 </style>

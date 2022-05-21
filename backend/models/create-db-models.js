@@ -23,7 +23,6 @@ const postsTable = `CREATE TABLE IF NOT EXISTS posts (
     date DATETIME DEFAULT CURRENT_TIMESTAMP,
     imageUrl VARCHAR(250) NOT NULL,
     userId VARCHAR(250) NOT NULL,
-    likesCount INT DEFAULT NULL,
     PRIMARY KEY (id),
     KEY userIdKey_idx (userId),
     CONSTRAINT userIdKey FOREIGN KEY (userId) REFERENCES user (id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -46,7 +45,6 @@ const likesTable = `CREATE TABLE IF NOT EXISTS likes (
     id int NOT NULL AUTO_INCREMENT,
     userId varchar(250) NOT NULL,
     postId int NOT NULL,
-    value int NOT NULL DEFAULT 1,
     PRIMARY KEY (id),
     KEY likesUserId_idx (userId),
     KEY likesPostId_idx (postId),
