@@ -41,12 +41,17 @@ exports.signUp = (req, res, next) => {
   try {
     const username = req.body.username;
     const email = req.body.email;
+
     const rng = uuidv4();
     const uuid = JSON.stringify(rng);
+
     if (emailValidator.validate(email)) {
+
       let password = req.body.password;
+
       bcrypt.hash(password, 10).then((hash) => {
         password = hash;
+
         const values = [username, email, password, uuid];
         db.query(models.signIn, values, (err, result, fields) => {
           if (err) {
@@ -76,12 +81,15 @@ exports.logIn = (req, res, next) => {
         return res.status(400).json(err);
       }
       if (result.length > 0) {
+
         bcrypt.compare(password, result[0].password).then((valid) => {
+
           if (!valid) {
             return res
               .status(404)
               .json({ message: 'password do not match...' });
           }
+          
           return res.status(200).json({
             userId: result[0].id,
             username: result[0].username,
@@ -91,7 +99,7 @@ exports.logIn = (req, res, next) => {
               { userId: result[0].id, permission: result[0].permission },
               process.env.TOKEN,
               {
-                expiresIn: '24h',
+                expiresIn: '1d', // 1 day
               }
             ),
           });

@@ -1,6 +1,8 @@
 <template>
   <div class="page-container">
-    <profile v-show="profile" @profileCloser="closeProfile" />
+    <transition name="fade">
+      <profile v-show="profile" @profileCloser="closeProfile" />
+    </transition>
     <div class="loader" v-if="loading">
       <loader />
     </div>
@@ -78,73 +80,17 @@
       <div class="error-msg" v-if="fetchErr">
         <p>{{ fetchErr }}</p>
       </div>
-      <!-- ###### POSTS ###### -->
+
+      <!-- ###### ALL POSTS ###### -->
       <section class="all-posts-container">
+
         <!-- 1 post -->
+        <transition-group name="list" tag="div">
         <div
           class="post-container"
           v-for="(post, postIndex) in posts"
           :key="post.id"
         >
-          <!-- Delete Post box -->
-          <div class="box alert flex" v-if="alertDeletePost == postIndex">
-            <p>An error occured, please try again later !</p>
-          </div>
-          <div class="box confirmation flex" v-if="deletePostBox == postIndex">
-            <div class="confirmation-wrapper">
-              <p>Do you want to delete this post ?</p>
-              <div class="icons">
-                <i
-                  class="fa-solid fa-check"
-                  @click="deletePost(post, true, postIndex)"
-                ></i>
-                <i
-                  class="fa-solid fa-xmark"
-                  @click="deletePost(post, false, postIndex)"
-                ></i>
-              </div>
-            </div>
-          </div>
-          <!-- Update post Box -->
-          <div class="box modify-post flex" v-if="updatePostBox == postIndex">
-            <div class="form-container" id="update-post-form">
-              <h2>Update your post</h2>
-              <i
-                class="fa-solid fa-xmark"
-                @click="toggleUpdatePost(postIndex)"
-              ></i>
-              <form @submit.prevent="updatePost($event, post.id)">
-                <div class="form-group">
-                  <label for="title">Title : </label>
-                  <input
-                    type="text"
-                    name="title"
-                    id="title"
-                    :value="post.title"
-                    minLength="5"
-                    maxlength="70"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="content">Content : </label>
-                  <input
-                    type="textarea"
-                    name="content"
-                    id="content"
-                    :value="post.content"
-                    maxlength="250"
-                  />
-                </div>
-                <div class="form-group file-input">
-                  <label for="update-post-image">image</label>
-                  <input type="file" name="image" id="update-post-image" />
-                </div>
-                <div class="form-group">
-                  <button type="submit">Update !</button>
-                </div>
-              </form>
-            </div>
-          </div>
           <!-- The post -->
           <section class="unique__post" v-if="post" ref="post">
             <div class="infos">
@@ -175,33 +121,22 @@
               </p>
             </div>
             <div class="actions">
-              <div class="owner-actions" v-if="user.userId == post.userId">
-                <button class="delete_btn" @click="openDeletePost(postIndex)">
-                  DELETE
-                </button>
-                <button class="edit_btn" @click="toggleUpdatePost(postIndex)">
-                  EDIT
-                </button>
-              </div>
-              <i
-                class="fa-solid fa-paper-plane"
-                @click="showCommentForm(postIndex)"
-              ></i>
-              <p class="comms" @click="toPost(post.id)">
+              <button @click="showCommentForm(postIndex)">
+                Comment
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+              <button @click="debounce(post.id, postIndex)">
+                Like <i class="fa-solid fa-heart"></i>
+                <span v-show="post.totalLikes > 0">{{ post.totalLikes }}</span>
+              </button>
+              <button @click="toPost(post.id)">
+                See More
                 <i class="fa-solid fa-envelope"></i>
                 <span>{{ post.totalComms }}</span>
-              </p>
-
-              <!-- LIKES -->
-              <p class="likes">
-                <i
-                  class="fa-solid fa-heart"
-                  @click="debounce(post.id, postIndex)"
-                ></i>
-                <span>{{ post.totalLikes }}</span>
-              </p>
+              </button>
             </div>
           </section>
+
           <!-- Comment form -->
           <div class="comment-form-container" v-if="commentForm == postIndex">
             <form @submit.prevent="newComment(post.id, postIndex)">
@@ -223,43 +158,16 @@
               </div>
             </form>
           </div>
+
           <!-- End comment form-->
-          <!-- 1 Comment -->
-          <div
-            class="comment-global-container"
-            v-if="comments && commentBlock == postIndex"
-          >
-            <div
-              class="comment-container"
-              v-for="comment in comments"
-              :key="comment.id"
-            >
-              <div class="comment-infos">
-                <img
-                  v-if="comment.image"
-                  :src="comment.image"
-                  :alt="'Profile picture of' + comment.username"
-                />
-                <p class="comment-username">{{ comment.username }}</p>
-                <p class="comment-date">{{ dateFormatter(comment.date) }}</p>
-              </div>
-              <div class="comment-content">
-                <p>{{ comment.content }}</p>
-              </div>
-              <div class="comment-actions">
-                <div
-                  class="comment-owner-actions"
-                  v-if="user.id == comment.userId"
-                >
-                  <i class="fa-solid fa-trash"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- End comment -->
         </div>
+        </transition-group>
+
         <!-- End post -->
+
       </section>
+
+      <!-- End all posts -->
     </main>
   </div>
 </template>
@@ -268,30 +176,39 @@
 import axios from 'axios';
 import Loader from '@/components/Loader.vue';
 import Profile from '@/components/Profile.vue';
+import Mixins from '../mixins/Mixins.js';
+
 const url = 'http://localhost:3000/api/';
+const ls = JSON.parse(localStorage.getItem('user'));
+const headers = {
+  'Content-type': 'application/json',
+  Authorization: 'Bearer ' + ls.token,
+};
 
 export default {
   name: 'Posts',
+
+  mixins: [Mixins],
+
   components: {
     loader: Loader,
     profile: Profile,
   },
+
   data: function () {
     return {
       //states
       profile: false,
       loading: false,
+
       //Datas
       user: null,
       posts: [],
       likes: null,
-      comments: [],
       comment: '',
+      response: '',
+
       // Popups
-      deletePostBox: -1,
-      alertDeletePost: -1,
-      isPostDelete: null,
-      updatePostBox: -1,
       postLikes: null,
       isLiked: false,
       timeout: null,
@@ -308,18 +225,10 @@ export default {
       const id = idPost;
       this.$router.push(`SinglePost/${id}`);
     },
-    dateFormatter(t) {
-      let date = new Date(t);
-      return date.toLocaleDateString();
-    },
+
     getAllPosts() {
       axios
-        .get(`${url}post`, {
-          headers: {
-            'Content-type': 'application/json',
-            Authorization: 'Bearer ' + this.user.token,
-          },
-        })
+        .get(`${url}post`, { headers })
         .then((res) => {
           this.posts = res.data;
           this.loading = false;
@@ -329,17 +238,15 @@ export default {
           this.loading = false;
         });
     },
+
     newPost(event) {
       const userId = String(this.user.userId);
       let post = new FormData(event.target);
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       axios
         .post(`${url}post/${userId}`, post, { headers })
         .then((res) => {
-          console.log(res);
+          this.response = res;
           this.commentForm = -1;
           this.fetchErr = null;
           this.getAllPosts();
@@ -348,70 +255,7 @@ export default {
           this.fetchErr = err;
         });
     },
-    updatePost($event, id) {
-      const postId = String(id);
-      const updatedPost = new FormData($event.target);
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
-      axios
-        .put(`${url}post/update/${postId}`, updatedPost, { headers })
-        .then((res) => {
-          console.log(res);
-          this.toggleUpdatePost();
-          this.getAllPosts();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    },
-    deletePost(post, bool, index) {
-      if (post.userId == this.user.userId) {
-        this.isPostDelete = bool;
-        if (this.isPostDelete == false) {
-          this.deletePostBox = -1;
-        } else if (this.isPostDelete == true) {
-          const postId = post.id;
-          const userId = this.user.userId;
-          const headers = {
-            'Content-type': 'application/json',
-            Authorization: 'Bearer ' + this.user.token,
-          };
-          axios
-            .delete(`${url}post/delete/${postId}/${userId}`, { headers })
-            .then((res) => {
-              console.log(res);
-              this.isPostDelete = null;
-              this.deletePostBox = -1;
-              this.getAllPosts();
-            })
-            .catch((err) => {
-              console.log(err);
-              this.alertDeletePost = index;
-              this.isPostDelete = null;
-              setTimeout(() => {
-                this.alertDeletePost = -1;
-              }, 2000);
-            });
-        }
-      } else {
-        this.alertDeletePost = index;
-        setTimeout(() => {
-          this.alertDeletePost = -1;
-        }, 2000);
-      }
-    },
-    openDeletePost(index) {
-      this.deletePostBox = index;
-    },
-    toggleUpdatePost(index) {
-      if (this.updatePostBox == index) {
-        this.updatePostBox = -1;
-      } else {
-        this.updatePostBox = index;
-      }
-    },
+
     /*=====================================*/
     /* ALL ABOUT LIKES */
     /*=====================================*/
@@ -422,13 +266,11 @@ export default {
         this.likePost(id, i);
       }, 300);
     },
+
     likePost(idPost, index) {
       const postId = String(idPost);
       const userId = String(this.user.userId);
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       axios
         .get(`${url}like/${postId}/${userId}`, { headers })
         .then((res) => {
@@ -437,15 +279,13 @@ export default {
           this.getAllPosts();
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     },
+
     getLikes(idPost, index) {
       const postId = String(idPost);
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       axios
         .get(`${url}like/${postId}`, { headers })
         .then((res) => {
@@ -453,65 +293,37 @@ export default {
           this.postLikes = index;
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     },
+
     /*=====================================*/
     /* ALL ABOUT COMMENTS */
     /*=====================================*/
     showCommentForm(i) {
-      this.comments = null;
       this.commentBlock = -1;
-      if (this.commentForm == i) {
-        this.commentForm = -1;
-      } else {
-        this.commentForm = i;
-      }
+      this.commentForm == i ? (this.commentForm = -1) : (this.commentForm = i);
     },
+
     newComment(idPost) {
       const comment = {
         content: this.comment,
         userId: this.user.userId,
         postId: idPost,
       };
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       axios
         .post(`${url}comment`, comment, { headers })
         .then((res) => {
-          console.log(res.data);
+          this.response = res;
           this.commentForm = -1;
           this.toPost(idPost);
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
         });
     },
-    displayComment(id, i) {
-      if (this.comments && this.commentBlock != -1) {
-        this.comments = null;
-        this.commentBlock = -1;
-      } else {
-        const headers = {
-          'Content-type': 'application/json',
-          Authorization: 'Bearer ' + this.user.token,
-        };
-        const postId = id;
-        const userId = this.user.userId;
-        axios
-          .get(`${url}comment/${postId}/${userId}`, { headers })
-          .then((res) => {
-            this.commentBlock = i;
-            this.comments = res.data;
-            console.log(this.comments);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
-    },
+
     /*=====================================*/
     /* ALL ABOUT USER */
     /*=====================================*/
@@ -520,14 +332,18 @@ export default {
       this.user = null;
       this.$router.push('/');
     },
+
     openProfile() {
       this.profile = true;
     },
+
     closeProfile(bool) {
       this.profile = bool;
       this.user = JSON.parse(localStorage.getItem('user'));
+      this.getAllPosts();
     },
   },
+
   /*=====================================*/
   /* MAIN FETCH */
   /*=====================================*/
@@ -537,10 +353,7 @@ export default {
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
       this.loading = true;
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       axios
         .get(`${url}post`, { headers })
         .then((res) => {
@@ -822,12 +635,12 @@ header li span {
 }
 .content img {
   width: 100%;
-  height: 400px;
+  max-height: 550px;
   object-fit: contain;
 }
 .actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   padding: 0.5rem 1rem;
   background-color: var(--white);
@@ -835,66 +648,37 @@ header li span {
   border-top: 1px solid var(--gray);
   position: relative;
 }
-.actions .owner-actions {
-  position: absolute;
-  left: 1rem;
-}
-.owner-actions button {
-  background-color: var(--gray);
+.actions button {
+  background-color: transparent;
+  border: 1px solid var(--gray);
   font-family: var(--font-3);
   letter-spacing: 1.5px;
-  width: 4.5rem;
-  margin-right: 0.3rem;
-  cursor: pointer;
-  transition: 0.3s;
-}
-.owner-actions button:hover {
-  opacity: 0.6;
-  transform: scale(1.03);
-}
-.owner-actions .delete_btn {
-  color: var(--red);
-}
-.owner-actions .edit_btn {
-  color: var(--green);
-}
-.actions i {
-  color: var(--primary);
+  width: 8.5rem;
   margin: 0 0.5rem;
-  transition: 0.4s;
   cursor: pointer;
-}
-.actions .fa-trash {
-  color: var(--red);
-}
-.likes,
-.comms {
+  transition: 0.4s;
   display: flex;
+  align-items: baseline;
+  justify-content: center;
 }
-
-.comms .fa-envelope {
-  opacity: 0.3;
+.actions button:hover {
+  background-color: var(--transp1);
+  opacity: 0.7;
+  color: white;
 }
-
-.likes span,
-.comms span {
+.actions button i {
+  margin-left: 1rem;
+  color: var(--primary);
+}
+.actions button span {
   font-size: 0.8rem;
-  color: var(--black);
+  opacity: 0.8;
+  margin-left: 0.2rem;
 }
 .actions .fa-heart {
   color: transparent;
   background: var(--gradient-2);
   background-clip: text;
-}
-.actions i:hover,
-.comment-actions i:hover {
-  opacity: 0.7;
-  transform: scale(1.3);
-}
-
-.actions .total_comms {
-  color: red;
-  font-size: 0.8rem;
 }
 .comment-container {
   background-color: var(--gray);

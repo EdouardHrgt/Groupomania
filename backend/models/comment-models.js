@@ -7,13 +7,16 @@ FROM comments
 JOIN user 
 ON comments.userId = user.id WHERE postId= ?`;
 
-const selectOneComm = `SELECT * FROM comments WHERE id= ?`;
+const selectOneComm = `SELECT comments.id, content, date, userId, postId, username, image, permission 
+FROM comments 
+JOIN user 
+ON comments.userId = user.id WHERE comments.id= ?`;
 
 const selectLimitedComms = `SELECT comments.id, content, date, userId, postId, username, image, permission 
 FROM comments 
 JOIN user 
 ON comments.userId = user.id WHERE postId= ?
-LIMIT 0, 2`;
+LIMIT 0, 3`;
 
 const inserComm = `INSERT INTO comments (content, userId, postId) VALUES (?,?,?)`;
 

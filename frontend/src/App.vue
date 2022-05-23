@@ -1,6 +1,12 @@
 <template>
   <div id="app">
-    <router-view />
+    <transition
+      name="router-anim"
+      enter-active-class="animate__animated animate__fadeIn"
+      leave-active-class="animate__animated animate__fadeOut animate__faster"
+    >
+      <router-view />
+    </transition>
   </div>
 </template>
 
@@ -8,6 +14,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Overpass:wght@300;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+
 :root {
   --font-1: 'Overpass', sans-serif;
   --font-2: 'ubuntu', sans-serif;
@@ -17,6 +25,7 @@
   --primary: #323277;
   --secondary: #37ae5f;
   --ternary: #262a5a;
+  --dark-blue: #151734;
   --gray: #e9e9e9;
   --red: #dd4124;
   --green: #00d646;
@@ -29,6 +38,7 @@
   --transp5: rgba(38, 42, 90, 0.5);
   --transp4: rgba(230, 230, 230, 0.2);
   --transp6: rgba(255, 255, 255, 0.8);
+  --transp7: rgba(0, 0, 0, 0.8);
 }
 * {
   margin: 0;
@@ -72,5 +82,56 @@ input {
   color: transparent;
   background: var(--gradient-2);
   background-clip: text;
+}
+
+/*TRANSITIONS*/
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.6s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+.bounce-enter-active,
+.bounce-leave-active {
+  transition: all 0.6s;
+}
+.bounce-enter,
+.bounce-leave-to {
+  transform: scale(0);
+}
+.swapper-enter-active,
+.swapper-leave-active {
+  animation: translation 1.5s ease-in-out 0.3s forwards;
+}
+.list-move, 
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: white;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--gradient);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
 }
 </style>
