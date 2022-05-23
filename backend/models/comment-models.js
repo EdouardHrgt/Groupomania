@@ -16,7 +16,7 @@ const selectLimitedComms = `SELECT comments.id, content, date, userId, postId, u
 FROM comments 
 JOIN user 
 ON comments.userId = user.id WHERE postId= ?
-LIMIT 0, 2`;
+LIMIT 0, 3`;
 
 const inserComm = `INSERT INTO comments (content, userId, postId) VALUES (?,?,?)`;
 

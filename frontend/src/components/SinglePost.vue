@@ -152,8 +152,8 @@
           <transition-group name="fade" tag="div">
             <div
               class="comment-container"
-              v-for="comment in comments"
-              :key="comment.id"
+              v-for="(comment, i) in comments"
+              :key="i"
             >
               <div class="comment-infos">
                 <img
@@ -213,7 +213,6 @@ export default {
       posts: [],
       comments: [],
       comment: '',
-      excludeList: [],
 
       //Errors handler
       errorMsg: '',
@@ -324,11 +323,11 @@ export default {
         .then((res) => {
           this.commentForm = false;
           const newComment = res.data[0];
-          if (this.comments.length <= 0) {
-            this.comments = [];
-          }
-          this.comments.unshift(newComment);
-          this.excludeList.push(newComment);
+
+          this.comments.length == 0
+            ? (this.comments = res.data)
+            : this.comments.unshift(newComment);
+          console.log(this.comments);
         })
         .catch((err) => {
           console.error(err);
@@ -338,8 +337,6 @@ export default {
     getComments() {
       const postId = this.postId;
       const offset = this.integer;
-      const exclude = this.excludeList;
-      console.log(exclude)
       axios
         .get(`${url}comment/limited/${postId}/${offset}`, {
           headers,
@@ -351,17 +348,22 @@ export default {
               this.errorMsg = '';
             }, 1000);
           } else {
-            this.integer += 3;
-            res.data.map((n) => this.comments.push(n));
+            this.addtoComments(this.comments, res.data);
           }
         })
         .catch((err) => {
           console.error(err);
         });
     },
+    addtoComments(arr1, arr2) {
+      const idList = new Set(arr1.map(({ id }) => id));
+      const combined = [...arr1, ...arr2.filter(({ id }) => !idList.has(id))];
+      this.integer += 3;
+      return (this.comments = combined);
+    },
 
     /*=====================================*/
-    /* ALL ABOUT HELPERS ( mainly modal togglers ) */
+    /* ALL ABOUT HELPERS */
     /*=====================================*/
     toggleDeletePost() {
       this.deletePostBox
@@ -719,10 +721,18 @@ main {
   font-size: 1.3rem;
   cursor: pointer;
 }
+.comment-global-container {
+  overflow-y: scroll;
+  max-height: 19rem;
+}
 .comment-container {
   background-color: var(--gray);
   padding: 0.5rem 1rem;
   font-size: 0.8rem;
+  margin-top: 1px;
+}
+.comment-container:nth-child(1) {
+  margin-top: 0;
 }
 .comment-infos {
   background-color: var(--white);

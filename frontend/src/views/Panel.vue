@@ -138,7 +138,6 @@ export default {
         });
     },
     deleteMember(id) {
-
       const userId = id;
       axios
         .delete(`${url}user/delete/${userId}`, { headers })
@@ -226,6 +225,10 @@ export default {
           console.log(err);
         });
     }
+  },
+  created() {
+    const html = document.documentElement;
+    html.setAttribute('lang', 'en');
   },
 };
 </script>
