@@ -127,11 +127,7 @@ input {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: var(--gradient);
+  background: gray;
 }
 
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary);
-}
 </style>
