@@ -34,85 +34,91 @@
           </div>
         </div>
         <!-- Update Profile -->
-        <div class="updateprofile" v-if="updateProfileBox">
-          <form @submit.prevent="updateUser">
-            <div class="form-group">
-              <label for="username">Username : </label>
-              <input
-                type="text"
-                name="username"
-                id="username"
-                placeholder="Enter a new name"
-                required
-                maxlength="50"
-              />
-            </div>
-            <div class="form-group">
-              <label for="bio">Bio : </label>
-              <input
-                type="text"
-                name="bio"
-                id="bio"
-                placeholder="Add a bio"
-                maxlength="300"
-              />
-            </div>
-            <div class="form-group">
-              <label for="password">Password : </label>
-              <input
-                type="password"
-                name="password"
-                id="password"
-                placeholder="Enter your password"
-                required
-                minlength="8"
-                v-model="password"
-              />
-            </div>
-            <div class="form-group">
-              <label for="confirmation">Confirmation : </label>
-              <input
-                type="password"
-                name="confirmation"
-                id="confirmation"
-                placeholder="Confirm your password"
-                required
-                minlength="8"
-                v-model="confirmation"
-              />
-            </div>
-            <div class="form-group file-div">
-              <label for="file-input">Profile-picture</label>
-              <input
-                type="file"
-                name="image"
-                accept="image/png, image/jpeg, image/jpg"
-                id="file-input"
-              />
-            </div>
-            <div class="form-group">
-              <p class="infos-msg error-msg" v-if="error">{{ error }}</p>
-              <p class="infos-msg success-msg" v-if="success">{{ success }}</p>
-            </div>
-            <div class="form-group">
-              <button type="submit">Update my profile</button>
-            </div>
-          </form>
-        </div>
-        <!-- Delete Profile -->
-        <div class="delete-profile flex" v-if="deleteProfileBox">
-          <div class="confirmation-wrapper">
-            <p>Do you want to delete your profile ?</p>
-            <div class="icons">
-              <i class="fa-solid fa-check" @click="deleteAccount"></i>
-              <i class="fa-solid fa-xmark" @click="toggleDeleteProfile"></i>
-            </div>
-            <p class="delete-msg" v-if="deleteMsg">{{ deleteMsg }}</p>
-            <p class="delete-msg" v-else-if="errDeleteMsg">
-              {{ errDeleteMsg }}
-            </p>
+        <transition name="fade">
+          <div class="updateprofile" v-if="updateProfileBox">
+            <form @submit.prevent="updateUser">
+              <div class="form-group">
+                <label for="username">Username : </label>
+                <input
+                  type="text"
+                  name="username"
+                  id="username"
+                  placeholder="Enter a new name"
+                  required
+                  maxlength="50"
+                />
+              </div>
+              <div class="form-group">
+                <label for="bio">Bio : </label>
+                <input
+                  type="text"
+                  name="bio"
+                  id="bio"
+                  placeholder="Add a bio"
+                  maxlength="300"
+                />
+              </div>
+              <div class="form-group">
+                <label for="password">Password : </label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  placeholder="Enter your password"
+                  required
+                  minlength="8"
+                  v-model="password"
+                />
+              </div>
+              <div class="form-group">
+                <label for="confirmation">Confirmation : </label>
+                <input
+                  type="password"
+                  name="confirmation"
+                  id="confirmation"
+                  placeholder="Confirm your password"
+                  required
+                  minlength="8"
+                  v-model="confirmation"
+                />
+              </div>
+              <div class="form-group file-div">
+                <label for="file-input">Profile-picture</label>
+                <input
+                  type="file"
+                  name="image"
+                  accept="image/png, image/jpeg, image/jpg"
+                  id="file-input"
+                />
+              </div>
+              <div class="form-group">
+                <p class="infos-msg error-msg" v-if="error">{{ error }}</p>
+                <p class="infos-msg success-msg" v-if="success">
+                  {{ success }}
+                </p>
+              </div>
+              <div class="form-group">
+                <button type="submit">Update my profile</button>
+              </div>
+            </form>
           </div>
-        </div>
+        </transition>
+        <!-- Delete Profile -->
+        <transition name="fade">
+          <div class="delete-profile flex" v-if="deleteProfileBox">
+            <div class="confirmation-wrapper">
+              <p>Do you want to delete your profile ?</p>
+              <div class="icons">
+                <i class="fa-solid fa-check" @click="deleteAccount"></i>
+                <i class="fa-solid fa-xmark" @click="toggleDeleteProfile"></i>
+              </div>
+              <p class="delete-msg" v-if="deleteMsg">{{ deleteMsg }}</p>
+              <p class="delete-msg" v-else-if="errDeleteMsg">
+                {{ errDeleteMsg }}
+              </p>
+            </div>
+          </div>
+        </transition>
       </div>
     </div>
   </div>
@@ -120,22 +126,32 @@
 
 <script>
 import axios from 'axios';
+
 const url = 'http://localhost:3000/api/user/';
+const ls = JSON.parse(localStorage.getItem('user'));
+const headers = {
+  'Content-type': 'application/json',
+  Authorization: 'Bearer ' + ls.token,
+};
+
 export default {
   name: 'Profile',
   props: ['toggleprofile', 'USER'],
   data: function () {
     return {
+      //datas
       user: null,
-      updateProfileBox: false,
-      deleteProfileBox: false,
       password: '',
       confirmation: '',
+      deleteMsg: '',
+      errDeleteMsg: '',
+
+      //toggle booleans
       error: false,
       success: false,
       bool: false,
-      deleteMsg: '',
-      errDeleteMsg: '',
+      updateProfileBox: false,
+      deleteProfileBox: false,
     };
   },
   methods: {
@@ -166,10 +182,7 @@ export default {
     },
     deleteAccount() {
       const userId = this.user.userId;
-      const headers = {
-        'Content-type': 'application/json',
-        Authorization: 'Bearer ' + this.user.token,
-      };
+
       axios
         .delete(`${url}delete/${userId}`, { headers })
         .then((res) => {
@@ -195,10 +208,7 @@ export default {
         this.error = false;
         const userId = this.user.userId;
         let User = new FormData(event.target);
-        const headers = {
-          'Content-type': 'application/json',
-          Authorization: 'Bearer ' + this.user.token,
-        };
+
         axios
           .put(`${url}update/${userId}`, User, { headers })
           .then((res) => {

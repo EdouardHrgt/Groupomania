@@ -1,16 +1,20 @@
 <template>
   <div class="homepage">
     <div class="container">
-      <img
-        src="../assets/groupo-logo-white.png"
-        alt="Logo de groupomania"
-      />
-      <ul>
-        <li>
-          <button><router-link to="/signup">Sign Up</router-link></button>
-          <button><router-link to="/login">Login In</router-link></button>
-        </li>
-      </ul>
+
+      <h1>
+        <img src="../assets/groupo-logo-white.png" alt="Logo de groupomania" />
+      </h1>
+
+      <nav>
+        <ul>
+          <li>
+            <button><router-link to="/signup">Sign Up</router-link></button>
+            <button><router-link to="/login">Login In</router-link></button>
+          </li>
+        </ul>
+      </nav>
+
     </div>
   </div>
 </template>
@@ -64,7 +68,7 @@ export default {
   margin-bottom: 5rem;
 }
 
-.homepage .container img {
+.container h1 img {
   width: 25rem;
   height: 5rem;
   object-fit: cover;
@@ -100,7 +104,7 @@ export default {
   font-family: var(--font-2);
 }
 
-@media screen and (max-width: 1024px) {
+@media screen and (max-width: 1250px) {
   .homepage {
     clip-path: none;
     align-items: center;
@@ -122,9 +126,12 @@ export default {
     align-items: flex-start;
     margin-top: 8rem;
   }
-  .homepage .container img {
-    margin-left: 2rem;
-    width: 85%;
+  .container h1 {
+    width: 100%;
+  }
+  .container h1 img {
+    margin-left: 0.5rem;
+    width: 90%;
   }
   .container ul {
     margin: 2rem 0 0 2rem;
