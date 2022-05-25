@@ -16,7 +16,8 @@ Assets and Svgs from : `[https://www.svgbackgrounds.com/, https://www.pexels.com
 3. Initialise project with : `npm init`
 4. install all dependencies with : `npm install` 
 5. rename ".env.dist" in ".env" and complete the file with your infos
-6. run server with command : `nodemon server`
+6. rename ".images" in "images"
+7. run server with command : `nodemon server`
 
 ### Frontend : 
 1. Clone this repo.
@@ -25,5 +26,7 @@ Assets and Svgs from : `[https://www.svgbackgrounds.com/, https://www.pexels.com
 
 #### DataBase (MySQL Workbench) :
 To Enjoy all ADMIN features on the app Feel free to update your account with this command directly on DB: 
-`UPDATE groupomania.user SET permission='admin' WHERE username='put your username here';`
+Be sure to change values bu your database name and your username account !
+`UPDATE Your-DB-Name.user SET permission='admin' WHERE username='Your-Username';`
+
 (For security purposes ranking an admin is not able directly on the app...)

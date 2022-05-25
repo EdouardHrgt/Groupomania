@@ -194,6 +194,7 @@ import Mixins from '../mixins/Mixins.js';
 import axios from 'axios';
 
 const ls = JSON.parse(localStorage.getItem('user'));
+
 const headers = {
   'Content-type': 'application/json',
   Authorization: 'Bearer ' + ls.token,
@@ -355,6 +356,7 @@ export default {
           console.error(err);
         });
     },
+
     addtoComments(arr1, arr2) {
       const idList = new Set(arr1.map(({ id }) => id));
       const combined = [...arr1, ...arr2.filter(({ id }) => !idList.has(id))];
