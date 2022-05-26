@@ -109,7 +109,7 @@ export default {
             console.log(res);
             this.valid = 'Your account is now created !';
             this.error = false;
-            this.autoLogin();
+            this.toLogin(1500);
           })
           .catch((err) => {
             this.valid = false;
@@ -117,22 +117,9 @@ export default {
           });
       }
     },
-    autoLogin() {
-      axios
-        .post('http://localhost:3000/api/user/login', this.user)
-        .then((res) => {
-          this.user = res.data;
-          localStorage.setItem('user', JSON.stringify(this.user));
-          this.toPosts(1250);
-        })
-        .catch((err) => {
-          this.valid = false;
-          this.error = err.response.data.message;
-        });
-    },
-    toPosts(time) {
+    toLogin(time) {
       setTimeout(() => {
-        this.$router.push('posts');
+        this.$router.push('login');
       }, time);
     },
   },

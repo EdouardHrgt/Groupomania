@@ -36,13 +36,9 @@
 </template>
 
 <script>
+
 import axios from 'axios';
 import Mixins from '../mixins/Mixins.js';
-const ls = JSON.parse(localStorage.getItem('user'));
-const headers = {
-  'Content-type': 'application/json',
-  Authorization: 'Bearer ' + ls.token,
-};
 const url = 'http://localhost:3000/api/user/';
 
 export default {
@@ -66,6 +62,11 @@ export default {
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
       const username = this.$store.state.Profile;
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+
       axios
         .get(`${url}${username}`, { headers })
         .then((res) => {

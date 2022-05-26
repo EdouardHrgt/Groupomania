@@ -13,16 +13,17 @@ Assets and Svgs from : `[https://www.svgbackgrounds.com/, https://www.pexels.com
 ### Backend : 
 1. Clone this repo.
 2. Install NodeJS + Npm.
-3. Initialise project with : `npm init`
-4. install all dependencies with : `npm install` 
-5. rename ".env.dist" in ".env" and complete the file with your infos
-6. rename ".images" in "images"
+3. install all dependencies with : `npm install` 
+5. rename ".env-copy" in ".env" and complete it with your infos
+6. rename ".images" folder as "images"
 7. run server with command : `nodemon server`
+8. /!\ if the server stop running at first start with error "Database..." just reboot it once
 
 ### Frontend : 
 1. Clone this repo.
 2. install all dependencies with `npm install`
 3. run server with command : `npm run serve`
+4. connect to http://localhost:8080/
 
 #### DataBase (MySQL Workbench) :
 To Enjoy all ADMIN features on the app Feel free to update your account with this command directly on DB: 

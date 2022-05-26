@@ -149,34 +149,32 @@
 
         <!-- 1 Comment -->
         <div class="comment-global-container" v-if="comments">
-          <transition-group name="fade" tag="div">
-            <div
-              class="comment-container"
-              v-for="(comment, i) in comments"
-              :key="i"
-            >
-              <div class="comment-infos">
-                <img
-                  v-if="comment.image"
-                  :src="comment.image"
-                  :alt="'Profile picture of ' + comment.username"
-                />
-                <p class="comment-username">{{ comment.username }}</p>
-                <p class="comment-date">{{ dateFormatter(comment.date) }}</p>
-              </div>
-              <div class="comment-content">
-                <p>{{ comment.content }}</p>
-              </div>
-              <div class="comment-actions">
-                <div
-                  class="comment-owner-actions"
-                  v-if="user.id == comment.userId"
-                >
-                  <i class="fa-solid fa-trash"></i>
-                </div>
+          <div
+            class="comment-container"
+            v-for="comment in comments"
+            :key="comment.title"
+          >
+            <div class="comment-infos">
+              <img
+                v-if="comment.image"
+                :src="comment.image"
+                :alt="'Profile picture of ' + comment.username"
+              />
+              <p class="comment-username">{{ comment.username }}</p>
+              <p class="comment-date">{{ dateFormatter(comment.date) }}</p>
+            </div>
+            <div class="comment-content">
+              <p>{{ comment.content }}</p>
+            </div>
+            <div class="comment-actions">
+              <div
+                class="comment-owner-actions"
+                v-if="user.id == comment.userId"
+              >
+                <i class="fa-solid fa-trash"></i>
               </div>
             </div>
-          </transition-group>
+          </div>
         </div>
         <!-- End comment -->
         <transition name="fade">
@@ -193,12 +191,6 @@ import UserInfos from '@/components/UserInfos.vue';
 import Mixins from '../mixins/Mixins.js';
 import axios from 'axios';
 
-const ls = JSON.parse(localStorage.getItem('user'));
-
-const headers = {
-  'Content-type': 'application/json',
-  Authorization: 'Bearer ' + ls.token,
-};
 const url = 'http://localhost:3000/api/';
 export default {
   name: 'SinglePost',
@@ -240,6 +232,10 @@ export default {
     /*=====================================*/
     getPost() {
       const postId = this.postId;
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
 
       axios
         .get(`${url}post/filteredPost/${postId}`, { headers })
@@ -254,6 +250,10 @@ export default {
     deletePost() {
       const postId = this.postId;
       const userId = this.user.userId;
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
 
       axios
         .delete(`${url}post/delete/${postId}/${userId}`, { headers })
@@ -270,6 +270,10 @@ export default {
     updatePost() {
       const postId = this.postId;
       const updatedPost = new FormData(event.target);
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
 
       axios
         .put(`${url}post/update/${postId}`, updatedPost, { headers })
@@ -297,6 +301,10 @@ export default {
     likePost() {
       const postId = this.postId;
       const userId = this.user.userId;
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
 
       axios
         .get(`${url}like/${postId}/${userId}`, { headers })
@@ -318,6 +326,10 @@ export default {
         userId: this.user.userId,
         postId: this.$route.params.id,
       };
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
 
       axios
         .post(`${url}comment`, comment, { headers })
@@ -338,6 +350,11 @@ export default {
     getComments() {
       const postId = this.postId;
       const offset = this.integer;
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
+
       axios
         .get(`${url}comment/limited/${postId}/${offset}`, {
           headers,
@@ -398,6 +415,11 @@ export default {
       this.$router.push('/');
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
+
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
 
       // GET THE POST
       const postId = this.$route.params.id;

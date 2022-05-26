@@ -20,10 +20,8 @@ module.exports = (req, res, next) => {
           next();
         }
       });
-    } else {
-      next();
     }
   } catch (error) {
-    res.status(401).json({ message: 'Request not authentified' });
+    return res.status(401).json({ message: 'Request not authentified' });
   }
 };

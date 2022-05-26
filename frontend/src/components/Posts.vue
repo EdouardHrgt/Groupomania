@@ -83,88 +83,88 @@
 
       <!-- ###### ALL POSTS ###### -->
       <section class="all-posts-container">
-
         <!-- 1 post -->
         <transition-group name="list" tag="div">
-        <div
-          class="post-container"
-          v-for="(post, postIndex) in posts"
-          :key="post.id"
-        >
-          <!-- The post -->
-          <section class="unique__post" v-if="post" ref="post">
-            <div class="infos">
-              <div class="author">
+          <div
+            class="post-container"
+            v-for="(post, postIndex) in posts"
+            :key="post.id"
+          >
+            <!-- The post -->
+            <section class="unique__post" v-if="post" ref="post">
+              <div class="infos">
+                <div class="author">
+                  <img
+                    v-if="post.image"
+                    :src="post.image"
+                    :alt="'picture of ' + post.username"
+                  />
+                  <p class="username">
+                    By:
+                    <strong>{{ post.username }}</strong>
+                  </p>
+                </div>
+                <p class="date">{{ dateFormatter(post.date) }}</p>
+              </div>
+              <div class="content" @click="toPost(post.id)">
                 <img
-                  v-if="post.image"
-                  :src="post.image"
-                  :alt="'picture of ' + post.username"
+                  v-if="post.imageUrl != 'noImg'"
+                  :src="post.imageUrl"
+                  :alt="post.title + 'from' + post.username"
                 />
-                <p class="username">
-                  By:
-                  <strong>{{ post.username }}</strong>
+                <strong class="post-title">
+                  {{ post.title }}
+                </strong>
+                <p>
+                  {{ post.content }}
                 </p>
               </div>
-              <p class="date">{{ dateFormatter(post.date) }}</p>
-            </div>
-            <div class="content" @click="toPost(post.id)">
-              <img
-                v-if="post.imageUrl != 'noImg'"
-                :src="post.imageUrl"
-                :alt="post.title + 'from' + post.username"
-              />
-              <strong class="post-title">
-                {{ post.title }}
-              </strong>
-              <p>
-                {{ post.content }}
-              </p>
-            </div>
-            <div class="actions">
-              <button @click="showCommentForm(postIndex)">
-                Comment
-                <i class="fa-solid fa-paper-plane"></i>
-              </button>
-              <button @click="debounce(post.id, postIndex)">
-                Like <i class="fa-solid fa-heart"></i>
-                <span v-show="post.totalLikes > 0">{{ post.totalLikes }}</span>
-              </button>
-              <button @click="toPost(post.id)">
-                See More
-                <i class="fa-solid fa-envelope"></i>
-                <span>{{ post.totalComms }}</span>
-              </button>
-            </div>
-          </section>
+              <div class="actions">
+                <button @click="showCommentForm(postIndex)">
+                  Comment
+                  <i class="fa-solid fa-paper-plane"></i>
+                </button>
+                <button @click="debounce(post.id, postIndex)">
+                  Like <i class="fa-solid fa-heart"></i>
+                  <span v-show="post.totalLikes > 0">{{
+                    post.totalLikes
+                  }}</span>
+                </button>
+                <button @click="toPost(post.id)">
+                  See More
+                  <i class="fa-solid fa-envelope"></i>
+                  <span>{{ post.totalComms }}</span>
+                </button>
+              </div>
+            </section>
 
-          <!-- Comment form -->
-          <div class="comment-form-container" v-if="commentForm == postIndex">
-            <form @submit.prevent="newComment(post.id, postIndex)">
-              <div class="form-group">
-                <label for="content">Comment :</label>
-                <input
-                  type="textarea"
-                  name="content"
-                  id="content"
-                  placeholder="Content of your comment..."
-                  required
-                  maxlength="250"
-                  v-model="comment"
-                  minlength="5"
-                />
-              </div>
-              <div class="form-group">
-                <button type="submit">Comment !</button>
-              </div>
-            </form>
+            <!-- Comment form -->
+            <div class="comment-form-container" v-if="commentForm == postIndex">
+              <form @submit.prevent="newComment(post.id, postIndex)">
+                <div class="form-group">
+                  <label for="content">Comment :</label>
+                  <input
+                    type="textarea"
+                    name="content"
+                    id="content"
+                    placeholder="Content of your comment..."
+                    required
+                    maxlength="250"
+                    v-model="comment"
+                    minlength="5"
+                  />
+                </div>
+                <div class="form-group">
+                  <button type="submit">Comment !</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- End comment form-->
           </div>
-
-          <!-- End comment form-->
-        </div>
         </transition-group>
 
         <!-- End post -->
-
       </section>
 
       <!-- End all posts -->
@@ -179,12 +179,6 @@ import Profile from '@/components/Profile.vue';
 import Mixins from '../mixins/Mixins.js';
 
 const url = 'http://localhost:3000/api/';
-const ls = JSON.parse(localStorage.getItem('user'));
-const headers = {
-  'Content-type': 'application/json',
-  Authorization: 'Bearer ' + ls.token,
-};
-
 export default {
   name: 'Posts',
 
@@ -227,6 +221,10 @@ export default {
     },
 
     getAllPosts() {
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
       axios
         .get(`${url}post`, { headers })
         .then((res) => {
@@ -242,7 +240,10 @@ export default {
     newPost(event) {
       const userId = String(this.user.userId);
       let post = new FormData(event.target);
-
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
       axios
         .post(`${url}post/${userId}`, post, { headers })
         .then((res) => {
@@ -270,7 +271,10 @@ export default {
     likePost(idPost, index) {
       const postId = String(idPost);
       const userId = String(this.user.userId);
-
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
       axios
         .get(`${url}like/${postId}/${userId}`, { headers })
         .then((res) => {
@@ -285,7 +289,10 @@ export default {
 
     getLikes(idPost, index) {
       const postId = String(idPost);
-
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
       axios
         .get(`${url}like/${postId}`, { headers })
         .then((res) => {
@@ -311,7 +318,10 @@ export default {
         userId: this.user.userId,
         postId: idPost,
       };
-
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
       axios
         .post(`${url}comment`, comment, { headers })
         .then((res) => {
@@ -352,6 +362,10 @@ export default {
       this.$router.push('/');
     } else {
       this.user = JSON.parse(localStorage.getItem('user'));
+      const headers = {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + this.user.token,
+      };
       this.loading = true;
 
       axios

@@ -84,6 +84,7 @@ export default {
         })
         .then((res) => {
           this.user = res.data;
+          console.log(res.data);
           localStorage.setItem('user', JSON.stringify(this.user));
           this.valid = 'User logged successfully';
           this.error = false;

@@ -46,7 +46,6 @@ exports.signUp = (req, res, next) => {
     const uuid = JSON.stringify(rng);
 
     if (emailValidator.validate(email)) {
-
       let password = req.body.password;
 
       bcrypt.hash(password, 10).then((hash) => {
@@ -81,15 +80,13 @@ exports.logIn = (req, res, next) => {
         return res.status(400).json(err);
       }
       if (result.length > 0) {
-
         bcrypt.compare(password, result[0].password).then((valid) => {
-
           if (!valid) {
             return res
               .status(404)
               .json({ message: 'password do not match...' });
           }
-          
+
           return res.status(200).json({
             userId: result[0].id,
             username: result[0].username,
@@ -205,7 +202,6 @@ exports.deleteUser = (req, res, next) => {
     db.query(models.selectOneUser, userId, (err, result, fields) => {
       if (err) {
         return res.status(400).json(err);
-
       } else if (result[0].id != decodedToken.userId) {
         if (decodedToken.permission == 'admin') {
           if (result[0].image != defaultPicture) {
@@ -218,14 +214,11 @@ exports.deleteUser = (req, res, next) => {
               }
             });
           }
-
         } else {
           return res.status(401).json(err);
         }
-
       } else if (result[0].image == defaultPicture) {
         console.log('No custom picture for this user...');
-
       } else {
         const filename = result[0].image.split('/images/')[1];
         fs.unlink(`images/${filename}`, (err) => {
@@ -237,7 +230,7 @@ exports.deleteUser = (req, res, next) => {
         });
       }
     });
-    
+
     db.query(models.deleteUser, userId, (err, result, fields) => {
       if (err) {
         return res.status(400).json(err);
