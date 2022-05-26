@@ -133,7 +133,7 @@
                 <button @click="toPost(post.id)">
                   See More
                   <i class="fa-solid fa-envelope"></i>
-                  <span>{{ post.totalComms }}</span>
+                  <span v-if="post.totalComms > 0">{{ post.totalComms }}</span>
                 </button>
               </div>
             </section>
