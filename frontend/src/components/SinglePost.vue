@@ -177,10 +177,7 @@
           </div>
         </div>
         <!-- End comment -->
-        <transition name="fade">
-          <p class="err-msg" v-show="errorMsg">{{ errorMsg }}</p>
-        </transition>
-        <button class="more" @click="getComments">See More Comments</button>
+        <button class="more" @click="getComments">{{ msgBtn }}</button>
       </section>
     </main>
   </div>
@@ -207,8 +204,8 @@ export default {
       comments: [],
       comment: '',
 
-      //Errors handler
-      errorMsg: '',
+      //messages handler
+      msgBtn: 'See More Comments',
 
       //Unused responses
       trash: null,
@@ -361,12 +358,10 @@ export default {
         })
         .then((res) => {
           if (res.status == 204) {
-            this.errorMsg = 'No comments to display';
-            setTimeout(() => {
-              this.errorMsg = '';
-            }, 1000);
+            this.msgBtn = 'No more comments';
           } else {
             this.addtoComments(this.comments, res.data);
+            this.msgBtn = 'See more comments';
           }
         })
         .catch((err) => {

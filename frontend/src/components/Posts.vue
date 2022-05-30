@@ -664,21 +664,17 @@ header li span {
 }
 .actions button {
   background-color: transparent;
-  border: 1px solid var(--gray);
   font-family: var(--font-3);
   letter-spacing: 1.5px;
   width: 8.5rem;
   margin: 0 0.5rem;
   cursor: pointer;
-  transition: 0.4s;
   display: flex;
   align-items: baseline;
   justify-content: center;
 }
 .actions button:hover {
-  background-color: var(--transp1);
-  opacity: 0.7;
-  color: white;
+  outline: 1px solid var(--primary);
 }
 .actions button i {
   margin-left: 1rem;

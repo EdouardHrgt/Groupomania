@@ -52,15 +52,11 @@ const likesTable = `CREATE TABLE IF NOT EXISTS likes (
     CONSTRAINT likesUserId FOREIGN KEY (userId) REFERENCES user (id) ON DELETE CASCADE ON UPDATE CASCADE
   ) ENGINE=InnoDB AUTO_INCREMENT=181 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci`;
 
-const insertAdmin = `SELECT * FROM newdb.user;
-INSERT INTO user (username, email, password, id, permission) 
-VALUES (?,?,?,?,?);`;
-
 module.exports = {
   createDB,
   userTable,
   postsTable,
   commentsTable,
   likesTable,
-  insertAdmin,
+
 };

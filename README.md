@@ -4,9 +4,10 @@ By Edouard Herrengt, Student at OpenClassrooms (October 2021 - June 2022).
 Project n°7 : build an intern social network for 'Groupomania Inc'.
 
 Technologies used :
-Backend : `[NodeJs, Express, MySQL Workbench ]`
-Fontend : `[Vue-cli, Axios, Vuex, vue-router, HTML5, CSS3 ]`
-Assets and Svgs from : `[https://www.svgbackgrounds.com/, https://www.pexels.com/]`
+
+Backend : `[ NodeJs, Express, MySQL Workbench ]`
+Fontend : `[ Vue-cli, Axios, Vuex, vue-router, HTML5, CSS3 ]`
+Assets and Svgs from : `[ https://www.svgbackgrounds.com/, https://www.pexels.com/ ]`
 
 ## Installation :
 
@@ -24,5 +25,6 @@ Assets and Svgs from : `[https://www.svgbackgrounds.com/, https://www.pexels.com
 3. run server with command : `npm run serve`
 
 #### DataBase (MySQL Workbench) :
-Import sql file database in mysqlWorkbench -- Contact me to get it
+Import SQL dump file from `/DB-dump-file` in your own Mysql GUI
+ 
 

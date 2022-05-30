@@ -250,6 +250,7 @@ exports.rankUser = (req, res, next) => {
     const token = req.headers.authorization.split(' ')[1];
     const decodedToken = jwt.verify(token, process.env.TOKEN);
     const permission = decodedToken.permission;
+
     if (permission == 'admin') {
       const rank = req.body.rank;
       const userId = req.body.id;

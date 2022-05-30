@@ -13,14 +13,12 @@
         <div class="form-group">
           <label for="username">Username : </label>
           <input
-            pattern=".*\S+.*"
             type="text"
             name="username"
             placeholder="Enter your Name"
             maxlength="50"
             minLength="3"
             required
-            oninvalid="this.setCustomValidity('Please use a real username with no blanks')"
           />
         </div>
         <div class="form-group">
